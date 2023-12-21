@@ -1,26 +1,29 @@
-# Project/Repo Title
+# package-ApplyPolygenicScore
 
-Template Repository for the Boutros Lab R package repos. Describe a simple overview of use/purpose here.
-
-## How to Use This Template
-
-- Replace all placeholder text in the sections below.
-
-- Update metadata.yaml and DESCRIPTION with your project title, contributors, etc.
-
-- Replace all occurrences of `BoutrosLabTemplate` in .github/workflows/R-CMD-check.yaml with your project title (same as title in in DESCRIPTION).
+A package that provides utilities for the application of an existing polygenic score to a VCF.
+Matches coordinates of a provided polygenic score weight file to VCF input and calculates weighted sum of dosages in each individual.
 
 ## Description
+This tool is intended to simply and transparently parse genotype/dosage data from an input VCF, match genotype coordinates to the component SNPs of an existing polygenic score, and apply SNP weights to dosages to calculate a polygenic score for each individual in accordance with the additive weighted sum of dosages model.
 
-An in-depth paragraph about your project and overview of use.
+### Inputs
+ApplyPolygenicScore needs only two inputs: 
+1. Genotype data of the individuals upon which you wish to apply a polygenic score.
+2. Coordinates of each SNP that compose the polygenic score you with to apply, and their associated weights (weight file).
+
+#### Genotype data
+Genotype data should be provided in the form of a VCF file. If you wish to apply a PGS to a cohort, we recommend that genotypes for the whole cohort be aggregated in one VCF file, ideally through a regenotyping process, or through VCF merging with a tool like bcftools. To reduce memory usage and improve speed of PGS application, we recommend pre-filtering the input VCF for only the coordinates that compose the PGS you wish to apply. This action can be performed using a coordinate BED file and tools such as bcftools or bedtools. To facilitate this process, ApplyPolygenicScore provides a function that outputs a BED file containing coordinates for any number of PGS weight files provided as input.
+
+#### PGS weight file
+[Discuss non-standardized sources including PGS catalog. Discuss importance of matching reference genome, related harmonization, liftover, and VCF formatting differences like "chr" prefix. Discuss weight format e.g. Odds Ratio vs beta.]
 
 ## License
 
-Author: Name1(username1@mednet.ucla.edu), Name2(username2@mednet.ucla.edu)
+Author: Nicole Zeltser(nzeltser@mednet.ucla.edu)
 
-[This project] is licensed under the GNU General Public License version 2. See the file LICENSE.md for the terms of the GNU GPL license.
+package-ApplyPolygenicScore is licensed under the GNU General Public License version 2. See the file LICENSE.md for the terms of the GNU GPL license.
 
-<one line to give the project/program's name and a brief idea of what it does.>
+A package that provides utilities for the application of an existing polygenic score to a VCF.
 
 Copyright (C) 2021 University of California Los Angeles ("Boutros Lab") All rights reserved.
 
