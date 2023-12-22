@@ -24,6 +24,12 @@ parse.pgs.input.header <- function(input) {
 
 # function for importing a PGS weight file formatted according to PGS catalog guidelines
 import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
+
+    # check that only one weight format has been requested
+    if (use.OR & use.HR) {
+        stop('Only one weight format can be requested at a time. Please choose OR, HR, or neither (defaults to beta).');
+        }
+
     # parse file header
     file.metadata <- parse.pgs.input.header(input = input);
 
@@ -64,6 +70,29 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         # label non-harmonized data columns with standardized names
         pgs.weight.data$CHROM <- pgs.weight.data$chr_name;
         pgs.weight.data$POS <- pgs.weight.data$chr_position;
+        }
+
+    # extract weight format from file metadata key 'weight_type'
+    weight.format <- file.metadata$file.header$value[file.metadata$file.header$key == 'weight_type'];
+
+    # check if weight format is provided (NR by default)
+    if (weight.format == 'NR') {
+        # report a warning that weight format was Not Reported
+        warning('Weight format was not reported in the PGS file header. Assuming beta weights.');
+        }
+    
+    if (weight.format == 'NR' | grepl('beta', weight.format, ignore.case = TRUE)) {
+        pgs.weight.data$beta <- as.numeric(pgs.weight.data$effect_weight);
+
+        } else if (grepl('OR|HR', weight.format, ignore.case = TRUE)) {
+        # if weight format is OR/HR, convert to numeric and then to beta
+        pgs.weight.data$beta <- log(as.numeric(pgs.weight.data$effect_weight));
+        # report a warning that OR/HR weights were converted to beta
+        warning('OR/HR weights were converted to beta weights.');
+
+        } else {
+        # if weight format is not recognized, throw an error
+        stop('Weight format is not recognized. Please provide beta or OR/HR weights.');
         }
 
     result <- list(
