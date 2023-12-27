@@ -89,6 +89,10 @@ merge.pgs.bed <- function(pgs.bed.list, slop = 0) {
     # sort by chromosome and position
     merged.bed <- merged.bed[order(merged.bed$chr, merged.bed$start), ];
 
+    # add slop
+    merged.bed$start <- merged.bed$start - slop;
+    merged.bed$end <- merged.bed$end + slop;
+
     # return merged BED file
     return(merged.bed);
     }
