@@ -23,10 +23,17 @@ parse.pgs.input.header <- function(input) {
     # check if file is zipped
     if (grepl('.gz$', input)) {
         # unzip file
-        input <- gunzip(input);
+        input.connection <- gzfile(input);
+        } else {
+        # open file connection
+        input.connection <- file(input);
         }
 
     file <- readLines(input);
+
+    # close file connection
+    close(input.connection);
+
     # identify file header
     file.header <- file[grepl('^#', file)];
     # remove leading '#' from file header

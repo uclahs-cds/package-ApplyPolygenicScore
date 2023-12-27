@@ -26,3 +26,23 @@ test_that(
             );
         }
     );
+
+test_that(
+    'parse.pgs.input.header works correctly on unzipped input', {
+        load('data/import.test.data.Rda');
+        expect_equal(
+            parse.pgs.input.header(input = 'data/PGS000662_hmPOS_GRCh38.txt'),
+            import.test.data$PGS00662.metadata
+            );
+        }
+    );
+
+test_that(
+    'parse.pgs.input.header works correctly on zipped input', {
+        load('data/import.test.data.Rda');
+        expect_equal(
+            parse.pgs.input.header(input = 'data/PGS000662_hmPOS_GRCh38.txt.gz'),
+            import.test.data$PGS00662.metadata
+            );
+        }
+    );
