@@ -1,3 +1,23 @@
+
+# function that checks for the presence of required columns in a PGS weight file
+check.pgs.weight.columns <- function(x, harmonized = TRUE) {
+    required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
+    required.harmonized.columns <- c('hm_chr', 'hm_pos');
+
+    if (harmonized) {
+        required.columns <- c(required.generic.columns, required.harmonized.columns);
+        } else {
+        required.columns <- required.generic.columns;
+        }
+
+    if (!all(required.columns %in% x)) {
+        stop('The following required columns are missing from the PGS weight file: ', paste(setdiff(required.columns, x), collapse = ', '));
+        }
+    
+    return(TRUE);
+    }
+
+
 # function for parsing metadata from a file header that is indicated by '#' or '##'
 parse.pgs.input.header <- function(input) {
     # check if file is zipped
@@ -53,6 +73,9 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
 
     # close file connection
     close(input.connection);
+
+    # check that required columns are present
+    check.pgs.weight.columns(x = colnames(pgs.weight.data), harmonized = use.harmonized.data);
 
     # check if file is harmonized and format columns accordingly
     if (use.harmonized.data) {
