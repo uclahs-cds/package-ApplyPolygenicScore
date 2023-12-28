@@ -52,11 +52,6 @@ parse.pgs.input.header <- function(input) {
 # function for importing a PGS weight file formatted according to PGS catalog guidelines
 import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
 
-    # check that only one weight format has been requested
-    if (use.OR & use.HR) {
-        stop('Only one weight format can be requested at a time. Please choose OR, HR, or neither (defaults to beta).');
-        }
-
     # parse file header
     file.metadata <- parse.pgs.input.header(input = input);
 
@@ -78,32 +73,25 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         stringsAsFactors = FALSE
         );
 
-    # close file connection
-    close(input.connection);
-
     # check that required columns are present
     check.pgs.weight.columns(x = colnames(pgs.weight.data), harmonized = use.harmonized.data);
 
     # check if file is harmonized and format columns accordingly
     if (use.harmonized.data) {
-        if (any(file.metadata$file.header$key == 'HmPOS_build')) {
-            # label harmonized data columns with standardized names
-            pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
-            pgs.weight.data$POS <- pgs.weight.data$hm_pos;
-            format.harmonized.columns = TRUE
-            }
-        else {
-            # throw an error if harmonized data is requested but not available
-            stop('Harmonized data is not available for this PGS');
-            }
+
+        # label harmonized data columns with standardized names
+        pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
+        pgs.weight.data$POS <- pgs.weight.data$hm_pos;
+        format.harmonized.columns = TRUE
         } else {
+
         # label non-harmonized data columns with standardized names
         pgs.weight.data$CHROM <- pgs.weight.data$chr_name;
         pgs.weight.data$POS <- pgs.weight.data$chr_position;
         }
 
     # extract weight format from file metadata key 'weight_type'
-    weight.format <- file.metadata$file.header$value[file.metadata$file.header$key == 'weight_type'];
+    weight.format <- file.metadata$value[file.metadata$key == 'weight_type'];
 
     # check if weight format is provided (NR by default)
     if (weight.format == 'NR') {
@@ -122,12 +110,12 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
 
         } else {
         # if weight format is not recognized, throw an error
-        stop('Weight format is not recognized. Please provide beta or OR/HR weights.');
+        stop('Weight format is not recognized. Please specify whether weights are betas or OR/HR.');
         }
 
     result <- list(
-        pgs.weight.data = pgs.weight.data,
-        file.metadata = file.metadata
+        file.metadata = file.metadata,
+        pgs.weight.data = pgs.weight.data
         );
 
     return(result);
