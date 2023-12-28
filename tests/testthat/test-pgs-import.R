@@ -194,3 +194,40 @@ test_that(
             );
         }
     );
+
+test_that(
+    'import.pgs.weight.file recognizes unreported weight format', {
+      # check that a warning is issued
+        expect_warning(
+            import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-NR.txt', use.harmonized.data = FALSE),
+            'Weight format was not reported in the PGS file header. Assuming beta weights.'
+            );
+
+        # check that the weight format is assumed to be beta
+        beta.weights <- import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-NR.txt', use.harmonized.data = FALSE);
+        expect_equal(
+            beta.weights$pgs.weight.data$beta,
+            as.numeric(beta.weights$pgs.weight.data$effect_weight)
+            );
+
+        }
+    );
+
+test_that(
+    'import.pgs.weight.file correctly formats OR/HR weights', {
+        # import beta weights
+        beta.weights <- import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-OR.txt', use.harmonized.data = FALSE);
+
+        # check that warning is issued
+        expect_warning(
+            import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-OR.txt', use.harmonized.data = FALSE),
+            'OR/HR weights were converted to beta weights.'
+            );
+
+        # check that OR weights are converted to beta
+        expect_equal(
+            beta.weights$pgs.weight.data$beta,
+            log(as.numeric(beta.weights$pgs.weight.data$effect_weight))
+            );
+        }
+    );
