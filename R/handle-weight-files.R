@@ -13,7 +13,7 @@ check.pgs.weight.columns <- function(x, harmonized = TRUE) {
     if (!all(required.columns %in% x)) {
         stop('The following required columns are missing from the PGS weight file: ', paste(setdiff(required.columns, x), collapse = ', '));
         }
-    
+
     return(TRUE);
     }
 
@@ -63,7 +63,7 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         # open file connection
         input.connection <- file(input);
         }
-    
+
     # read in data frame
     pgs.weight.data <- read.table(
         file = input.connection,
@@ -82,7 +82,7 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         # label harmonized data columns with standardized names
         pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
         pgs.weight.data$POS <- pgs.weight.data$hm_pos;
-        format.harmonized.columns = TRUE
+        format.harmonized.columns <- TRUE
         } else {
 
         # label non-harmonized data columns with standardized names
@@ -98,7 +98,7 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         # report a warning that weight format was Not Reported
         warning('Weight format was not reported in the PGS file header. Assuming beta weights.');
         }
-    
+
     if (weight.format == 'NR' | grepl('beta', weight.format, ignore.case = TRUE)) {
         pgs.weight.data$beta <- as.numeric(pgs.weight.data$effect_weight);
 
