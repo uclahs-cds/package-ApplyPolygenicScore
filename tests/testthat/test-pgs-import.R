@@ -57,7 +57,7 @@ test_that(
 test_that(
     'check.pgs.weight.columns accepts complete column set', {
         # check that required columns are present
-        expect_silent(
+        expect_true(
             check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
             );
         }
