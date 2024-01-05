@@ -1,5 +1,12 @@
-
-# function that checks for the presence of required columns in a PGS weight file
+#' @title Check PGS weight file columns
+#' @description Check that a PGS weight file contains the required columns.
+#' @param x A character vector of column names.
+#' @param harmonized A logical indicating whether the presence of harmonized columns should be checked.
+#' @return A logical indicating whether the file contains the required columns.
+#' @export
+#' @examples
+#' check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight'))
+#' check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
 check.pgs.weight.columns <- function(x, harmonized = TRUE) {
     required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
     required.harmonized.columns <- c('hm_chr', 'hm_pos');
@@ -17,17 +24,26 @@ check.pgs.weight.columns <- function(x, harmonized = TRUE) {
     return(TRUE);
     }
 
-
-# function for parsing metadata from a file header that is indicated by '#' or '##'
-parse.pgs.input.header <- function(input) {
+# utility function for checking if a file is gzipped and opening a connection accordingly
+open.input.connection <- function(input) {
     # check if file is zipped
     if (grepl('.gz$', input)) {
-        # unzip file
         input.connection <- gzfile(input);
         } else {
-        # open file connection
         input.connection <- file(input);
         }
+
+    return(input.connection);
+    }
+
+#' @title Parse PGS input file header
+#' @description Parse metadata from a PGS input file header.
+#' @param input A character string indicating the path to the input file.
+#' @return A data frame containing the metadata from the file header.
+#' @export
+parse.pgs.input.header <- function(input) {
+    # open file connection
+    input.connection <- open.input.connection(input);
 
     file <- readLines(input);
 
@@ -50,19 +66,19 @@ parse.pgs.input.header <- function(input) {
     }
 
 # function for importing a PGS weight file formatted according to PGS catalog guidelines
+#' @title Import PGS weight file
+#' @description Import a PGS weight file formatted according to PGS catalog guidelines, and prepare for PGS application.
+#' @param input A character string indicating the path to the input file.
+#' @param use.harmonized.data A logical indicating whether the file should be formatted to indicate harmonized data columns for use in future PGS application.
+#' @return A list containing the file metadata and the weight data.
+#' @export
 import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
 
     # parse file header
     file.metadata <- parse.pgs.input.header(input = input);
 
-    # check if file is zipped
-    if (grepl('.gz$', input)) {
-        # unzip file
-        input.connection <- gzfile(input);
-        } else {
-        # open file connection
-        input.connection <- file(input);
-        }
+    # open file connection
+    input.connection <- open.input.connection(input);
 
     # read in data frame
     pgs.weight.data <- read.table(
@@ -82,7 +98,7 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         # label harmonized data columns with standardized names
         pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
         pgs.weight.data$POS <- pgs.weight.data$hm_pos;
-        format.harmonized.columns <- TRUE
+        format.harmonized.columns <- TRUE;
         } else {
 
         # label non-harmonized data columns with standardized names
