@@ -231,3 +231,13 @@ test_that(
             );
         }
     );
+
+test_that(
+    'import.pgs.weight.file throws an error for unrecognized weight format', {
+        # check that an error is thrown
+        expect_error(
+            import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-foo.txt', use.harmonized.data = FALSE),
+            'Weight format is not recognized. Please specify whether weights are betas or OR/HR.'
+            );
+        }
+    );
