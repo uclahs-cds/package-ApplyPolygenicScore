@@ -135,5 +135,4 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         );
 
     return(result);
-
     }
