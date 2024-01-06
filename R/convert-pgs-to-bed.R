@@ -4,22 +4,35 @@
 # chr.prefix = Bool, whether to add the 'chr' prefix to CHROM name
 # chr.X = Bool, whether to use 'X' for X-chromosome notation. If false, use numeric '23'.
 # slop = int, extra distance in bp to add to the interval on either side
-convert.pgs.to.bed <- function(data, chr.prefix = TRUE, chr.X = TRUE, slop = 0) {
-
-    ## standardize X chromosome notation as requested ##
-    # remove 'chr' strings from PRS CHROM by default
-	data$CHROM <- gsub('chr', '', data$CHROM);
-    # set to 'X' by default
-    data$CHROM <- gsub('23', 'X', data$CHROM);
-    # apply chr.X setting
-    if (!chr.X) {
-        data$CHROM <- gsub('X', '23', data$CHROM);
+convert.pgs.to.bed <- function(data, chr.prefix = TRUE, numeric.sex.chr = FALSE, slop = 0) {
+    # check that data is a data.frame
+    if (!is.data.frame(data)) {
+        stop('data must be a data.frame');
         }
 
-	## standardize chromosome prefix as requested ##
-    # if chr.prefix is true, add 'chr' back to CHROM column
+    # check that data has CHROM and POS columns
+    if (!all(c('CHROM', 'POS') %in% colnames(data))) {
+        stop('data must have CHROM and POS columns');
+        }
+
+    # check that slop is a non-negative integer
+    if (!is.numeric(slop) | slop < 0) {
+        stop('slop must be a non-negative integer');
+        }
+
+    # convert CHROM to default format (no 'chr' prefix, alphabetic sex chromosomes)
+	data$CHROM <- gsub('chr', '', data$CHROM);
+    data$CHROM <- gsub('23', 'X', data$CHROM);
+    data$CHROM <- gsub('24', 'Y', data$CHROM);
+
+    # apply requested CHROM formatting
     if (chr.prefix) {
         data$CHROM <- paste0('chr', data$CHROM);
+        }
+
+    if (numeric.sex.chr) {
+        data$CHROM <- gsub('X', '23', data$CHROM);
+        data$CHROM <- gsub('Y', '24', data$CHROM);
         }
 
     ## assemble BED file ##
@@ -29,10 +42,22 @@ convert.pgs.to.bed <- function(data, chr.prefix = TRUE, chr.X = TRUE, slop = 0) 
 		start = data$POS - 1,
 		end = data$POS
 		);
+    # check for negative start coordinates, report an error
+    if (any(prs.bed$start < 0)) {
+        stop('0-indexing caused negative start coordinates.');
+        }
 
     # add slop
-    prs.bed$start <- prs.bed$start - slop;
-    prs.bed$end <- prs.bed$end + slop;
+    if (slop > 0) {
+        prs.bed$start <- prs.bed$start - slop;
+        prs.bed$end <- prs.bed$end + slop;
+
+        # check for negative start coordinates, replace with 0, and issue a warning
+        if (any(prs.bed$start < 0)) {
+            prs.bed$start[prs.bed$start < 0] <- 0;
+            warning('Slop caused negative start coordinates; replacing with 0.');
+            }
+        }
 
 	# concat with the rest of the prs columns
 	prs.bed <- cbind(prs.bed, subset(data, select = -c(CHROM, POS)));
