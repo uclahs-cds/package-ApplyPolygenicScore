@@ -1,13 +1,13 @@
 #' @title Check PGS weight file columns
 #' @description Check that a PGS weight file contains the required columns.
-#' @param x A character vector of column names.
+#' @param pgs.weight.colnames A character vector of column names.
 #' @param harmonized A logical indicating whether the presence of harmonized columns should be checked.
 #' @return A logical indicating whether the file contains the required columns.
 #' @export
 #' @examples
 #' check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight'))
 #' check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
-check.pgs.weight.columns <- function(x, harmonized = TRUE) {
+check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
     required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
     required.harmonized.columns <- c('hm_chr', 'hm_pos');
 
@@ -17,8 +17,8 @@ check.pgs.weight.columns <- function(x, harmonized = TRUE) {
         required.columns <- required.generic.columns;
         }
 
-    if (!all(required.columns %in% x)) {
-        stop('The following required columns are missing from the PGS weight file: ', paste(setdiff(required.columns, x), collapse = ', '));
+    if (!all(required.columns %in% pgs.weight.colnames)) {
+        stop('The following required columns are missing from the PGS weight file: ', paste(setdiff(required.columns, pgs.weight.colnames), collapse = ', '));
         }
 
     return(TRUE);
@@ -38,14 +38,14 @@ open.input.connection <- function(input) {
 
 #' @title Parse PGS input file header
 #' @description Parse metadata from a PGS input file header.
-#' @param input A character string indicating the path to the input file.
+#' @param pgs.weight.path A character string indicating the path to the pgs weight file.
 #' @return A data frame containing the metadata from the file header.
 #' @export
-parse.pgs.input.header <- function(input) {
+parse.pgs.input.header <- function(pgs.weight.path) {
     # open file connection
-    input.connection <- open.input.connection(input);
+    input.connection <- open.input.connection(input = pgs.weight.path);
 
-    file <- readLines(input);
+    file <- readLines(input.connection);
 
     # close file connection
     close(input.connection);
@@ -68,17 +68,17 @@ parse.pgs.input.header <- function(input) {
 # function for importing a PGS weight file formatted according to PGS catalog guidelines
 #' @title Import PGS weight file
 #' @description Import a PGS weight file formatted according to PGS catalog guidelines, and prepare for PGS application.
-#' @param input A character string indicating the path to the input file.
+#' @param pgs.weight.path A character string indicating the path to the pgs weight file.
 #' @param use.harmonized.data A logical indicating whether the file should be formatted to indicate harmonized data columns for use in future PGS application.
 #' @return A list containing the file metadata and the weight data.
 #' @export
-import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
+import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) {
 
     # parse file header
-    file.metadata <- parse.pgs.input.header(input = input);
+    file.metadata <- parse.pgs.input.header(pgs.weight.path = pgs.weight.path);
 
     # open file connection
-    input.connection <- open.input.connection(input);
+    input.connection <- open.input.connection(input = pgs.weight.path);
 
     # read in data frame
     pgs.weight.data <- read.table(
@@ -90,7 +90,7 @@ import.pgs.weight.file <- function(input, use.harmonized.data = TRUE) {
         );
 
     # check that required columns are present
-    check.pgs.weight.columns(x = colnames(pgs.weight.data), harmonized = use.harmonized.data);
+    check.pgs.weight.columns(pgs.weight.colnames = colnames(pgs.weight.data), harmonized = use.harmonized.data);
 
     # check if file is harmonized and format columns accordingly
     if (use.harmonized.data) {
