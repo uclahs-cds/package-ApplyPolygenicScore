@@ -1,17 +1,23 @@
-Package: BoutrosLabTemplate
+Package: ApplyPolygenicScore
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Utilities for the Application of a Polygenic Score to a VCF
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Nicole Zeltser
+Maintainer: The package maintainer <nzeltser@mednet.ucla.edu>
+Description: This tool is intended to simply and transparently parse
+    genotype/dosage data from an input VCF, match genotype coordinates
+    to the component SNPs of an existing polygenic score, and apply
+    SNP weights to dosages to calculate a polygenic score for each
+    individual in accordance with the additive weighted sum of dosages
+    model.
 Depends: 
     R (>= 2.10)
 Imports:
+    vcfR
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.2.3
