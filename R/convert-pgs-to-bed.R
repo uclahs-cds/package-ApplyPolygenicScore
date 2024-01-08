@@ -1,17 +1,19 @@
-### CONVERT.PGS.TO.BED ###################################################
-# convert imported and formatted PRS files to BED format
-# data = data.frame, SNP info with standardized CHROM and POS columns
-# chr.prefix = Bool, whether to add the 'chr' prefix to CHROM name
-# chr.X = Bool, whether to use 'X' for X-chromosome notation. If false, use numeric '23'.
-# slop = int, extra distance in bp to add to the interval on either side
-convert.pgs.to.bed <- function(data, chr.prefix = TRUE, numeric.sex.chr = FALSE, slop = 0) {
+#' @title Convert PGS data to BED format
+#' @description Convert imported and formatted PGS compnent SNP coordinate data to BED format.
+#' @param pgs.weight.data A data.frame containing SNP coordinate data with standardized CHROM and POS columns.
+#' @param chr.prefix A logical indicating whether the 'chr' prefix should be used when formatting chromosome name.
+#' @param numeric.sex.chr A logical indicating whether the sex chromosomes should be formatted numerically, as opposed to alphabetically.
+#' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
+#' @return A data.frame containing the PGS component SNP coordinate data in BED format.
+#' @export
+convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.chr = FALSE, slop = 0) {
     # check that data is a data.frame
-    if (!is.data.frame(data)) {
+    if (!is.data.frame(pgs.weight.data)) {
         stop('data must be a data.frame');
         }
 
     # check that data has CHROM and POS columns
-    if (!all(c('CHROM', 'POS') %in% colnames(data))) {
+    if (!all(c('CHROM', 'POS') %in% colnames(pgs.weight.data))) {
         stop('data must have CHROM and POS columns');
         }
 
@@ -21,48 +23,48 @@ convert.pgs.to.bed <- function(data, chr.prefix = TRUE, numeric.sex.chr = FALSE,
         }
 
     # convert CHROM to default format (no 'chr' prefix, alphabetic sex chromosomes)
-	data$CHROM <- gsub('chr', '', data$CHROM);
-    data$CHROM <- gsub('23', 'X', data$CHROM);
-    data$CHROM <- gsub('24', 'Y', data$CHROM);
+	pgs.weight.data$CHROM <- gsub('chr', '', pgs.weight.data$CHROM);
+    pgs.weight.data$CHROM <- gsub('23', 'X', pgs.weight.data$CHROM);
+    pgs.weight.data$CHROM <- gsub('24', 'Y', pgs.weight.data$CHROM);
 
     # apply requested CHROM formatting
     if (chr.prefix) {
-        data$CHROM <- paste0('chr', data$CHROM);
+        pgs.weight.data$CHROM <- paste0('chr', pgs.weight.data$CHROM);
         }
 
     if (numeric.sex.chr) {
-        data$CHROM <- gsub('X', '23', data$CHROM);
-        data$CHROM <- gsub('Y', '24', data$CHROM);
+        pgs.weight.data$CHROM <- gsub('X', '23', pgs.weight.data$CHROM);
+        pgs.weight.data$CHROM <- gsub('Y', '24', pgs.weight.data$CHROM);
         }
 
     ## assemble BED file ##
 	# 0-index coordinates
-	prs.bed <- data.frame(
-		chr = data$CHROM,
-		start = data$POS - 1,
-		end = data$POS
+	pgs.bed <- data.frame(
+		chr = pgs.weight.data$CHROM,
+		start = pgs.weight.data$POS - 1,
+		end = pgs.weight.data$POS
 		);
     # check for negative start coordinates, report an error
-    if (any(prs.bed$start < 0)) {
+    if (any(pgs.bed$start < 0)) {
         stop('0-indexing caused negative start coordinates.');
         }
 
     # add slop
     if (slop > 0) {
-        prs.bed$start <- prs.bed$start - slop;
-        prs.bed$end <- prs.bed$end + slop;
+        pgs.bed$start <- pgs.bed$start - slop;
+        pgs.bed$end <- pgs.bed$end + slop;
 
         # check for negative start coordinates, replace with 0, and issue a warning
-        if (any(prs.bed$start < 0)) {
-            prs.bed$start[prs.bed$start < 0] <- 0;
+        if (any(pgs.bed$start < 0)) {
+            pgs.bed$start[pgs.bed$start < 0] <- 0;
             warning('Slop caused negative start coordinates; replacing with 0.');
             }
         }
 
 	# concat with the rest of the prs columns
-	prs.bed <- cbind(prs.bed, subset(data, select = -c(CHROM, POS)));
+	pgs.bed <- cbind(pgs.bed, subset(pgs.weight.data, select = -c(CHROM, POS)));
 
-	return(prs.bed);
+	return(pgs.bed);
 	}
 
 ### MERGE.PGS.BED ##################################################

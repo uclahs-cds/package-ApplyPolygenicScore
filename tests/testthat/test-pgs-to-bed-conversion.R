@@ -2,13 +2,13 @@ test_that(
     'convert.pgs.to.bed correctly checks input', {
         # check that data is a data.frame
         expect_error(
-            convert.pgs.to.bed(data = 'not.a.data.frame'),
+            convert.pgs.to.bed(pgs.weight.data = 'not.a.data.frame'),
             'data must be a data.frame'
             );
 
         # check that data has CHROM and POS columns
         expect_error(
-            convert.pgs.to.bed(data = data.frame(
+            convert.pgs.to.bed(pgs.weight.data = data.frame(
                 chr = c('1', '2', '3'),
                 POS = c(1, 2, 3)
                 )),
@@ -17,7 +17,7 @@ test_that(
 
         # check that slop is a non-negative integer
         expect_error(
-            convert.pgs.to.bed(data = data.frame(
+            convert.pgs.to.bed(pgs.weight.data = data.frame(
                 CHROM = c('1', '2', '3'),
                 POS = c(1, 2, 3)
                 ),
@@ -28,7 +28,7 @@ test_that(
 
         # check that slop is a non-negative integer
         expect_error(
-            convert.pgs.to.bed(data = data.frame(
+            convert.pgs.to.bed(pgs.weight.data = data.frame(
                 CHROM = c('1', '2', '3'),
                 POS = c(1, 2, 3)
                 ),
@@ -39,7 +39,7 @@ test_that(
 
         # check that negative start coordinates are caught
         expect_error(
-            convert.pgs.to.bed(data = data.frame(
+            convert.pgs.to.bed(pgs.weight.data = data.frame(
                 CHROM = c('1', '2', '3'),
                 POS = c(0, 2, 3)
                 ),
@@ -50,7 +50,7 @@ test_that(
 
         # check that correct input is accepted
         expect_silent(
-            convert.pgs.to.bed(data = data.frame(
+            convert.pgs.to.bed(pgs.weight.data = data.frame(
                 CHROM = c('1', '2', '3'),
                 POS = c(1, 2, 3)
                 ))
@@ -63,7 +63,7 @@ test_that(
         load('data/tiny.pgs.test.data.Rda');
 
         # convert tiny.pgs.test.data to BED format
-        tiny.pgs.test.data.bed <- convert.pgs.to.bed(data = tiny.pgs.test.data);
+        tiny.pgs.test.data.bed <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data);
 
         # check that the output is a data.frame
         expect_equal(
@@ -90,10 +90,10 @@ test_that(
 test_that(
     'convert.pgs.to.bed correctly formats output chr column', {
         load('data/tiny.pgs.test.data.Rda');
-        test.no.chr <- convert.pgs.to.bed(data = tiny.pgs.test.data, chr.prefix = FALSE);
-        test.yes.chr <- convert.pgs.to.bed(data = tiny.pgs.test.data, chr.prefix = TRUE);
-        test.numeric.sex.chr <- convert.pgs.to.bed(data = tiny.pgs.test.data, numeric.sex.chr = TRUE);
-        test.no.numeric.sex.chr <- convert.pgs.to.bed(data = tiny.pgs.test.data, numeric.sex.chr = FALSE);
+        test.no.chr <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, chr.prefix = FALSE);
+        test.yes.chr <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, chr.prefix = TRUE);
+        test.numeric.sex.chr <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, numeric.sex.chr = TRUE);
+        test.no.numeric.sex.chr <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, numeric.sex.chr = FALSE);
 
         # check that CHROM prefix is correctly added
         expect_equal(
@@ -126,11 +126,11 @@ test_that(
 test_that(
     'convert.pgs.to.bed correctly formats output coordinates', {
         load('data/tiny.pgs.test.data.Rda');
-        test.no.slop <- convert.pgs.to.bed(data = tiny.pgs.test.data, slop = 0);
+        test.no.slop <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, slop = 0);
 
         # check that no negative start coordinate warnings are issued
         expect_silent(
-            convert.pgs.to.bed(data = tiny.pgs.test.data, slop = 0)
+            convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, slop = 0)
             );
 
         # check that coordinates are correctly converted to 0-index
@@ -149,11 +149,11 @@ test_that(
 test_that(
     'convert.pgs.to.bed correctly adds slop', {
         load('data/tiny.pgs.test.data.Rda');
-        test.small.slop <- convert.pgs.to.bed(data = tiny.pgs.test.data, slop = 1);
+        test.small.slop <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, slop = 1);
 
         # check that warning is issued for negative slop coordinates
         expect_warning(
-            convert.pgs.to.bed(data = tiny.pgs.test.data, slop = 1)
+            convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, slop = 1)
             );
         # check that slop is correctly added
         expect_equal(
@@ -165,11 +165,11 @@ test_that(
             c(2, 11, 101, 1001, 10001, 100001, 1000001, 10000001)
             );
 
-        test.large.slop <- convert.pgs.to.bed(data = tiny.pgs.test.data, slop = 100);
+        test.large.slop <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, slop = 100);
 
         # check that a warning is issued for negative start coordinates
         expect_warning(
-            convert.pgs.to.bed(data = tiny.pgs.test.data, slop = 100),
+            convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, slop = 100),
             'Slop caused negative start coordinates; replacing with 0.'
             );
 
