@@ -4,10 +4,10 @@
 \alias{check.pgs.weight.columns}
 \title{Check PGS weight file columns}
 \usage{
-check.pgs.weight.columns(x, harmonized = TRUE)
+check.pgs.weight.columns(pgs.weight.colnames, harmonized = TRUE)
 }
 \arguments{
-\item{x}{A character vector of column names.}
+\item{pgs.weight.colnames}{A character vector of column names.}
 
 \item{harmonized}{A logical indicating whether the presence of harmonized columns should be checked.}
 }

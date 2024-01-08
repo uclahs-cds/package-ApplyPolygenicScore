@@ -4,10 +4,10 @@
 \alias{import.pgs.weight.file}
 \title{Import PGS weight file}
 \usage{
-import.pgs.weight.file(input, use.harmonized.data = TRUE)
+import.pgs.weight.file(pgs.weight.path, use.harmonized.data = TRUE)
 }
 \arguments{
-\item{input}{A character string indicating the path to the input file.}
+\item{pgs.weight.path}{A character string indicating the path to the pgs weight file.}
 
 \item{use.harmonized.data}{A logical indicating whether the file should be formatted to indicate harmonized data columns for use in future PGS application.}
 }
