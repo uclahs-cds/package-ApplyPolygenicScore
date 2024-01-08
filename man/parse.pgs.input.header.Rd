@@ -4,10 +4,10 @@
 \alias{parse.pgs.input.header}
 \title{Parse PGS input file header}
 \usage{
-parse.pgs.input.header(input)
+parse.pgs.input.header(pgs.weight.path)
 }
 \arguments{
-\item{input}{A character string indicating the path to the input file.}
+\item{pgs.weight.path}{A character string indicating the path to the pgs weight file.}
 }
 \value{
 A data frame containing the metadata from the file header.

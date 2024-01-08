@@ -38,7 +38,7 @@ test_that(
     'check.pgs.weight.columns detects missing generic columns', {
         # check that required columns are present
         expect_error(
-            check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'foo', 'bar'), harmonized = FALSE),
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'foo', 'bar'), harmonized = FALSE),
             'The following required columns are missing from the PGS weight file: effect_weight'
             );
         }
@@ -48,7 +48,7 @@ test_that(
     'check.pgs.weight.columns detects missing harmonized columns', {
         # check that required columns are present
         expect_error(
-            check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr'), harmonized = TRUE),
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr'), harmonized = TRUE),
             'The following required columns are missing from the PGS weight file: hm_pos'
             );
         }
@@ -58,7 +58,7 @@ test_that(
     'check.pgs.weight.columns accepts complete column set', {
         # check that required columns are present
         expect_true(
-            check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
             );
         }
     );
@@ -67,7 +67,7 @@ test_that(
     'parse.pgs.input.header works correctly on unzipped input', {
         load('data/import.test.data.Rda');
         expect_equal(
-            parse.pgs.input.header(input = 'data/PGS000662_hmPOS_GRCh38.txt'),
+            parse.pgs.input.header(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt'),
             import.test.data$PGS00662.metadata
             );
         }
@@ -77,7 +77,7 @@ test_that(
     'parse.pgs.input.header works correctly on zipped input', {
         load('data/import.test.data.Rda');
         expect_equal(
-            parse.pgs.input.header(input = 'data/PGS000662_hmPOS_GRCh38.txt.gz'),
+            parse.pgs.input.header(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt.gz'),
             import.test.data$PGS00662.metadata
             );
         }
@@ -86,7 +86,7 @@ test_that(
 test_that(
     'import.pgs.weight.file correctly outputs a list of two data frames', {
         # import beta weights
-        beta.weights <- import.pgs.weight.file(input = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = TRUE);
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = TRUE);
 
         # check that the output is a list of two data frames
         expect_equal(
@@ -129,7 +129,7 @@ test_that(
 test_that(
     'import.pgs.weight.file correctly formats columns for harmonized data', {
         # import beta weights
-        beta.weights <- import.pgs.weight.file(input = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = TRUE);
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = TRUE);
 
         # check that the harmonized data columns are correctly formatted
         expect_equal(
@@ -155,7 +155,7 @@ test_that(
 test_that(
     'import.pgs.weight.file correctly formats columns for non-harmonized data', {
         # import beta weights
-        beta.weights <- import.pgs.weight.file(input = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = FALSE);
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = FALSE);
 
         # check that the harmonized data columns are correctly formatted
         expect_equal(
@@ -181,7 +181,7 @@ test_that(
 test_that(
     'import.pgs.weight.file correctly formats columns for non-harmonized data', {
         # import beta weights
-        beta.weights <- import.pgs.weight.file(input = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = FALSE);
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = FALSE);
 
         # check that the harmonized data columns are correctly formatted
         expect_equal(
@@ -199,12 +199,12 @@ test_that(
     'import.pgs.weight.file recognizes unreported weight format', {
       # check that a warning is issued
         expect_warning(
-            import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-NR.txt', use.harmonized.data = FALSE),
+            import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_weight-NR.txt', use.harmonized.data = FALSE),
             'Weight format was not reported in the PGS file header. Assuming beta weights.'
             );
 
         # check that the weight format is assumed to be beta
-        beta.weights <- import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-NR.txt', use.harmonized.data = FALSE);
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_weight-NR.txt', use.harmonized.data = FALSE);
         expect_equal(
             beta.weights$pgs.weight.data$beta,
             as.numeric(beta.weights$pgs.weight.data$effect_weight)
@@ -216,11 +216,11 @@ test_that(
 test_that(
     'import.pgs.weight.file correctly formats OR/HR weights', {
         # import beta weights
-        beta.weights <- import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-OR.txt', use.harmonized.data = FALSE);
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_weight-OR.txt', use.harmonized.data = FALSE);
 
         # check that warning is issued
         expect_warning(
-            import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-OR.txt', use.harmonized.data = FALSE),
+            import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_weight-OR.txt', use.harmonized.data = FALSE),
             'OR/HR weights were converted to beta weights.'
             );
 
@@ -236,7 +236,7 @@ test_that(
     'import.pgs.weight.file throws an error for unrecognized weight format', {
         # check that an error is thrown
         expect_error(
-            import.pgs.weight.file(input = 'data/PGS003378_hmPOS_GRCh38_weight-foo.txt', use.harmonized.data = FALSE),
+            import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_weight-foo.txt', use.harmonized.data = FALSE),
             'Weight format is not recognized. Please specify whether weights are betas or OR/HR.'
             );
         }
