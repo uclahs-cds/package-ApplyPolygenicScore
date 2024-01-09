@@ -124,7 +124,9 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.
 
     # add requested annotation data to annotation column
 
-    concatenated.bed$annotation <- paste(concatenated.bed[ , annotation.column.index], concatenated.bed$annotation, sep = '|');
+    if (add.annotation.data) {
+        concatenated.bed$annotation <- paste(concatenated.bed[ , annotation.column.index], concatenated.bed$annotation, sep = '|');
+        }
 
     # sort by chromosome and position
     concatenated.bed <- concatenated.bed[order(concatenated.bed$chr, concatenated.bed$start), ];
