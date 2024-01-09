@@ -109,6 +109,10 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.
         stop('all intervals specified in pgs.bed.list must represent one SNP and be one bp in length');
         }
 
+    # check that slop is a non-negative integer
+    if (!is.numeric(slop) | slop < 0) {
+        stop('slop must be a non-negative integer');
+        }
 
     if (add.annotation.data) {
         # check that annotation.column.index is within the range of the number of columns in the data.frames in pgs.bed.list

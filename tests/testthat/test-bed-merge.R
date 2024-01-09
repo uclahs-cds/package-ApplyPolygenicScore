@@ -101,6 +101,20 @@ test_that(
             'annotation.column.index must be within the range of the number of columns in the data.frames in pgs.bed.list'
             );
 
+        # check that slop is a non-negative integer
+        expect_error(
+            merge.pgs.bed(pgs.bed.list = list(
+                name1 = data.frame(
+                    chr = c('1', '2', '3'),
+                    start = c(1, 2, 3),
+                    end = c(2, 3, 4)
+                    )
+                ),
+                slop = 'not.a.non-negative.integer'
+                ),
+            'slop must be a non-negative integer'
+            );
+
         # check that correct input is accepted
         expect_silent(
             merge.pgs.bed(pgs.bed.list = list(
