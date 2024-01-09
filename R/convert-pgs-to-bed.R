@@ -1,4 +1,4 @@
-# function for adding slop to BED coordinates
+# a utility function for adding slop to BED coordinates
 add.slop <- function(bed, slop) {
     bed$start <- bed$start - slop;
     bed$end <- bed$end + slop;
@@ -74,11 +74,14 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 	return(pgs.bed);
 	}
 
-### MERGE.PGS.BED ##################################################
-# pgs.bed.list = named list of pgs coordinates in BED format
-# returns a data.frame containing merged pgs coordinates in BED format with an extra annotation column
-# containing the name of the PGS and data from one additional column optionally selected by the user.
-# Recommended: the SNP.ID column from the PGS weight file.
+#' @title Merge PGS BED files
+#' @description Merge overlapping PGS coordinates in multiple BED files.
+#' @param pgs.bed.list A named list of data.frames containing PGS coordinates in BED format.
+#' @param add.annotation.data A logical indicating whether an additional annotation data column should be added to the annotation column.
+#' @param annotation.column.index An integer indicating the index of the column in the data frames in pgs.bed.list that should be added to the annotation column.
+#' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
+#' @return A data.frame containing the merged PGS coordinates in BED format with an extra annotation column containing the name of the PGS and data from one additional column optionally selected by the user.
+#' @export
 merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
 
     # check that pgs.bed.list is a named list
