@@ -95,13 +95,13 @@ test_that(
         test.numeric.sex.chr <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, numeric.sex.chr = TRUE);
         test.no.numeric.sex.chr <- convert.pgs.to.bed(pgs.weight.data = tiny.pgs.test.data, numeric.sex.chr = FALSE);
 
-        # check that CHROM prefix is correctly added
+        # check that CHROM prefix is correctly removed
         expect_equal(
             test.no.chr$chr,
             c('1', '2', '3', '4', 'X', 'Y', 'X', 'Y')
             );
 
-        # check that CHROM prefix is correctly removed
+        # check that CHROM prefix is correctly added
         expect_equal(
             test.yes.chr$chr,
             c('chr1', 'chr2', 'chr3', 'chr4', 'chrX', 'chrY', 'chrX', 'chrY')

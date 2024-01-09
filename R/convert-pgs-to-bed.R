@@ -37,7 +37,7 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
         }
 
     # convert CHROM to default format (no 'chr' prefix, alphabetic sex chromosomes)
-	pgs.weight.data$CHROM <- gsub('chr', '', pgs.weight.data$CHROM);
+    pgs.weight.data$CHROM <- gsub('chr', '', pgs.weight.data$CHROM);
     pgs.weight.data$CHROM <- gsub('23', 'X', pgs.weight.data$CHROM);
     pgs.weight.data$CHROM <- gsub('24', 'Y', pgs.weight.data$CHROM);
 
@@ -52,12 +52,12 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
         }
 
     ## assemble BED file ##
-	# 0-index coordinates
-	pgs.bed <- data.frame(
-		chr = pgs.weight.data$CHROM,
-		start = pgs.weight.data$POS - 1,
-		end = pgs.weight.data$POS
-		);
+    # 0-index coordinates
+    pgs.bed <- data.frame(
+        chr = pgs.weight.data$CHROM,
+        start = pgs.weight.data$POS - 1,
+        end = pgs.weight.data$POS
+        );
     # check for negative start coordinates, report an error
     if (any(pgs.bed$start < 0)) {
         stop('0-indexing caused negative start coordinates.');
@@ -68,11 +68,11 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
         pgs.bed <- add.slop(bed = pgs.bed, slop = slop);
         }
 
-	# concat with the rest of the prs columns
-	pgs.bed <- cbind(pgs.bed, subset(pgs.weight.data, select = -c(CHROM, POS)));
+    # concat with the rest of the prs columns
+    pgs.bed <- cbind(pgs.bed, subset(pgs.weight.data, select = -c(CHROM, POS)));
 
-	return(pgs.bed);
-	}
+    return(pgs.bed);
+    }
 
 #' @title Merge PGS BED files
 #' @description Merge overlapping PGS coordinates in multiple BED files.
@@ -119,7 +119,7 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.
         if (annotation.column.index > ncol(pgs.bed.list[[1]])) {
             stop('annotation.column.index must be within the range of the number of columns in the data.frames in pgs.bed.list');
             }
-    }
+        }
 
     # Annotate each PGS BED file with the name of the PGS
     for (i in 1:length(pgs.bed.list)) {
