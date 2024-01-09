@@ -72,7 +72,7 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 # returns a data.frame containing merged pgs coordinates in BED format with an extra annotation column
 # containing the name of the PGS and data from one additional column optionally selected by the user.
 # Recommended: the SNP.ID column from the PGS weight file.
-merge.pgs.bed <- function(pgs.bed.list, add.annotation.column = TRUE, annotation.column.index = NULL, slop = 0) {
+merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
 
     # check that pgs.bed.list is a named list
     if (!is.list(pgs.bed.list) | is.null(names(pgs.bed.list))) {
@@ -99,15 +99,13 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.column = TRUE, annotation
         stop('all intervals specified in pgs.bed.list must represent one SNP and be one bp in length');
         }
 
-    # check that annotation.column.index is an integer or NULL
-    if (!is.null(annotation.column.index) & !is.integer(annotation.column.index)) {
-        stop('annotation.column.index must be an integer or NULL');
-        }
 
-    # check that annotation.column.index is within the range of the number of columns in the data.frames in pgs.bed.list
-    if (annotation.column.index > ncol(pgs.bed.list[[1]])) {
-        stop('annotation.column.index must be within the range of the number of columns in the data.frames in pgs.bed.list');
-        }
+    if (add.annotation.data) {
+        # check that annotation.column.index is within the range of the number of columns in the data.frames in pgs.bed.list
+        if (annotation.column.index > ncol(pgs.bed.list[[1]])) {
+            stop('annotation.column.index must be within the range of the number of columns in the data.frames in pgs.bed.list');
+            }
+    }
 
     # Annotate each PGS BED file with the name of the PGS
     for (i in 1:length(pgs.bed.list)) {
@@ -118,6 +116,7 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.column = TRUE, annotation
     concatenated.bed <- do.call(rbind, pgs.bed.list);
 
     # add requested annotation data to annotation column
+
     concatenated.bed$annotation <- paste(concatenated.bed[ , annotation.column.index], concatenated.bed$annotation, sep = '|');
 
     # sort by chromosome and position
