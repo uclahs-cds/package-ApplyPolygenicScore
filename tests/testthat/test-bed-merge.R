@@ -142,7 +142,7 @@ test_that(
             class(simple.test.output),
             'data.frame'
             );
-        
+
         # check that the output has the correct number of columns
         expect_equal(
             ncol(simple.test.output),
@@ -154,7 +154,6 @@ test_that(
             colnames(simple.test.output),
             c('chr', 'start', 'end', 'annotation')
             );
-        
     }
 );
 
@@ -204,7 +203,7 @@ test_that(
             simple.test.output$end,
             simple.test.expected.output$end
             );
-        
+
         expect_equal(
             simple.test.output$annotation,
             simple.test.expected.output$annotation
