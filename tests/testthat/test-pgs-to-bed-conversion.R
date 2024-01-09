@@ -185,3 +185,12 @@ test_that(
 
         }
     );
+
+test_that(
+    'convert.pgs.to.bed works on real data', {
+        pgs <- import.pgs.weight.file('data/PGS000662_hmPOS_GRCh38.txt')
+        expect_silent(
+            convert.pgs.to.bed(pgs.weight.data = pgs$pgs.weight.data)
+            );
+        }
+    );

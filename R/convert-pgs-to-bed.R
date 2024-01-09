@@ -1,3 +1,17 @@
+# function for adding slop to BED coordinates
+add.slop <- function(bed, slop) {
+    bed$start <- bed$start - slop;
+    bed$end <- bed$end + slop;
+
+    # check for negative start coordinates, replace with 0, and issue a warning
+    if (any(bed$start < 0)) {
+        bed$start[bed$start < 0] <- 0;
+        warning('Slop caused negative start coordinates; replacing with 0.');
+        }
+
+    return(bed);
+    }
+
 #' @title Convert PGS data to BED format
 #' @description Convert imported and formatted PGS compnent SNP coordinate data to BED format.
 #' @param pgs.weight.data A data.frame containing SNP coordinate data with standardized CHROM and POS columns.
@@ -51,14 +65,7 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 
     # add slop
     if (slop > 0) {
-        pgs.bed$start <- pgs.bed$start - slop;
-        pgs.bed$end <- pgs.bed$end + slop;
-
-        # check for negative start coordinates, replace with 0, and issue a warning
-        if (any(pgs.bed$start < 0)) {
-            pgs.bed$start[pgs.bed$start < 0] <- 0;
-            warning('Slop caused negative start coordinates; replacing with 0.');
-            }
+        pgs.bed <- add.slop(bed = pgs.bed, slop = slop);
         }
 
 	# concat with the rest of the prs columns
@@ -90,7 +97,7 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.
         }
     
     # check that each element of pgs.bed.list is in BED format (chr, start, end)
-    if (!all(sapply(pgs.bed.list, function(x) all(colnames(x) %in% c('chr', 'start', 'end'))))) {
+    if (!all(sapply(pgs.bed.list, function(x) all( c('chr', 'start', 'end') %in% colnames(x))))) {
         stop('all elements of pgs.bed.list must have columns named chr, start, and end');
         }
     
@@ -129,8 +136,9 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.
     merged.bed <- merged.bed[order(merged.bed$chr, merged.bed$start), ];
 
     # add slop
-    merged.bed$start <- merged.bed$start - slop;
-    merged.bed$end <- merged.bed$end + slop;
+    if (slop > 0) {
+        merged.bed <- add.slop(bed = merged.bed, slop = slop);
+        }
 
     # return merged BED file
     return(merged.bed);
