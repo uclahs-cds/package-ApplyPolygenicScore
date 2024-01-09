@@ -5,7 +5,7 @@ test_that(
             merge.pgs.bed(pgs.bed.list = 'not.a.named.list'),
             'pgs.bed.list must be a named list'
             );
-        
+
         expect_error(
             merge.pgs.bed(pgs.bed.list = list(
                 data.frame(
@@ -167,7 +167,7 @@ test_that(
             add.annotation.data = TRUE,
             annotation.column.index = 4
             );
-        
+
         simple.test.expected.output <- data.frame(
             chr = c('chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr3'),
             start = c(1, 2, 5, 3, 4, 4),
@@ -181,7 +181,7 @@ test_that(
                 'no overlap with pgs1|pgs2'
                 )
             );
-        
+
         # check that the output matches expected output
         # comparison is peformed column by column to avoid errors due to rowname differences
         # caused by sorting
@@ -231,12 +231,12 @@ test_that(
                 ),
             slop = 1
             );
-        
+
         expect_equal(
             small.slop.test.output$start,
             c(0, 1, 2)
             );
-        
+
         expect_equal(
             small.slop.test.output$end,
             c(3, 4, 5)
@@ -257,7 +257,7 @@ test_that(
                 ),
             slop = 10
             );
-        
+
         expect_equal(
             large.slop.test.output$start,
             c(0, 0, 0)
@@ -301,10 +301,9 @@ test_that(
             PGS000662 = pgs1.bed,
             PGS003378 = pgs2.bed
             );
-        
+
         expect_silent(
             merge.pgs.bed(pgs.bed.list = pgs.bed.list)
             );
         }
-        
     );

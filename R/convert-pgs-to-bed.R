@@ -93,17 +93,17 @@ merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.
     if (!all(sapply(pgs.bed.list, is.data.frame))) {
         stop('all elements of pgs.bed.list must be data.frames');
         }
-    
+
     # check that all elements of pgs.bed.list have the same column names
     if (!all(sapply(pgs.bed.list, function(x) all(colnames(x) == colnames(pgs.bed.list[[1]]))))) {
         stop('all elements of pgs.bed.list must have the same column names');
         }
-    
+
     # check that each element of pgs.bed.list is in BED format (chr, start, end)
     if (!all(sapply(pgs.bed.list, function(x) all( c('chr', 'start', 'end') %in% colnames(x))))) {
         stop('all elements of pgs.bed.list must have columns named chr, start, and end');
         }
-    
+
     # check that all intervals specified in pgs.bed.list are one bp in length
     if (!all(sapply(pgs.bed.list, function(x) all(x$start == x$end - 1)))) {
         stop('all intervals specified in pgs.bed.list must represent one SNP and be one bp in length');
