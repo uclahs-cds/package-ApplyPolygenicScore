@@ -83,3 +83,23 @@ save(
     tiny.bed.test.data,
     file = 'tests/testthat/data/tiny.bed.test.data.Rda'
     );
+
+# create BED file for VCF filtration
+pgs.weights <- ApplyPolygenicScore::import.pgs.weight.file(
+    pgs.weigh.path <- 'tests/testthat/data/PGS003378_hmPOS_GRCh38.txt',
+    use.harmonized.data = TRUE
+    );
+pgs.bed <- ApplyPolygenicScore::convert.pgs.to.bed(
+    pgs.weight.data = pgs.weights$pgs.weight.data,
+    chr.prefix = TRUE,
+    numeric.sex.chr = FALSE,
+    slop = 10
+    );
+write.table(
+    x = pgs.bed,
+    file = 'tests/testthat/data/PGS003378_hmPOS_GRCh38_slop10.bed',
+    sep = '\t',
+    row.names = FALSE,
+    col.names = FALSE,
+    quote = FALSE
+    );
