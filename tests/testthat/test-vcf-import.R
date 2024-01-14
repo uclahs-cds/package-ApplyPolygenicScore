@@ -3,14 +3,14 @@ test_that(
         # check that correct input is accepted
         expect_no_error(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 )
             );
         expect_no_warning(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 )
@@ -18,7 +18,7 @@ test_that(
         # turn off verbose output
         expect_silent(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL,
                 verbose = FALSE
@@ -30,7 +30,7 @@ test_that(
 test_that(
     'import.vcf outputs a vcfR tidy object', {
         test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
@@ -61,14 +61,14 @@ test_that(
 test_that(
     'import.vcf accurately imports VCF fields', {
         test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
 
         # check that the correct number of variants were imported
         n.variants <- 63;
-        n.samples <- 1;
+        n.samples <- 2;
         expect_equal(
             nrow(test.vcf$dat),
             n.variants * n.samples
@@ -87,27 +87,27 @@ test_that(
         # check that the sample name is correct
         expect_equal(
             unique(test.vcf$dat$Indiv),
-            'HG001'
+            c('HG001', '2:HG001')
             );
 
-        # check the first three variants for correct coordiinates
+        # check the first three variants for correct coordinates
         expect_equal(
-            test.vcf$dat$CHROM[1:3],
-            c('chr1', 'chr1', 'chr1')
+            test.vcf$dat$CHROM[1:6],
+            c('chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1')
             );
         expect_equal(
-            test.vcf$dat$POS[1:3],
-            c(87734095, 111721652, 154895579)
+            test.vcf$dat$POS[1:6],
+            rep(c(87734095, 111721652, 154895579), each = 2)
             );
 
         # check the first three variants for correct alleles
         expect_equal(
-            test.vcf$dat$gt_GT[1:3],
-            c('1/1', '0/1', '0/1')
+            test.vcf$dat$gt_GT[1:6],
+            rep(c('1/1', '0/1', '0/1'), each = 2)
             );
         expect_equal(
-            test.vcf$dat$gt_GT_alleles[1:3],
-            c('A/A', 'T/C', 'G/T')
+            test.vcf$dat$gt_GT_alleles[1:6],
+            rep(c('A/A', 'T/C', 'G/T'), each = 2)
             );
 
         }
@@ -116,13 +116,13 @@ test_that(
 test_that(
     'import.vcf accurately imports INFO fields', {
         all.info.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
 
         select.info.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             info.fields = c('DPSum', 'platforms', 'arbitrated'),
             format.fields = NULL
             );
@@ -155,12 +155,12 @@ test_that(
 
         # check that one of the selected INFO columns has the correct value
         expect_equal(
-            select.info.test.vcf$dat$platforms[1:3],
-            c(5, 5, 5)
+            select.info.test.vcf$dat$platforms[1:6],
+            rep(c(5, 5, 5), each = 2)
             );
         expect_equal(
-            all.info.test.vcf$dat$platforms[1:3],
-            c(5, 5, 5)
+            all.info.test.vcf$dat$platforms[1:6],
+            rep(c(5, 5, 5), each = 2)
             );
 
         }
@@ -169,13 +169,13 @@ test_that(
 test_that(
     'import.vcf accurately imports FORMAT fields', {
         all.format.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
 
         select.format.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             info.fields = NULL,
             format.fields = c('DP', 'GQ', 'GT')
             );
@@ -190,12 +190,12 @@ test_that(
 
         # check that one of the selected FORMAT columns has the correct value
         expect_equal(
-            select.format.test.vcf$dat$gt_DP[1:3],
-            c(762, 658, 966)
+            select.format.test.vcf$dat$gt_DP[1:6],
+            rep(c(762, 658, 966), each = 2)
             );
         expect_equal(
-            all.format.test.vcf$dat$gt_DP[1:3],
-            c(762, 658, 966)
+            all.format.test.vcf$dat$gt_DP[1:6],
+            rep(c(762, 658, 966), each = 2)
             );
 
         }
@@ -204,7 +204,7 @@ test_that(
 test_that(
     'check.for.no.info.fields utility correctly catches empty INFO bug', {
         test.vcf.yes.info <- vcfR::read.vcfR(
-            file = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            file = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
             convertNA = TRUE,
             verbose = FALSE
             );
