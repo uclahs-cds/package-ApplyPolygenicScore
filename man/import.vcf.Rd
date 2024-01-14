@@ -16,7 +16,7 @@ import.vcf(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE)
 \item{verbose}{A logical indicating whether verbose output should be printed by vcfR.}
 }
 \value{
-A long form data.frame containing the VCF data.
+A list containing a tibble of VCF meta data and a tibble data.frame containing the parsed VCF data in long form.
 }
 \description{
 Import a VCF file into a long form data.frame using vcfR package.
