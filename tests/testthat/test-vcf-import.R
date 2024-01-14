@@ -89,7 +89,7 @@ test_that(
             unique(test.vcf$dat$Indiv),
             'HG001'
             );
-        
+
         # check the first three variants for correct coordiinates
         expect_equal(
             test.vcf$dat$CHROM[1:3],
