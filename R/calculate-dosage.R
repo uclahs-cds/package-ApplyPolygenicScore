@@ -1,17 +1,15 @@
-### CONVERT.ALLELES.TO.DOSAGE ####################################################
-# This function takes genotype calls in the form of witten out alleles (e.g. 'A/T')
-# and converts them into dosages based on provided risk alleles from a PRS (0, 1, or 2).
-#
-# Inputs:
-# called.alleles = vector of genotypes in allelic notation separated by a slash or pipe
-# risk.alleles = vector of risk alleles from a polygenic risk score corresponding to each
-# genotype (by locus) in called.alleles
+#' @title Convert alleles to dosage
+#' @description Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages based on provided risk alleles from a PGS (0, 1, or 2).
+#' @param called.alleles A vector of genotypes in allelic notation separated by a slash or pipe.
+#' @param risk.alleles A vector of risk alleles from a polygenic score corresponding to each genotype (by locus) in called.alleles.
+#' @return A vector of dosages corresponding to each genotype in called.alleles.
+#' @export
 convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
     # handle totally missing genotypes
     if (1 > sum(!(is.na(called.alleles)))) {
         split.alleles <- data.frame(called.alleles, called.alleles);
         } else {
-            split.alleles <- tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
+            split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
             }
     names(split.alleles) <- c('called.allele.a', 'called.allele.b');
 
