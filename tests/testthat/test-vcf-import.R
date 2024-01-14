@@ -8,6 +8,22 @@ test_that(
                 format.fields = NULL
                 )
             );
+        expect_no_warning(
+            import.vcf(
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+                info.fields = NULL,
+                format.fields = NULL
+                )
+            );
+        # turn off verbose output
+        expect_silent(
+            import.vcf(
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+                info.fields = NULL,
+                format.fields = NULL,
+                verbose = FALSE
+                )
+            );
         }
     );
 
@@ -182,5 +198,27 @@ test_that(
             c(762, 658, 966)
             );
 
-    }
-)
+        }
+    );
+
+test_that(
+    'check.for.no.info.fields utility correctly catches empty INFO bug', {
+        test.vcf.yes.info <- vcfR::read.vcfR(
+            file = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            convertNA = TRUE,
+            verbose = FALSE
+            );
+
+        test.vcf.no.info <- test.vcf.yes.info;
+        test.vcf.no.info@meta <- test.vcf.no.info@meta[-grep('^##INFO', test.vcf.no.info@meta)];
+
+        expect_silent(
+            check.for.no.info.fields(test.vcf.yes.info)
+            );
+
+        expect_warning(
+            check.for.no.info.fields(test.vcf.no.info),
+            'No INFO fields present in VCF file. Adding dummy INFO field "DUMMY" to avoid vcfR import errors.'
+            );
+        }
+    );

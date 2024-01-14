@@ -32,7 +32,8 @@ import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbo
         x = vcf.vcfR,
         single_frame = TRUE,
         info_fields = info.fields,
-        format_fields = format.fields
+        format_fields = format.fields,
+        verbose = verbose
         );
 
     return(long.vcf);
