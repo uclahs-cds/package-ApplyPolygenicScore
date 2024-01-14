@@ -3,9 +3,9 @@ test_that(
         expect_equal(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A/T', 'T/T', 'A/A', 'A/T', 'T/T'),
-                risk.alleles = c('A', 'A', 'T', 'A', 'A', 'T')
+                risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T')
                 ),
-            c(2, 1, 0, 2, 1, 0)
+            c(2, 1, 0, 0, 1, 2)
             );
         }
     );
@@ -15,9 +15,9 @@ test_that(
         expect_equal(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A|A', 'A|T', 'T|T', 'A|A', 'A|T', 'T|T'),
-                risk.alleles = c('A', 'A', 'T', 'A', 'A', 'T')
+                risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T')
                 ),
-            c(2, 1, 0, 2, 1, 0)
+            c(2, 1, 0, 0, 1, 2)
             );
         }
     );
@@ -29,7 +29,7 @@ test_that(
                 called.alleles = c('./.', './A', 'A/.'),
                 risk.alleles = c('A', 'A', 'T')
                 ),
-            c(NA, 1, 1)
+            c(NA, 1, 0)
             );
         }
     );

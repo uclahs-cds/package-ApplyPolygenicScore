@@ -13,7 +13,7 @@ Description: This tool is intended to simply and transparently parse
 Depends: 
     R (>= 2.10)
 Imports:
-    vcfR
+    vcfR,
     data.table
 Suggests: 
     testthat (>= 3.0.0)
