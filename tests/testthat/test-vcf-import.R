@@ -3,7 +3,7 @@ test_that(
         # check that correct input is accepted
         expect_no_error(
             import.vcf(
-                input = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 )
@@ -14,7 +14,7 @@ test_that(
 test_that(
     'import.vcf outputs a vcfR tidy object', {
         test.vcf <- import.vcf(
-            input = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
@@ -45,7 +45,7 @@ test_that(
 test_that(
     'import.vcf accurately imports VCF fields', {
         test.vcf <- import.vcf(
-            input = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
@@ -97,3 +97,90 @@ test_that(
         }
     );
 
+test_that(
+    'import.vcf accurately imports INFO fields', {
+        all.info.test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            info.fields = NULL,
+            format.fields = NULL
+            );
+
+        select.info.test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            info.fields = c('DPSum', 'platforms', 'arbitrated'),
+            format.fields = NULL
+            );
+
+        # check that all requested INFO columns are present
+        expect_true(
+            all(c('DPSum', 'platforms', 'arbitrated') %in% colnames(select.info.test.vcf$dat))
+            );
+        expect_true(
+            all(c('DPSum', 'platforms', 'platformnames', 'platformbias', 'datasets','datasetnames', 'datasetsmissingcall', 'callsets', 'callsetnames', 'varType','filt', 'callable', 'difficultregion', 'arbitrated', 'callsetwiththisuniqgenopassing', 'callsetwithotheruniqgenopassing') %in% colnames(all.info.test.vcf$dat))
+            );
+
+        # check that the total number of columns is correct
+        generic.vcf.ncol <- 7;
+        generic.vcfR.ncol <- 2;
+        info.ncol <- 16;
+        select.info.ncol <- 3;
+        format.ncol <- 6;
+        ncol.all <- generic.vcf.ncol + generic.vcfR.ncol + info.ncol + format.ncol;
+        ncol.select <- generic.vcf.ncol + generic.vcfR.ncol + select.info.ncol + format.ncol;
+
+        expect_equal(
+            ncol(select.info.test.vcf$dat),
+            ncol.select
+            );
+        expect_equal(
+            ncol(all.info.test.vcf$dat),
+            ncol.all
+            );
+
+        # check that one of the selected INFO columns has the correct value
+        expect_equal(
+            select.info.test.vcf$dat$platforms[1:3],
+            c(5, 5, 5)
+            );
+        expect_equal(
+            all.info.test.vcf$dat$platforms[1:3],
+            c(5, 5, 5)
+            );
+
+        }
+    );
+
+test_that(
+    'import.vcf accurately imports FORMAT fields', {
+        all.format.test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            info.fields = NULL,
+            format.fields = NULL
+            );
+
+        select.format.test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10.vcf.gz',
+            info.fields = NULL,
+            format.fields = c('DP', 'GQ', 'GT')
+            );
+
+        # check that all requested FORMAT columns are present
+        expect_true(
+            all(c('gt_DP', 'gt_GQ', 'gt_GT') %in% colnames(select.format.test.vcf$dat))
+            );
+        expect_true(
+            all(c('gt_DP', 'gt_GQ', 'gt_ADALL', 'gt_AD', 'gt_GT', 'gt_PS') %in% colnames(all.format.test.vcf$dat))
+            );
+
+        # check that one of the selected FORMAT columns has the correct value
+        expect_equal(
+            select.format.test.vcf$dat$gt_DP[1:3],
+            c(762, 658, 966)
+            );
+        expect_equal(
+            all.format.test.vcf$dat$gt_DP[1:3],
+            c(762, 658, 966)
+            );
+
+    }
+)
