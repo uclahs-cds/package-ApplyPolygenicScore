@@ -6,7 +6,7 @@ check.for.no.info.fields <- function(vcf.vcfR) {
     if (!any(INFO.meta.lines)) {
             dummy.INFO.line <- '##INFO=<ID=DUMMY>';
             vcf.vcfR@meta[length(vcf.vcfR@meta) + 1] <- dummy.INFO.line;
-            warning('No INFO fields present in VCF file. Adding dummy INFO field "DUMMY" to avoid vcfR import errors.')
+            warning('No INFO fields present in VCF file. Adding dummy INFO field "DUMMY" to avoid vcfR import errors.');
             }
 
     return(vcf.vcfR);
