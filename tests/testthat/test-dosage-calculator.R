@@ -9,7 +9,7 @@ test_that(
                 ),
             'called.alleles and risk.alleles must be the same length.'
             );
-        
+
         # check for correct risk.alleles format
         expect_error(
             convert.alleles.to.pgs.dosage(
@@ -39,7 +39,7 @@ test_that(
                 ),
             'unrecognized risk.allele format, must be capitalized letters.'
             );
-        
+
         # check for correct called.alleles format
         expect_error(
             convert.alleles.to.pgs.dosage(
@@ -90,7 +90,7 @@ test_that(
                 ),
             'called.alleles and risk.alleles must be the same length.'
             );
-        
+
         # check that correct input is accepted
         expect_silent(
             convert.alleles.to.pgs.dosage(
