@@ -5,16 +5,32 @@
 #' @return A vector of dosages corresponding to each genotype in called.alleles.
 #' @export
 convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
+    # check that risk.alleles is the same length as called.alleles
+    if (length(called.alleles) != length(risk.alleles)) {
+        stop('called.alleles and risk.alleles must be the same length.');
+        }
+    
+    # check that risk.alleles is a vector of capitalized alphabetic characters
+    if (!all(grepl('^[A-Z]+$', risk.alleles))) {
+        stop('unrecognized risk.allele format, must be capitalized letters.');
+        }
+
     # handle totally missing genotypes
-    if (1 > sum(!(is.na(called.alleles)))) {
+    # if the entire vector is NA or the entire vector is '.', return NA
+    if (all(is.na(called.alleles)) | all(called.alleles == '.')) {
         split.alleles <- data.frame(called.alleles, called.alleles);
         } else {
+            # check that called.alleles is a vector of genotypes in allelic notation or '.' separated by a slash or pipe
+            allowed.pattern <- "^((([A-Z]+|\\.)[/\\|]([A-Z]+|\\.))|\\.)$" # '|' are special chars in regular expressions
+            if (!all(grepl(allowed.pattern, called.alleles))) {
+                stop('unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.');
+                }
             split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
             }
     names(split.alleles) <- c('called.allele.a', 'called.allele.b');
 
     # replace 'NA' with '.' for easier comparisons
-    missing.label <- '.'
+    missing.label <- '.';
     split.alleles <- lapply(
         X = split.alleles,
         FUN = function(x) {
