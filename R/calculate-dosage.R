@@ -9,7 +9,7 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
     if (length(called.alleles) != length(risk.alleles)) {
         stop('called.alleles and risk.alleles must be the same length.');
         }
-    
+
     # check that risk.alleles is a vector of capitalized alphabetic characters
     if (!all(grepl('^[A-Z]+$', risk.alleles))) {
         stop('unrecognized risk.allele format, must be capitalized letters.');
