@@ -6,7 +6,7 @@
 #' @return A character vector of chromosome names formatted according to user specifications.
 #' @export
 format.chromosome.notation <- function(chromosome, chr.prefix, numeric.sex.chr) {
-    chromosome <- as.charater(chromosome);
+    chromosome <- as.character(chromosome);
 
     # convert chromosome to default format (no 'chr' prefix, alphabetic sex chromosomes)
     chromosome <- gsub('^chr', '', chromosome);
