@@ -54,4 +54,4 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         );
 
     return(pgs.per.sample);
-}
+    }
