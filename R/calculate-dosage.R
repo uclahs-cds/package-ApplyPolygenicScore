@@ -46,7 +46,7 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
             } else if (split.alleles$called.allele.a[i] == missing.label | split.alleles$called.allele.b[i] == missing.label) {
                 # if at least one allele is missing this is interpreted as a missing genotype
                 # a common case occurs when the genotype './.' is read in as '.' and split into '.' and NA
-                dosage[i] <- NA; 
+                dosage[i] <- NA;
                 # if one of the alleles is marked as missing but the other is not, this is an unrecognized format
                 warning('one of two alleles is marked as missing at index ', i, ', this is an unrecognized format, returning NA for dosage.')
                 # if (!(is.na(split.alleles$called.allele.a[i]) | is.na(split.alleles$called.allele.b[i]))) {
