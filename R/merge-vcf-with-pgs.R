@@ -17,7 +17,7 @@ merge.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         }
 
     # check that inputs contain required columns for mergeing
-    required.vcf.columns <- c('CHROM', 'POS', 'REF', 'ALT');
+    required.vcf.columns <- c('CHROM', 'POS');
     required.pgs.columns <- c('CHROM', 'POS');
     if (!all(required.vcf.columns %in% colnames(vcf.data))) {
         stop('vcf.data must contain columns named CHROM and POS');
@@ -31,7 +31,7 @@ merge.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
     numeric.sex.chr <- any(grepl('23$', vcf.data$CHROM));
 
     pgs.weight.data$CHROM <- ApplyPolygenicScore::format.chromosome.notation(
-        chromosome = pgs.weight.data$CHORM,
+        chromosome = pgs.weight.data$CHROM,
         chr.prefix = chr.prefix,
         numeric.sex.chr = numeric.sex.chr
         );
