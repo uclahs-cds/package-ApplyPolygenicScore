@@ -90,6 +90,20 @@ test_that(
                 ),
             'called.alleles and risk.alleles must be the same length.'
             );
+        expect_warning(
+            convert.alleles.to.pgs.dosage(
+                called.alleles = c('A/A', './A'),
+                risk.alleles = c('A', 'A')
+                ),
+            'one of two alleles is marked as missing at index 2, this is an unrecognized format, returning NA for dosage.'
+            );
+        expect_warning(
+            convert.alleles.to.pgs.dosage(
+                called.alleles = c('A/A', 'A/.'),
+                risk.alleles = c('A', 'A')
+                ),
+            'one of two alleles is marked as missing at index 2, this is an unrecognized format, returning NA for dosage.'
+            );
 
         # check that correct input is accepted
         expect_silent(
@@ -145,7 +159,7 @@ test_that(
                 called.alleles = c('./.', './A', 'A/.', '.'),
                 risk.alleles = c('A', 'A', 'T', 'T')
                 ),
-            c(NA, 1, 0, NA)
+            c(NA, NA, NA, NA)
             );
         }
     );
