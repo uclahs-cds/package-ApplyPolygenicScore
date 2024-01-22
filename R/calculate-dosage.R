@@ -45,7 +45,7 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
             dosage[i] <- NA; # if both allelles are missing, no genotype was called, return NA
             } else if (split.alleles$called.allele.a[i] == missing.label | split.alleles$called.allele.b[i] == missing.label) {
                 dosage[i] <- NA; # if one of the alleles is marked as missing but the other is not, this is an unrecognized format
-                warning('one of two alleles is marked as missing at index ', i, ', this is an unrecognized format, returning NA for dosage.')
+                warning('one of two alleles is marked as missing at index ', i, ', this is an unrecognized format, returning NA for dosage.');
             } else if (split.alleles$called.allele.a[i] == risk.alleles[i] & split.alleles$called.allele.b[i] == risk.alleles[i]) {
                 dosage[i] <- 2; # if both alleles are the risk allele, the genotype is homozygous for the effect allele and the dosage is 2.
             } else if (split.alleles$called.allele.a[i] == risk.alleles[i] | split.alleles$called.allele.b[i] == risk.alleles[i]) {
