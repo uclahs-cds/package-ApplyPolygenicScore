@@ -7,8 +7,8 @@ test_that(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data
+                )
             )
-        )
 
-    }
-)
+        }
+    );
