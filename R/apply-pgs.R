@@ -35,6 +35,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         vcf.data = vcf.data,
         pgs.weight.data = pgs.weight.data
         );
+    merged.vcf.with.pgs.data <- merged.vcf.with.pgs$merged.vcf.with.pgs.data;
 
     # calculate dosage
     merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
