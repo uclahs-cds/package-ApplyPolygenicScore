@@ -156,10 +156,10 @@ test_that(
     'convert.alleles.to.pgs.dosage calculates dosage correctly from missing genotypes', {
         expect_equal(
             convert.alleles.to.pgs.dosage(
-                called.alleles = c('./.', './A', 'A/.', '.'),
-                risk.alleles = c('A', 'A', 'T', 'T')
+                called.alleles = c('./.', './A', 'A/.', '.', NA),
+                risk.alleles = c('A', 'A', 'T', 'T', 'T')
                 ),
-            c(NA, NA, NA, NA)
+            c(NA, NA, NA, NA, NA)
             );
         }
     );

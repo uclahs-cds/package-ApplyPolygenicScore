@@ -36,20 +36,12 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
         stop('slop must be a non-negative integer');
         }
 
-    # convert CHROM to default format (no 'chr' prefix, alphabetic sex chromosomes)
-    pgs.weight.data$CHROM <- gsub('chr', '', pgs.weight.data$CHROM);
-    pgs.weight.data$CHROM <- gsub('23', 'X', pgs.weight.data$CHROM);
-    pgs.weight.data$CHROM <- gsub('24', 'Y', pgs.weight.data$CHROM);
-
-    # apply requested CHROM formatting
-    if (chr.prefix) {
-        pgs.weight.data$CHROM <- paste0('chr', pgs.weight.data$CHROM);
-        }
-
-    if (numeric.sex.chr) {
-        pgs.weight.data$CHROM <- gsub('X', '23', pgs.weight.data$CHROM);
-        pgs.weight.data$CHROM <- gsub('Y', '24', pgs.weight.data$CHROM);
-        }
+    # format chromosome names according to user specifications
+    pgs.weight.data$CHROM <- ApplyPolygenicScore::format.chromosome.notation(
+        chromosome = pgs.weight.data$CHROM,
+        chr.prefix = chr.prefix,
+        numeric.sex.chr = numeric.sex.chr
+        );
 
     ## assemble BED file ##
     # 0-index coordinates
