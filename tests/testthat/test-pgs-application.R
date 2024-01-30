@@ -69,13 +69,13 @@ test_that(
             vcf.data = simple.pgs.application.test.data$vcf.data,
             pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
             );
-        
+
         # check that output is a data.frame
         expect_s3_class(
             test.pgs.per.sample,
             'data.frame'
             );
-        
+
         # check that output has correct number of rows and columns
         expect_equal(
             nrow(test.pgs.per.sample),
@@ -95,7 +95,7 @@ test_that(
             vcf.data = simple.pgs.application.test.data$vcf.data,
             pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
             );
-        
+
         # check that output is correct
         expect_equal(
             test.pgs.per.sample$sample,
