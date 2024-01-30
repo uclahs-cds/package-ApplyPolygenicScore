@@ -40,6 +40,17 @@ test_that(
             'pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta'
             );
 
+        # check for duplicate variants in PGS data
+        test.pgs.weight.data.duplicated.variants <- rbind(test.pgs.weight.data$pgs.weight.data, test.pgs.weight.data$pgs.weight.data[1, ]);
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data.duplicated.variants
+                ),
+            'Duplicate variants are present in the PGS weight data. Please remove duplicate variants.'
+            );
+
+
         # Verify correct number of variants and samples
         expect_error(
             apply.polygenic.score(
@@ -47,9 +58,55 @@ test_that(
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data
                 ),
             'Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.'
-            )
-    }
-)
+            );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly formats outputs', {
+        load('data/simple.pgs.application.test.data.Rda')
+        test.pgs.per.sample <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+        
+        # check that output is a data.frame
+        expect_s3_class(
+            test.pgs.per.sample,
+            'data.frame'
+            );
+        
+        # check that output has correct number of rows and columns
+        expect_equal(
+            nrow(test.pgs.per.sample),
+            2
+            );
+        expect_equal(
+            ncol(test.pgs.per.sample),
+            2
+            );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly calculates pgs', {
+        load('data/simple.pgs.application.test.data.Rda')
+        test.pgs.per.sample <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+        
+        # check that output is correct
+        expect_equal(
+            test.pgs.per.sample$sample,
+            c('sample1', 'sample2')
+            );
+        expect_equal(
+            test.pgs.per.sample$PGS,
+            c(1, 3)
+            );
+        }
+    );
 
 test_that(
     'apply.polygenic.score works correctly on real data', {
