@@ -23,6 +23,11 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
         }
 
+    # check for duplicate variants in PGS data
+    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
+        stop('Duplicate variants are present in the PGS weight data. Please remove duplicate variants.');
+        }
+
     # check that all samples have variant data represented for all variants
     n.samples <- length(unique(vcf.data$Indiv));
     n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
@@ -53,6 +58,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         FUN = sum,
         na.rm = TRUE
         );
+    colnames(pgs.per.sample) <- c('sample', 'PGS');
 
     return(pgs.per.sample);
     }
