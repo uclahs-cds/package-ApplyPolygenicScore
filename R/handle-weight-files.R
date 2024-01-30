@@ -92,6 +92,11 @@ import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) 
     # check that required columns are present
     check.pgs.weight.columns(pgs.weight.colnames = colnames(pgs.weight.data), harmonized = use.harmonized.data);
 
+    # check for duplicate variants
+    if (any(duplicated(paste0(pgs.weight.data$chr_name, pgs.weight.data$chr_position)))) {
+        stop('Duplicate variants are present in the PGS weight file. Please remove duplicate variants.');
+        }
+
     # check if file is harmonized and format columns accordingly
     if (use.harmonized.data) {
 
