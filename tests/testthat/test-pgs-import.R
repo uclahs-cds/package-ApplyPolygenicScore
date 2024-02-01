@@ -196,6 +196,16 @@ test_that(
     );
 
 test_that(
+    'import.pgs.weight.file identifies duplicate variants', {
+        # check that an error is thrown
+        expect_error(
+            import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_duplicated-variants.txt', use.harmonized.data = FALSE),
+            'Duplicate variants are present in the PGS weight file. Please remove duplicate variants.'
+            );
+        }
+    );
+
+test_that(
     'import.pgs.weight.file recognizes unreported weight format', {
       # check that a warning is issued
         expect_warning(

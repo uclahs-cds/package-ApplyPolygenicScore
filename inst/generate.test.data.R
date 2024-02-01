@@ -103,3 +103,25 @@ write.table(
     col.names = FALSE,
     quote = FALSE
     );
+
+# create simple PGS weight and VCF data for PGS application testing
+simple.pgs.application.test.data <- list(
+    pgs.weight.data = data.frame(
+        CHROM = c('chr1', 'chr2'),
+        POS = c(1, 2),
+        effect_allele = c('T', 'T'),
+        beta = c(1.0, 1.0)
+        ),
+    vcf.data = data.frame(
+        CHROM = c('chr1', 'chr1', 'chr2', 'chr2'),
+        POS = c(1, 1, 2, 2),
+        REF = c('A', 'A', 'T', 'T'),
+        ALT = c('T', 'T', 'A', 'A'),
+        Indiv = c('sample1', 'sample2', 'sample1', 'sample2'),
+        gt_GT_alleles = c('A/A', 'T/T', 'A/T', 'T/A')
+        )
+    );
+save(
+    simple.pgs.application.test.data,
+    file = 'tests/testthat/data/simple.pgs.application.test.data.Rda'
+    );
