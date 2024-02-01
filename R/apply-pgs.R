@@ -42,6 +42,40 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         );
     merged.vcf.with.pgs.data <- merged.vcf.with.pgs$merged.vcf.with.pgs.data;
 
+    # identify multiallelic sites
+    # if multiallelics are merged?
+    # if multiallelics are split, remove the entry with risk allele
+
+    # identify coordinates of multiallelic sites
+    indiv.for.filter <- unique(merged.vcf.with.pgs.data$Indiv)[1];
+    sites.one.sample <- merged.vcf.with.pgs.data[merged.vcf.with.pgs.data$Indiv == indiv.for.filter, ];
+    first.multiallelic.site.index <- which(duplicated(paste0(sites.one.sample$CHROM, sites.one.sample$POS)));
+    first.multiallelic.sites <- sites.one.sample[first.multiallelic.site.index, ];
+
+    # identify which multiallelic sites have the risk allele
+    for (i in 1:nrow(first.multiallelic.sites)) {
+        # extract all of the same multiallelic site
+        multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == first.multiallelic.sites$CHROM[i] & merged.vcf.with.pgs.data$POS == first.multiallelic.sites$POS[i]);
+        multiallelic.site <- merged.vcf.with.pgs.data[multiallelic.site.row.index, ];
+        # identify which of the duplicate positions contains the risk allele
+        risk.allele.site.index <- which(multiallelic.site$effect_allele == multiallelic.site$REF | multiallelic.site$effect_allele == multiallelic.site$ALT);
+        # remove position with non-risk allele
+        multiallelic.site <- multiallelic.site[risk.allele.site.index, ];
+        # if the reference allele is the risk allele, there can still be multiple entries
+        # arbitrarily keep one of them
+        # sort by Indiv then REF then ALT
+        multiallelic.site <- multiallelic.site[order(multiallelic.site$Indiv, multiallelic.site$REF, multiallelic.site$ALT), ];
+        # keep the first n entries, where n is the number of unique samples
+        n.samples <- length(unique(multiallelic.site$Indiv));
+        multiallelic.site <- multiallelic.site[1:n.samples, ];
+        # replace the multiallelic site with the single allele site
+        # first remove all multiallelic rows
+        merged.vcf.with.pgs.data <- merged.vcf.with.pgs.data[-multiallelic.site.row.index, ];
+        # then add the single allele rows
+        merged.vcf.with.pgs.data <- rbind(merged.vcf.with.pgs.data, multiallelic.site);
+
+    }
+
     # calculate dosage
     merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
         called.alleles = merged.vcf.with.pgs.data$gt_GT_alleles,
