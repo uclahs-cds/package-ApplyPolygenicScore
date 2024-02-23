@@ -57,17 +57,24 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         # extract all of the same multiallelic site
         multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == first.multiallelic.sites$CHROM[i] & merged.vcf.with.pgs.data$POS == first.multiallelic.sites$POS[i]);
         multiallelic.site <- merged.vcf.with.pgs.data[multiallelic.site.row.index, ];
-        # identify which of the duplicate positions contains the risk allele
-        risk.allele.site.index <- which(multiallelic.site$effect_allele == multiallelic.site$REF | multiallelic.site$effect_allele == multiallelic.site$ALT);
-        # remove position with non-risk allele
-        multiallelic.site <- multiallelic.site[risk.allele.site.index, ];
-        # if the reference allele is the risk allele, there can still be multiple entries
-        # arbitrarily keep one of them
         # sort by Indiv then REF then ALT
         multiallelic.site <- multiallelic.site[order(multiallelic.site$Indiv, multiallelic.site$REF, multiallelic.site$ALT), ];
-        # keep the first n entries, where n is the number of unique samples
-        n.samples <- length(unique(multiallelic.site$Indiv));
-        multiallelic.site <- multiallelic.site[1:n.samples, ];
+
+        # merge multiallelic sites, one sample at a time
+        merged.multiallelic.sites <- sapply(
+            X = unique(multiallelic.site$Indiv),
+            FUN = function(x) {
+                merge.multiallelic.site(multiallelic.site[multiallelic.site$Indiv == x, ])
+                }
+            )
+
+        # remove position with non-risk/non-selected allele
+        multiallelic.site <- multiallelic.site[risk.allele.site.index, ];
+
+        
+        # # keep the first n entries, where n is the number of unique samples
+        # n.samples <- length(unique(multiallelic.site$Indiv));
+        # multiallelic.site <- multiallelic.site[1:n.samples, ];
         # replace the multiallelic site with the single allele site
         # first remove all multiallelic rows
         merged.vcf.with.pgs.data <- merged.vcf.with.pgs.data[-multiallelic.site.row.index, ];
@@ -95,4 +102,71 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     colnames(pgs.per.sample) <- c('sample', 'PGS');
 
     return(pgs.per.sample);
+    }
+
+merge.multiallelic.site <- function(multiallelic.site) {
+    # check for required columns
+    required.columns <- c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles');
+    if (!all(required.columns %in% colnames(multiallelic.site))) {
+        stop('multiallelic.site must contain columns named CHROM, POS, REF, ALT, and gt_GT_alleles');
+        }
+
+    # check that only two extra alleles are present
+    if (length(unique(multiallelic.site$ALT)) != 2) {
+        stop('multiallelic.site must contain exactly two unique ALT alleles');
+        }
+
+    # check that only one sample is present
+    if (length(unique(multiallelic.site$Indiv)) != 1) {
+        stop('multiallelic.site must contain exactly one unique sample');
+        }
+
+    # check that only two rows are present
+    if (nrow(multiallelic.site) != 2) {
+        stop('multiallelic.site must contain exactly two rows');
+        }
+
+    # split GT alleles
+    split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2));
+    names(split.alleles) <- c('called.allele.a', 'called.allele.b');
+
+    # define three possible alleles
+    ref.allele <- unique(multiallelic.site$REF);
+    alt1.allele <- multiallelic.site$ALT[1];
+    alt2.allele <- multiallelic.site$ALT[2];
+
+    all.alleles <- c(split.alleles.called.allele.a, split.alleles.called.allele.b);
+
+    # count alt alleles
+    n.alt1.alleles <- sum(alt1.allele %in% all.alleles);
+    n.alt2.alleles <- sum(alt2.allele %in% all.alleles);
+
+    if (unique(all.alleles) == ref.allele) {
+        # if all alleles are REF, the merged genotype is REF/REF
+        merged.gt <- paste0(ref.allele, '/', ref.allele);
+        } else if (n.alt1.alleles == 1 & n.alt2.alleles == 0) {
+            # if one allele is ALT1 and no alleles are ALT2, the merged genotype is REF/ALT1
+            merged.gt <- paste0(ref.allele, '/', alt1.allele);
+        } else if (n.alt1.alleles == 0 & n.alt2.alleles == 1) {
+            # if no alleles are ALT1 and one allele is ALT2, the merged genotype is REF/ALT2
+            merged.gt <- paste0(ref.allele, '/', alt2.allele);
+        } else if (n.alt1.alleles == 1 & n.alt2.alleles == 1) {
+            # if one allele is ALT1 and one allele is ALT2, the merged genotype is ALT1/ALT2
+            merged.gt <- paste0(alt1.allele, '/', alt2.allele);
+        } else if (n.alt1.alleles == 2 & n.alt2.alleles == 0) {
+            # if two alleles are ALT1 and no alleles are ALT2, the merged genotype is ALT1/ALT1
+            merged.gt <- paste0(alt1.allele, '/', alt1.allele);
+        } else if (n.alt1.alleles == 0 & n.alt2.alleles == 2) {
+            # if no alleles are ALT1 and two alleles are ALT2, the merged genotype is ALT2/ALT2
+            merged.gt <- paste0(alt2.allele, '/', alt2.allele);
+        } else {
+            stop('unrecognized multiallelic site format');
+        }
+
+    # assemble merged site
+    merged.site <- multiallelic.site[1, ];
+    merged.site$ALT <- paste0(alt1.allele, ',', alt2.allele);
+    merged.site$gt_GT_alleles <- merged.gt;
+
+    return(merged.site);
     }
