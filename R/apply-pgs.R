@@ -25,7 +25,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     # check for duplicate variants in PGS data
     if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
-        stop('Duplicate variants are present in the PGS weight data. Please remove duplicate variants.');
+        warning('Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.');
         }
 
     # check that all samples have variant data represented for all variants
@@ -42,47 +42,6 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         );
     merged.vcf.with.pgs.data <- merged.vcf.with.pgs$merged.vcf.with.pgs.data;
 
-    # identify multiallelic sites
-    # if multiallelics are merged?
-    # if multiallelics are split, remove the entry with risk allele
-
-    # identify coordinates of multiallelic sites
-    indiv.for.filter <- unique(merged.vcf.with.pgs.data$Indiv)[1];
-    sites.one.sample <- merged.vcf.with.pgs.data[merged.vcf.with.pgs.data$Indiv == indiv.for.filter, ];
-    first.multiallelic.site.index <- which(duplicated(paste0(sites.one.sample$CHROM, sites.one.sample$POS)));
-    first.multiallelic.sites <- sites.one.sample[first.multiallelic.site.index, ];
-
-    # identify which multiallelic sites have the risk allele
-    for (i in 1:nrow(first.multiallelic.sites)) {
-        # extract all of the same multiallelic site
-        multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == first.multiallelic.sites$CHROM[i] & merged.vcf.with.pgs.data$POS == first.multiallelic.sites$POS[i]);
-        multiallelic.site <- merged.vcf.with.pgs.data[multiallelic.site.row.index, ];
-        # sort by Indiv then REF then ALT
-        multiallelic.site <- multiallelic.site[order(multiallelic.site$Indiv, multiallelic.site$REF, multiallelic.site$ALT), ];
-
-        # merge multiallelic sites, one sample at a time
-        merged.multiallelic.sites <- sapply(
-            X = unique(multiallelic.site$Indiv),
-            FUN = function(x) {
-                merge.multiallelic.site(multiallelic.site[multiallelic.site$Indiv == x, ])
-                }
-            )
-
-        # remove position with non-risk/non-selected allele
-        multiallelic.site <- multiallelic.site[risk.allele.site.index, ];
-
-        
-        # # keep the first n entries, where n is the number of unique samples
-        # n.samples <- length(unique(multiallelic.site$Indiv));
-        # multiallelic.site <- multiallelic.site[1:n.samples, ];
-        # replace the multiallelic site with the single allele site
-        # first remove all multiallelic rows
-        merged.vcf.with.pgs.data <- merged.vcf.with.pgs.data[-multiallelic.site.row.index, ];
-        # then add the single allele rows
-        merged.vcf.with.pgs.data <- rbind(merged.vcf.with.pgs.data, multiallelic.site);
-
-    }
-
     # calculate dosage
     merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
         called.alleles = merged.vcf.with.pgs.data$gt_GT_alleles,
@@ -92,9 +51,49 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     # calculate weighted dosage
     merged.vcf.with.pgs.data$weighted.dosage <- merged.vcf.with.pgs.data$dosage * merged.vcf.with.pgs.data$beta;
 
+
+    # identify coordinates of multiallelic sites
+    indiv.for.filter <- unique(merged.vcf.with.pgs.data$Indiv)[1];
+    sites.one.sample <- merged.vcf.with.pgs.data[merged.vcf.with.pgs.data$Indiv == indiv.for.filter, ];
+    first.multiallelic.site.index <- which(duplicated(paste0(sites.one.sample$CHROM, sites.one.sample$POS)));
+    first.multiallelic.sites <- sites.one.sample[first.multiallelic.site.index, ];
+
+    extracted.non.risk.multiallelic.entries <- list();
+    # identify which multiallelic sites have the risk allele
+    for (i in 1:nrow(first.multiallelic.sites)) {
+        # extract all of the same multiallelic site
+        multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == first.multiallelic.sites$CHROM[i] & merged.vcf.with.pgs.data$POS == first.multiallelic.sites$POS[i]);
+        multiallelic.site <- merged.vcf.with.pgs.data[multiallelic.site.row.index, ];
+        # sort by Indiv then REF then ALT
+        multiallelic.site <- multiallelic.site[order(multiallelic.site$Indiv, multiallelic.site$REF, multiallelic.site$ALT), ];
+
+        # iterate by sample through the multiallelic site
+        for (j in 1:length(unique(multiallelic.site$Indiv))) {
+            single.sample.multiallelic.site <- multiallelic.site[multiallelic.site$Indiv == unique(multiallelic.site$Indiv)[j], ];
+
+            # split GT alleles into separate columns
+            GT.alleles <- data.table::tstrsplit(single.sample.multiallelic.site$gt_GT_alleles, split = c('/|\\|'), keep = c(1,2));
+            names(GT.alleles) <- c('called.allele.a', 'called.allele.b');
+            GT.alleles <- data.frame(do.call(cbind, GT.alleles));
+
+            # one of these alleles must be chosen to represent the sample, the rest will not be counted
+            risk.allele.to.gt.matching <- GT.alleles == single.sample.multiallelic.site$effect_allele
+            risk.allele.site.index <- which(risk.allele.to.gt.matching, arr.ind = TRUE);
+            non.risk.allele.entry <- single.sample.multiallelic.site[-risk.allele.site.index[1, 'row'], ];
+            extracted.non.risk.multiallelic.entries[[length(extracted.non.risk.multiallelic.entries) + 1]] <- non.risk.allele.entry;
+
+            }
+        }
+    extracted.non.risk.multiallelic.entries <- do.call(rbind, extracted.non.risk.multiallelic.entries);
+    # row.match returns index of first match of each row of x in table, returns NA for no match
+    non.risk.multiallelic.entries.index <- prodlim::row.match(x = extracted.non.risk.multiallelic.entries, table = merged.vcf.with.pgs.data);
+
+    merged.vcf.with.pgs.data$multiallelic.weighted.dosage <- merged.vcf.with.pgs.data$weighted.dosage;
+    merged.vcf.with.pgs.data$multiallelic.weighted.dosage[non.risk.multiallelic.entries.index] <- NA;
+
     # calculate PGS per sample using base R
     pgs.per.sample <- aggregate(
-        x = merged.vcf.with.pgs.data$weighted.dosage,
+        x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
         by = list(merged.vcf.with.pgs.data$Indiv),
         FUN = sum,
         na.rm = TRUE
@@ -103,4 +102,3 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     return(pgs.per.sample);
     }
-

@@ -127,32 +127,47 @@ save(
     );
 
 # create simple VCF data for testing multiallelic site handling
-split.multiallelic.site.test.data <- list(
-    split.multiallelic.vcf.data = data.frame(
-        CHROM = c('chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2'),
-        POS = c(1, 1, 2, 2, 2, 2), # split multiallelic site at chr2:2
+merged.multiallelic.site.test.data <- list(
+    merged.multiallelic.vcf.data = data.frame(
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2'),
+        POS = c(1, 1, 1, 2, 2, 2), # merged multiallelic site at chr2:2
         REF = c('T', 'T', 'T', 'T', 'T', 'T'),
-        # three possible alleles at chr2:2 (A, T, C)
-        # one split site has REF T Alt A, the other split site has REF T alt C
-        ALT = c('A', 'A', 'A', 'A', 'C', 'C'),
-        Indiv = c('sample1', 'sample2', 'sample1', 'sample2', 'sample1', 'sample2'),
-        # sample 1 is heterozygous (one A one T). sample 2 is heterozygous (one C one T)
-        gt_GT_alleles = c('A/A', 'T/T', 'A/T', 'T/T', 'T/T', 'T/C')
+        # three possible alleles at chr2:2 (T, A, C)
+        ALT = c('A', 'A', 'A', 'A,C', 'A,C', 'A,C'),
+        Indiv = c('sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3'),
+        # multiallelic genotypes at chr2:2
+        # sample 1 is heterozygous for alt allele A
+        # sample 2 is heterozygous for alt allele C
+        # sample 3 is homozygous for alt allele C
+        gt_GT_alleles = c('T/T', 'T/A', 'A/A', 'T/A', 'T/C', 'C/C')
         ),
-    ref.as.risk.allele.multiallelic.pgs.weight.data = data.frame(
+    ref.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2'),
         POS = c(1, 2),
         effect_allele = c('T', 'T'),
         beta = c(1.0, 1.0)
         ),
-    alt.as.risk.allele.multiallelic.pgs.weight.data = data.frame(
+    alt.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2'),
         POS = c(1, 2),
         effect_allele = c('A', 'A'),
         beta = c(1.0, 1.0)
+        ),
+    alt.as.two.risk.alleles.multiallelic.pgs.weight.data = data.frame(
+        CHROM = c('chr1', 'chr2', 'chr2'),
+        POS = c(1, 2, 2),
+        effect_allele = c('A', 'A', 'C'),
+        beta = c(1.0, 1.0, 0.5)
+        ),
+    ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data = data.frame(
+        CHROM = c('chr1', 'chr2', 'chr2'),
+        POS = c(1, 2, 2),
+        effect_allele = c('A', 'A', 'T'),
+        beta = c(1.0, 1.0, 0.5)
         )
     );
+
 save(
-    split.multiallelic.site.test.data,
-    file = 'tests/testthat/data/split.multiallelic.site.test.data.Rda'
+    merged.multiallelic.site.test.data,
+    file = 'tests/testthat/data/merged.multiallelic.site.test.data.Rda'
     );
