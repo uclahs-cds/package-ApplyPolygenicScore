@@ -54,10 +54,6 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     # identify coordinates of multiallelic sites
     multiallelic.site.coordinates <- get.multiallelic.site.coordinates(vcf.data = merged.vcf.with.pgs.data);
-    # indiv.for.filter <- unique(merged.vcf.with.pgs.data$Indiv)[1];
-    # sites.one.sample <- merged.vcf.with.pgs.data[merged.vcf.with.pgs.data$Indiv == indiv.for.filter, ];
-    # first.multiallelic.site.index <- which(duplicated(paste0(sites.one.sample$CHROM, sites.one.sample$POS)));
-    # first.multiallelic.sites <- sites.one.sample[first.multiallelic.site.index, ];
 
     extracted.non.risk.multiallelic.entries <- list();
     # identify which entry in each multiallelic site corresponds to the genotype of each sample
