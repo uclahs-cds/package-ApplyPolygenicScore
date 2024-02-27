@@ -38,6 +38,9 @@ import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbo
     # check for no INFO fields vcfR bug
     vcf.vcfR <- check.for.no.info.fields(vcf.vcfR);
 
+    # check for split multiallelic sites
+    check.vcf.for.split.multiallelic.sites(vcf.vcfR);
+
     # convert to long form tibble dataframe w/ vcfR
     long.vcf <- vcfR::vcfR2tidy(
         x = vcf.vcfR,
