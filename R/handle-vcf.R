@@ -12,6 +12,17 @@ check.for.no.info.fields <- function(vcf.vcfR) {
     return(vcf.vcfR);
     }
 
+check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
+    # check for duplicate CHROM:POS entries
+    site.coordinates <- paste(vcf.vcfR@fix[ ,'CHROM'], vcf.vcfR@fix[ ,'POS'], sep = ':');
+    split.site.coordinates.index <- duplicated(site.coordinates);
+    if (any(split.site.coordinates.index)) {
+        stop(
+            paste0('Split multiallelic site detected at ', site.coordinates[split.site.coordinates.index], '. Please merge multiallelic sites before importing.')
+            );
+        }
+    }
+
 #' @title Import VCF file
 #' @description Import a VCF file into a long form data.frame using vcfR package.
 #' @param vcf.path A character string indicating the path to the VCF file to be imported.
