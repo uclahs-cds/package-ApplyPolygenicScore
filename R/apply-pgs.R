@@ -53,33 +53,26 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
 
     # identify coordinates of multiallelic sites
-    indiv.for.filter <- unique(merged.vcf.with.pgs.data$Indiv)[1];
-    sites.one.sample <- merged.vcf.with.pgs.data[merged.vcf.with.pgs.data$Indiv == indiv.for.filter, ];
-    first.multiallelic.site.index <- which(duplicated(paste0(sites.one.sample$CHROM, sites.one.sample$POS)));
-    first.multiallelic.sites <- sites.one.sample[first.multiallelic.site.index, ];
+    multiallelic.site.coordinates <- get.multiallelic.site.coordinates(vcf.data = merged.vcf.with.pgs.data);
+    # indiv.for.filter <- unique(merged.vcf.with.pgs.data$Indiv)[1];
+    # sites.one.sample <- merged.vcf.with.pgs.data[merged.vcf.with.pgs.data$Indiv == indiv.for.filter, ];
+    # first.multiallelic.site.index <- which(duplicated(paste0(sites.one.sample$CHROM, sites.one.sample$POS)));
+    # first.multiallelic.sites <- sites.one.sample[first.multiallelic.site.index, ];
 
     extracted.non.risk.multiallelic.entries <- list();
-    # identify which multiallelic sites have the risk allele
-    for (i in 1:nrow(first.multiallelic.sites)) {
-        # extract all of the same multiallelic site
-        multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == first.multiallelic.sites$CHROM[i] & merged.vcf.with.pgs.data$POS == first.multiallelic.sites$POS[i]);
+    # identify which entry in each multiallelic site corresponds to the genotype of each sample
+    # iterate over each multiallelic site coordinate
+    for (i in 1:nrow(multiallelic.site.coordinates)) {
+        # extract all entries of the multiallelic site (expected minimum 2, sometimes more)
+        multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == multiallelic.site.coordinates$CHROM[i] & merged.vcf.with.pgs.data$POS == multiallelic.site.coordinates$POS[i]);
         multiallelic.site <- merged.vcf.with.pgs.data[multiallelic.site.row.index, ];
-        # sort by Indiv then REF then ALT
-        multiallelic.site <- multiallelic.site[order(multiallelic.site$Indiv, multiallelic.site$REF, multiallelic.site$ALT), ];
 
-        # iterate by sample through the multiallelic site
+        # iterate over each sample
         for (j in 1:length(unique(multiallelic.site$Indiv))) {
+            # extract all multiallelic site entries belonging to a single sample
             single.sample.multiallelic.site <- multiallelic.site[multiallelic.site$Indiv == unique(multiallelic.site$Indiv)[j], ];
 
-            # split GT alleles into separate columns
-            GT.alleles <- data.table::tstrsplit(single.sample.multiallelic.site$gt_GT_alleles, split = c('/|\\|'), keep = c(1,2));
-            names(GT.alleles) <- c('called.allele.a', 'called.allele.b');
-            GT.alleles <- data.frame(do.call(cbind, GT.alleles));
-
-            # one of these alleles must be chosen to represent the sample, the rest will not be counted
-            risk.allele.to.gt.matching <- GT.alleles == single.sample.multiallelic.site$effect_allele
-            risk.allele.site.index <- which(risk.allele.to.gt.matching, arr.ind = TRUE);
-            non.risk.allele.entry <- single.sample.multiallelic.site[-risk.allele.site.index[1, 'row'], ];
+            non.risk.allele.entry <- get.non.risk.multiallelic.site.row(single.sample.multialellic.pgs.with.vcf.data = single.sample.multiallelic.site);
             extracted.non.risk.multiallelic.entries[[length(extracted.non.risk.multiallelic.entries) + 1]] <- non.risk.allele.entry;
 
             }
