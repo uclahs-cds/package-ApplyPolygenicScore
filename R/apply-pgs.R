@@ -51,7 +51,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     # calculate weighted dosage
     merged.vcf.with.pgs.data$weighted.dosage <- merged.vcf.with.pgs.data$dosage * merged.vcf.with.pgs.data$beta;
 
-
+    ### Start Multiallelic Site Handling ###
     # identify coordinates of multiallelic sites
     multiallelic.site.coordinates <- get.multiallelic.site.coordinates(vcf.data = merged.vcf.with.pgs.data);
 
@@ -79,6 +79,8 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     merged.vcf.with.pgs.data$multiallelic.weighted.dosage <- merged.vcf.with.pgs.data$weighted.dosage;
     merged.vcf.with.pgs.data$multiallelic.weighted.dosage[non.risk.multiallelic.entries.index] <- NA;
+
+    ### End Multiallelic Site Handling ###
 
     # calculate PGS per sample using base R
     pgs.per.sample <- aggregate(
