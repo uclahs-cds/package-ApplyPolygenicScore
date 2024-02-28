@@ -42,12 +42,12 @@ test_that(
 
         # check for duplicate variants in PGS data
         test.pgs.weight.data.duplicated.variants <- rbind(test.pgs.weight.data$pgs.weight.data, test.pgs.weight.data$pgs.weight.data[1, ]);
-        expect_error(
+        expect_warning(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data.duplicated.variants
                 ),
-            'Duplicate variants are present in the PGS weight data. Please remove duplicate variants.'
+            'Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.'
             );
 
 
