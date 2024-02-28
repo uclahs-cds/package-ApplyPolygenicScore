@@ -2,11 +2,16 @@
 # Input is a data.frame with CHROM, POS, and Indiv columns
 # Output is the input data frame filtered for the first (of 2 or more) entries of each multiallelic site
 get.multiallelic.site.coordinates <- function(vcf.data) {
-    single.sample.cohort.representative <- unique(vcf.data$Indiv)[1];
-    single.sample.vcf.data <- vcf.data[vcf.data$Indiv == single.sample.cohort.representative, ];
+    single.sample.cohort.representative <- unique(na.omit(vcf.data$Indiv))[1];
+    single.sample.vcf.data <- subset(vcf.data, Indiv == single.sample.cohort.representative);
     first.multiallelic.entry.index <- which(duplicated(paste0(single.sample.vcf.data$CHROM, single.sample.vcf.data$POS)));
-    first.multiallelic.entries <- single.sample.vcf.data[first.multiallelic.entry.index, ];
-    return(first.multiallelic.entries);
+
+    if (length(first.multiallelic.entry.index) > 0) {
+        first.multiallelic.entries <- single.sample.vcf.data[first.multiallelic.entry.index, ];
+        return(first.multiallelic.entries);
+        } else {
+            return(data.frame());
+        }
     }
 
 # utility function to identify entries of multiallelic sites that should be excluded from
@@ -14,6 +19,12 @@ get.multiallelic.site.coordinates <- function(vcf.data) {
 # Input is a data.frame with VCF and pgs weight data, requires columns CHROM, POS, Indiv, gt_GT_alleles, effect_allele, and beta
 # Output is the input data.frame filtered for non-risk multiallellic site entries
 get.non.risk.multiallelic.site.row <- function(single.sample.multialellic.pgs.with.vcf.data) {
+    
+    # handle case where there are no multiallelic sites
+    if(nrow(single.sample.multialellic.pgs.with.vcf.data) == 0) {
+        return(data.frame());
+        }
+
     # split genotyped alleles into separate columns
     GT.alleles <- data.table::tstrsplit(single.sample.multialellic.pgs.with.vcf.data$gt_GT_alleles, split = c('/|\\|'), keep = c(1,2));
     names(GT.alleles) <- c('called.allele.a', 'called.allele.b');
