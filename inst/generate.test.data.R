@@ -129,41 +129,47 @@ save(
 # create simple VCF data for testing multiallelic site handling
 merged.multiallelic.site.test.data <- list(
     merged.multiallelic.vcf.data = data.frame(
-        CHROM = c('chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2'),
-        POS = c(1, 1, 1, 2, 2, 2), # merged multiallelic site at chr2:2
-        REF = c('T', 'T', 'T', 'T', 'T', 'T'),
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3'),
+        # merged multiallelic site at chr2:2 with betas provided
+        # merged multiallelic site at chr3:3 with no betas provided
+        POS = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
         # three possible alleles at chr2:2 (T, A, C)
-        ALT = c('A', 'A', 'A', 'A,C', 'A,C', 'A,C'),
-        Indiv = c('sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3'),
+        ALT = c('A', 'A', 'A', 'A,C', 'A,C', 'A,C', 'A,G', 'A,G', 'A,G'),
+        Indiv = c('sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3'),
         # multiallelic genotypes at chr2:2
         # sample 1 is heterozygous for alt allele A
         # sample 2 is heterozygous for alt allele C
         # sample 3 is homozygous for alt allele C
-        gt_GT_alleles = c('T/T', 'T/A', 'A/A', 'T/A', 'T/C', 'C/C')
+        # multiallelic genotypes at chr3:3
+        # sample 1 is heterozygous for alt allele A
+        # sample 2 is homozygous for alt allele G
+        # sample 3 is homozygous for alt allele G
+        gt_GT_alleles = c('T/T', 'T/A', 'A/A', 'T/A', 'T/C', 'C/C', 'T/A', 'T/G', 'G/G')
         ),
     ref.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
-        CHROM = c('chr1', 'chr2'),
-        POS = c(1, 2),
-        effect_allele = c('T', 'T'),
-        beta = c(1.0, 1.0)
+        CHROM = c('chr1', 'chr2', 'chr3'),
+        POS = c(1, 2, 3),
+        effect_allele = c('T', 'T', 'T'),
+        beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
-        CHROM = c('chr1', 'chr2'),
-        POS = c(1, 2),
-        effect_allele = c('A', 'A'),
-        beta = c(1.0, 1.0)
+        CHROM = c('chr1', 'chr2', 'chr3'),
+        POS = c(1, 2, 3),
+        effect_allele = c('A', 'A', 'A'),
+        beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.two.risk.alleles.multiallelic.pgs.weight.data = data.frame(
-        CHROM = c('chr1', 'chr2', 'chr2'),
-        POS = c(1, 2, 2),
-        effect_allele = c('A', 'A', 'C'),
-        beta = c(1.0, 1.0, 0.5)
+        CHROM = c('chr1', 'chr2', 'chr2', 'chr3'),
+        POS = c(1, 2, 2, 3),
+        effect_allele = c('A', 'A', 'C', 'A'),
+        beta = c(1.0, 1.0, 0.5, 1.0)
         ),
     ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data = data.frame(
-        CHROM = c('chr1', 'chr2', 'chr2'),
-        POS = c(1, 2, 2),
-        effect_allele = c('A', 'A', 'T'),
-        beta = c(1.0, 1.0, 0.5)
+        CHROM = c('chr1', 'chr2', 'chr2', 'chr3'),
+        POS = c(1, 2, 2, 3),
+        effect_allele = c('A', 'A', 'T', 'A'),
+        beta = c(1.0, 1.0, 0.5, 1.0)
         )
     );
 
