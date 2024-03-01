@@ -42,12 +42,12 @@ get.non.risk.multiallelic.site.row <- function(single.sample.multialellic.pgs.wi
             # if both effect alleles are found in the sample genotype, the sample is heterozygous for the effect alleles
             # this tool is not designed to handle multiple betas for one genotype
             # in this case, the entry with the higher effect alle beta is chosen to represent the sample
-            risk.allele.site.row.index <- which.max(single.sample.multiallelic.vcf.data$beta);
+            risk.allele.site.row.index <- which.max(single.sample.multialellic.pgs.with.vcf.data$beta);
             warning(paste0(
-                'Multiple effect alleles found in sample ',
-                unique(single.sample.multiallellic.vcf.data$Indiv),
+                'Multiple effect alleles found in ',
+                unique(single.sample.multialellic.pgs.with.vcf.data$Indiv),
                 ' genotype, choosing effect allele with highest beta for dosage calculation. Check coordinates ',
-                single.sample.multiallellic.vcf.data$CHROM, ':', single.sample.multiallellic.vcf.data$POS
+                single.sample.multialellic.pgs.with.vcf.data$CHROM, ':', single.sample.multialellic.pgs.with.vcf.data$POS, '\n'
                 ))
         } else {
             risk.allele.site.row.index <- risk.allele.site.index[1, 'row'];
