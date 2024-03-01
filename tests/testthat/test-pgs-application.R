@@ -109,6 +109,48 @@ test_that(
     );
 
 test_that(
+    'apply.polygenic.score correctly handles multiallic sites', {
+        load('data/merged.multiallelic.site.test.data.Rda');
+        # test that 
+        ref.as.single.risk.allele.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$ref.as.single.risk.allele.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            ref.as.single.risk.allele.test$PGS,
+            c(4, 3, 0)
+            );
+
+        alt.as.single.risk.allele.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            alt.as.single.risk.allele.test$PGS,
+            c(2, 1, 2)
+            );
+
+        alt.as.two.risk.alleles.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            alt.as.two.risk.alleles.test$PGS,
+            c(2, 1.5, 3)
+            );
+    
+        ref.and.alt.as.two.risk.alleles.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            ref.and.alt.as.two.risk.alleles.test$PGS,
+            c(2, 1.5, 2)
+            );
+        }
+    );
+
+test_that(
     'apply.polygenic.score works correctly on real data', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
