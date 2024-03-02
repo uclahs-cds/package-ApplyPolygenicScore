@@ -3,9 +3,8 @@
 # Input is a data.frame with VCF and pgs weight data, requires columns CHROM, POS, Indiv, gt_GT_alleles, effect_allele, and beta
 # Output is the input data.frame filtered for non-risk multiallellic site entries
 get.non.risk.multiallelic.site.row <- function(single.sample.multialellic.pgs.with.vcf.data) {
-    
     # handle case where there are no multiallelic sites
-    if(nrow(single.sample.multialellic.pgs.with.vcf.data) < 2) {
+    if (nrow(single.sample.multialellic.pgs.with.vcf.data) < 2) {
         return(data.frame());
         }
 
