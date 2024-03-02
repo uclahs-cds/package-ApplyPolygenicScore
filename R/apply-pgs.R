@@ -65,27 +65,6 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         FUN = get.non.risk.multiallelic.site.row
         );
 
-    # # identify coordinates of multiallelic sites
-    # multiallelic.site.coordinates <- get.multiallelic.site.coordinates(vcf.data = merged.vcf.with.pgs.data);
-
-    # extracted.non.risk.multiallelic.entries <- list();
-    # # identify which entry in each multiallelic site corresponds to the genotype of each sample
-    # # iterate over each multiallelic site coordinate
-    # for (i in 1:nrow(multiallelic.site.coordinates)) {
-    #     # extract all entries of the multiallelic site (expected minimum 2, sometimes more)
-    #     multiallelic.site.row.index <- which(merged.vcf.with.pgs.data$CHROM == multiallelic.site.coordinates$CHROM[i] & merged.vcf.with.pgs.data$POS == multiallelic.site.coordinates$POS[i]);
-    #     multiallelic.site <- merged.vcf.with.pgs.data[multiallelic.site.row.index, ];
-
-    #     # iterate over each sample
-    #     for (j in 1:length(unique(multiallelic.site$Indiv))) {
-    #         # extract all multiallelic site entries belonging to a single sample
-    #         single.sample.multiallelic.site <- multiallelic.site[multiallelic.site$Indiv == unique(multiallelic.site$Indiv)[j], ];
-
-    #         non.risk.allele.entry <- get.non.risk.multiallelic.site.row(single.sample.multialellic.pgs.with.vcf.data = single.sample.multiallelic.site);
-    #         extracted.non.risk.multiallelic.entries[[length(extracted.non.risk.multiallelic.entries) + 1]] <- non.risk.allele.entry;
-
-    #         }
-    #     }
     extracted.non.risk.multiallelic.entries <- do.call(rbind, extracted.non.risk.multiallelic.entries);
     # row.match returns index of first match of each row of x in table, returns NA for no match
     non.risk.multiallelic.entries.index <- prodlim::row.match(x = extracted.non.risk.multiallelic.entries, table = merged.vcf.with.pgs.data);
