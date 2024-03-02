@@ -16,6 +16,7 @@ Imports:
     vcfR,
     data.table,
     BoutrosLab.utilities
+    prodlim
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
