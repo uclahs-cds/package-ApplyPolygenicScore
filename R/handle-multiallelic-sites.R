@@ -21,7 +21,7 @@ get.multiallelic.site.coordinates <- function(vcf.data) {
 get.non.risk.multiallelic.site.row <- function(single.sample.multialellic.pgs.with.vcf.data) {
     
     # handle case where there are no multiallelic sites
-    if(nrow(single.sample.multialellic.pgs.with.vcf.data) == 0) {
+    if(nrow(single.sample.multialellic.pgs.with.vcf.data) < 2) {
         return(data.frame());
         }
 
