@@ -1,19 +1,3 @@
-# utility function to get the coordinates of multiallelic sites in VCF data
-# Input is a data.frame with CHROM, POS, and Indiv columns
-# Output is the input data frame filtered for the first (of 2 or more) entries of each multiallelic site
-get.multiallelic.site.coordinates <- function(vcf.data) {
-    single.sample.cohort.representative <- unique(na.omit(vcf.data$Indiv))[1];
-    single.sample.vcf.data <- subset(vcf.data, Indiv == single.sample.cohort.representative);
-    first.multiallelic.entry.index <- which(duplicated(paste0(single.sample.vcf.data$CHROM, single.sample.vcf.data$POS)));
-
-    if (length(first.multiallelic.entry.index) > 0) {
-        first.multiallelic.entries <- single.sample.vcf.data[first.multiallelic.entry.index, ];
-        return(first.multiallelic.entries);
-        } else {
-            return(data.frame());
-        }
-    }
-
 # utility function to identify entries of multiallelic sites that should be excluded from
 # pgs weight calculation due to mismatch of effect allele and genotype
 # Input is a data.frame with VCF and pgs weight data, requires columns CHROM, POS, Indiv, gt_GT_alleles, effect_allele, and beta
