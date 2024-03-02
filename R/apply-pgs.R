@@ -55,14 +55,28 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     # create a dictionary to each unique sample:coordinate combination
 
     sample.coordinate.to.row.dict.list <- list();
+    # for (i in 1:nrow(merged.vcf.with.pgs.data)) {
+    #     key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
+    #     sample.coordinate.to.row.dict.list[[key]] <- rbind(sample.coordinate.to.row.dict.list[[key]], merged.vcf.with.pgs.data[i, ]);
+    #     }
+
+    # extracted.non.risk.multiallelic.entries <- lapply(
+    #     X = sample.coordinate.to.row.dict.list,
+    #     FUN = get.non.risk.multiallelic.site.row
+    #     );
+
     for (i in 1:nrow(merged.vcf.with.pgs.data)) {
         key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
-        sample.coordinate.to.row.dict.list[[key]] <- rbind(sample.coordinate.to.row.dict.list[[key]], merged.vcf.with.pgs.data[i, ]);
+        sample.coordinate.to.row.dict.list[[key]] <- c(sample.coordinate.to.row.dict.list[[key]], i);
         }
 
     extracted.non.risk.multiallelic.entries <- lapply(
-        X = sample.coordinate.to.row.dict.list,
-        FUN = get.non.risk.multiallelic.site.row
+        X = 1:length(sample.coordinate.to.row.dict.list),
+        FUN = function(x) {
+            get.non.risk.multiallelic.site.row(
+                single.sample.multialellic.pgs.with.vcf.data = merged.vcf.with.pgs.data[sample.coordinate.to.row.dict.list[[x]], ]
+                )
+            }
         );
 
     extracted.non.risk.multiallelic.entries <- do.call(rbind, extracted.non.risk.multiallelic.entries);
