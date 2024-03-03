@@ -51,28 +51,23 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     ### Start Missing Genotype Handling ###
     # assign variant IDs
     variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$REF, merged.vcf.with.pgs.data$effect_allele, sep = ':');
-    # transform to SNP by sample matrix of dosages
-    dosage.matrix <- reshape2::dcast(
-        data = merged.vcf.with.pgs.data,
-        formula = variant.id ~ Indiv,
+
+    dosage.matrix <- get.variant.by.sample.matrix(
+        long.data = merged.vcf.with.pgs.data,
+        variant.id = variant.id,
         value.var = 'dosage'
         );
-    rownames(dosage.matrix) <- dosage.matrix$variant.id;
-    dosage.matrix$variant.id <- NULL;
-    # remove column named NA
-    dosage.matrix <- dosage.matrix[, !colnames(dosage.matrix) %in% 'NA'];
-    # calculate the mean dosage for each variant
-    mean.dosage <- apply(dosage.matrix, 1, function(x) {
-        mean(x, na.rm = TRUE)
-        });
+
+    # calculate dosage to replace missing genotypes
+    missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
     
     # identify missing genotypes
     missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage) & !is.na(merged.vcf.with.pgs.data$Indiv));
+    # start a column for replaced missing dosages
     merged.vcf.with.pgs.data$dosage.with.replaced.missing <- merged.vcf.with.pgs.data$dosage;
     # assign mean dosage to missing genotypes
     for (i in missing.genotype.row.index) {
         missing.variant.id <- paste(merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], merged.vcf.with.pgs.data[i, 'REF'], merged.vcf.with.pgs.data[i, 'effect_allele'], sep = ':');
-        #missing.variant.dosage.index <- which(rownames(dosage.matrix) == missing.variant.id);
         missing.variant.dosage <- mean.dosage[missing.variant.id];
         merged.vcf.with.pgs.data[i, 'dosage.with.replaced.missing'] <- missing.variant.dosage;
         }
