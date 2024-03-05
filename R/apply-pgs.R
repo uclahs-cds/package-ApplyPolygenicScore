@@ -53,17 +53,17 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     ### Start Multiallelic Site Handling ###
     # create a dictionary to each unique sample:coordinate combination
-    sample.coordinate.to.row.dict.list <- new.env(hash = TRUE, parent = emptyenv());
+    sample.coordinate.to.row.dict.hash <- new.env(hash = TRUE, parent = emptyenv());
 
     for (i in 1:nrow(merged.vcf.with.pgs.data)) {
         key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
-        sample.coordinate.to.row.dict.list[[key]] <- c(sample.coordinate.to.row.dict.list[[key]], i);
+        sample.coordinate.to.row.dict.hash[[key]] <- c(sample.coordinate.to.row.dict.hash[[key]], i);
         }
 
     non.risk.multiallelic.entries.index <- lapply(
-        X = ls(sample.coordinate.to.row.dict.list),
+        X = ls(sample.coordinate.to.row.dict.hash),
         FUN = function(x) {
-            row.index <- sample.coordinate.to.row.dict.list[[x]];
+            row.index <- sample.coordinate.to.row.dict.hash[[x]];
             single.sample.multialellic.pgs.with.vcf.data <- merged.vcf.with.pgs.data[row.index, ];
             single.sample.multialellic.pgs.with.vcf.data$original.df.row.index <- row.index;
             non.risk.multialalelic.site.rows <- get.non.risk.multiallelic.site.row(
