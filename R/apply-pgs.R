@@ -49,9 +49,10 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         );
 
     ### Start Missing Genotype Handling ###
-    # assign variant IDs
+    # assign coordinate-based variant IDs
     variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$REF, merged.vcf.with.pgs.data$effect_allele, sep = ':');
 
+    # create sample by variant dosage matrix
     dosage.matrix <- get.variant.by.sample.matrix(
         long.data = merged.vcf.with.pgs.data,
         variant.id = variant.id,
@@ -68,7 +69,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     # assign mean dosage to missing genotypes
     for (i in missing.genotype.row.index) {
         missing.variant.id <- paste(merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], merged.vcf.with.pgs.data[i, 'REF'], merged.vcf.with.pgs.data[i, 'effect_allele'], sep = ':');
-        missing.variant.dosage <- mean.dosage[missing.variant.id];
+        missing.variant.dosage <- missing.genotype.dosage[missing.variant.id];
         merged.vcf.with.pgs.data[i, 'dosage.with.replaced.missing'] <- missing.variant.dosage;
         }
 
@@ -76,6 +77,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     # calculate weighted dosage
     merged.vcf.with.pgs.data$weighted.dosage <- merged.vcf.with.pgs.data$dosage * merged.vcf.with.pgs.data$beta;
+    merged.vcf.with.pgs.data$weighted.dosage.with.replaced.missing <- merged.vcf.with.pgs.data$dosage.with.replaced.missing * merged.vcf.with.pgs.data$beta;
 
     ### Start Multiallelic Site Handling ###
     # create a dictionary to each unique sample:coordinate combination
@@ -104,6 +106,9 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     merged.vcf.with.pgs.data$multiallelic.weighted.dosage <- merged.vcf.with.pgs.data$weighted.dosage;
     merged.vcf.with.pgs.data$multiallelic.weighted.dosage[non.risk.multiallelic.entries.index] <- NA;
 
+    merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing <- merged.vcf.with.pgs.data$weighted.dosage.with.replaced.missing;
+    merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing[non.risk.multiallelic.entries.index] <- NA;
+
     ### End Multiallelic Site Handling ###
 
     # calculate PGS per sample using base R
@@ -114,6 +119,15 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         na.rm = TRUE
         );
     colnames(pgs.per.sample) <- c('sample', 'PGS');
+
+    pgs.per.sample.with.replaced.missing <- aggregate(
+        x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing,
+        by = list(merged.vcf.with.pgs.data$Indiv),
+        FUN = sum,
+        na.rm = TRUE
+        );
+
+    pgs.per.sample$PGS.with.replaced.missing <- pgs.per.sample.with.replaced.missing$x;
 
     return(pgs.per.sample);
     }
