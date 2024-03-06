@@ -83,7 +83,7 @@ test_that(
             );
         expect_equal(
             ncol(test.pgs.per.sample),
-            2
+            3
             );
         }
     );
@@ -169,6 +169,20 @@ test_that(
                 pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
                 ),
             'Multiple effect alleles found in sample1 genotype, choosing effect allele with highest beta for dosage calculation. Check coordinates chr2:2'
+            );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly handles missing genotypes', {
+        load('data/missing.genotype.test.data.Rda');
+        test.missing.genotype <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data
+            );
+        expect_equal(
+            test.missing.genotype$PGS.with.replaced.missing,
+            c(1, 4, 2.5)
             );
         }
     );
