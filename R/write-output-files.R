@@ -14,7 +14,7 @@ write.per.sample.pgs.table <- function(per.sample.pgs.summary.data, output.path,
     if (!is.character(output.path)) {
         stop('output.path must be a character string');
         }
-    
+
     # check that file.prefix is a character string
     if (!is.null(file.prefix) && !is.character(file.prefix)) {
         stop('file.prefix must be a character string');
@@ -37,4 +37,3 @@ write.per.sample.pgs.table <- function(per.sample.pgs.summary.data, output.path,
         quote = FALSE
         );
     }
-

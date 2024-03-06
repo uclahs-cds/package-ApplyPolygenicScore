@@ -50,7 +50,7 @@ test_that(
         expect_true(
             file.exists(file.path(temp.dir, test.filename))
             );
-        
+
         # read file back in and check that it is correct
         read.in.pgs.per.sample <- read.table(
             file = file.path(temp.dir, test.filename),
