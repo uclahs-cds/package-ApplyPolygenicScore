@@ -25,7 +25,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     # check for duplicate variants in PGS data
     if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
-        stop('Duplicate variants are present in the PGS weight data. Please remove duplicate variants.');
+        warning('Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.');
         }
 
     # check that all samples have variant data represented for all variants
@@ -51,9 +51,38 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     # calculate weighted dosage
     merged.vcf.with.pgs.data$weighted.dosage <- merged.vcf.with.pgs.data$dosage * merged.vcf.with.pgs.data$beta;
 
+    ### Start Multiallelic Site Handling ###
+    # create a dictionary to each unique sample:coordinate combination
+    sample.coordinate.to.row.dict.hash <- new.env(hash = TRUE, parent = emptyenv());
+
+    for (i in 1:nrow(merged.vcf.with.pgs.data)) {
+        key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
+        sample.coordinate.to.row.dict.hash[[key]] <- c(sample.coordinate.to.row.dict.hash[[key]], i);
+        }
+
+    non.risk.multiallelic.entries.index <- lapply(
+        X = ls(sample.coordinate.to.row.dict.hash),
+        FUN = function(x) {
+            row.index <- sample.coordinate.to.row.dict.hash[[x]];
+            single.sample.multialellic.pgs.with.vcf.data <- merged.vcf.with.pgs.data[row.index, ];
+            single.sample.multialellic.pgs.with.vcf.data$original.df.row.index <- row.index;
+            non.risk.multiallelic.site.rows <- get.non.risk.multiallelic.site.row(
+                single.sample.multialellic.pgs.with.vcf.data = single.sample.multialellic.pgs.with.vcf.data
+                );
+            return(non.risk.multiallelic.site.rows$original.df.row.index);
+            }
+        );
+
+    non.risk.multiallelic.entries.index <- unlist(non.risk.multiallelic.entries.index);
+
+    merged.vcf.with.pgs.data$multiallelic.weighted.dosage <- merged.vcf.with.pgs.data$weighted.dosage;
+    merged.vcf.with.pgs.data$multiallelic.weighted.dosage[non.risk.multiallelic.entries.index] <- NA;
+
+    ### End Multiallelic Site Handling ###
+
     # calculate PGS per sample using base R
     pgs.per.sample <- aggregate(
-        x = merged.vcf.with.pgs.data$weighted.dosage,
+        x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
         by = list(merged.vcf.with.pgs.data$Indiv),
         FUN = sum,
         na.rm = TRUE

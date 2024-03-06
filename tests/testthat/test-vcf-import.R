@@ -222,3 +222,26 @@ test_that(
             );
         }
     );
+
+test_that(
+    'check.vcf.for.split.multiallelic.sites utility correctly catches split multiallelic sites', {
+        # check that split multiallelic sites are detected
+        expect_error(
+            import.vcf(
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample_multiallelic-split.vcf.gz',
+                info.fields = NULL,
+                format.fields = NULL
+                ),
+            'Split multiallelic site detected at chr1:87734095. Please merge multiallelic sites before importing.'
+            );
+        # check that merged multiallelic sites are allowed
+        expect_no_error(
+            import.vcf(
+                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample_multiallelic-merged.vcf.gz',
+                info.fields = NULL,
+                format.fields = NULL
+                )
+            );
+
+        }
+    );

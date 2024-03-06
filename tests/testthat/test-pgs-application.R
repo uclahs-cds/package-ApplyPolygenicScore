@@ -42,12 +42,12 @@ test_that(
 
         # check for duplicate variants in PGS data
         test.pgs.weight.data.duplicated.variants <- rbind(test.pgs.weight.data$pgs.weight.data, test.pgs.weight.data$pgs.weight.data[1, ]);
-        expect_error(
+        expect_warning(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data.duplicated.variants
                 ),
-            'Duplicate variants are present in the PGS weight data. Please remove duplicate variants.'
+            'Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.'
             );
 
 
@@ -104,6 +104,71 @@ test_that(
         expect_equal(
             test.pgs.per.sample$PGS,
             c(1, 3)
+            );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly handles multiallic sites', {
+        load('data/merged.multiallelic.site.test.data.Rda');
+        # test case with VCF multiallelic site with no extra beta, REF allele is the risk allele
+        ref.as.single.risk.allele.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$ref.as.single.risk.allele.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            ref.as.single.risk.allele.test$PGS,
+            c(4, 3, 0)
+            );
+
+        # test case with VCF multiallelic sites with no extra beta, ALT allele is the risk allele
+        alt.as.single.risk.allele.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            alt.as.single.risk.allele.test$PGS,
+            c(2, 1, 2)
+            );
+        expect_no_warning(
+            apply.polygenic.score(
+                vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+                pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data
+                )
+            );
+
+        # test case with a VCF multiallelic site that also has an extra beta, both ALT alleles are risk alleles
+        alt.as.two.risk.alleles.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            alt.as.two.risk.alleles.test$PGS,
+            c(2, 1.5, 3)
+            );
+        expect_warning(
+            apply.polygenic.score(
+                vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+                pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data
+                ),
+            'Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.'
+            );
+
+        # test case with a VCF multiallelic site that also has an extra beta, one REF and one ALT allele are risk alleles
+        ref.and.alt.as.two.risk.alleles.test <- apply.polygenic.score(
+            vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+            pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
+            );
+        expect_equal(
+            ref.and.alt.as.two.risk.alleles.test$PGS,
+            c(2, 1.5, 2)
+            );
+        expect_warning(
+            apply.polygenic.score(
+                vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
+                pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
+                ),
+            'Multiple effect alleles found in sample1 genotype, choosing effect allele with highest beta for dosage calculation. Check coordinates chr2:2'
             );
         }
     );
