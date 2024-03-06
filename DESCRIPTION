@@ -14,7 +14,8 @@ Depends:
     R (>= 2.10)
 Imports:
     vcfR,
-    data.table
+    data.table,
+    BoutrosLab.plotting.general
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
