@@ -15,8 +15,15 @@ test_that(
             write.per.sample.pgs.table(
                 per.sample.pgs.summary.data = data.frame(),
                 output.path = 1
-                ),
-            'output.path must be a character string'
+                )
+            );
+
+        # check that output.path is a directory
+        expect_error(
+            write.per.sample.pgs.table(
+                per.sample.pgs.summary.data = data.frame(),
+                output.path = 'not/a/real/dir/'
+                )
             );
 
         # check that file.prefix is a character string
@@ -42,7 +49,7 @@ test_that(
             per.sample.pgs.summary.data = test.pgs.per.sample,
             output.path = temp.dir
             );
-        test.filename <- BoutrosLab.utilities::generate.filename(
+        test.filename <- generate.filename(
             project.stem = NULL,
             file.core = 'per-sample-pgs-summary',
             extension = 'txt'
@@ -50,7 +57,7 @@ test_that(
         expect_true(
             file.exists(file.path(temp.dir, test.filename))
             );
-        
+
         # read file back in and check that it is correct
         read.in.pgs.per.sample <- read.table(
             file = file.path(temp.dir, test.filename),
