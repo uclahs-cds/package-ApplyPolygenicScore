@@ -66,10 +66,10 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
             row.index <- sample.coordinate.to.row.dict.hash[[x]];
             single.sample.multialellic.pgs.with.vcf.data <- merged.vcf.with.pgs.data[row.index, ];
             single.sample.multialellic.pgs.with.vcf.data$original.df.row.index <- row.index;
-            non.risk.multialalelic.site.rows <- get.non.risk.multiallelic.site.row(
+            non.risk.multiallelic.site.rows <- get.non.risk.multiallelic.site.row(
                 single.sample.multialellic.pgs.with.vcf.data = single.sample.multialellic.pgs.with.vcf.data
                 );
-            return(non.risk.multialalelic.site.rows$original.df.row.index);
+            return(non.risk.multiallelic.site.rows$original.df.row.index);
             }
         );
 
