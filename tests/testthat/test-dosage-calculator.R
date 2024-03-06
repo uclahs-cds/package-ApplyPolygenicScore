@@ -151,7 +151,6 @@ test_that(
         }
     );
 
-
 test_that(
     'convert.alleles.to.pgs.dosage calculates dosage correctly from missing genotypes', {
         expect_equal(
@@ -185,6 +184,23 @@ test_that(
                 called.alleles = test.vcf$dat$gt_GT_alleles,
                 risk.alleles = test.vcf$dat$ALT
                 )
+            );
+        }
+    );
+
+test_that(
+    'calculate.missing.genotype.dosage correctly calculates mean dosage', {
+        expect_equal(
+            calculate.missing.genotype.dosage(
+                dosage.matrix = data.frame(
+                    sample1 = c(0, 1, NA),
+                    sample2 = c(0, 0, NA),
+                    sample3 = c(0, 1, NA),
+                    sample4 = c(0, NA, NA),
+                    row.names = c('variant1', 'variant2', 'variant3')
+                    )
+                ),
+            c(variant1 = 0, variant2 = 2/3, variant3 = NA)
             );
         }
     );

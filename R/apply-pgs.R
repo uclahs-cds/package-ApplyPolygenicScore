@@ -60,7 +60,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
 
     # calculate dosage to replace missing genotypes
     missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
-    
+
     # identify missing genotypes
     missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage) & !is.na(merged.vcf.with.pgs.data$Indiv));
     # start a column for replaced missing dosages
