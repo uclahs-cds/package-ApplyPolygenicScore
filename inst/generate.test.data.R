@@ -181,12 +181,12 @@ save(
 # create simple VCF data for testing missing site handling
 missing.genotype.test.data <- list(
     missing.genotype.vcf.data = data.frame(
-        CHROM = c('chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3'),
-        POS = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
-        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
-        ALT = c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'),
-        Indiv = c('sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3'),
-        gt_GT_alleles = c('T/T', 'T/A', './.', 'T/A', 'A/A', '.', 'T/T', 'T/A', NA)
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3', 'chr3'),
+        POS = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
+        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
+        ALT = c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'),
+        Indiv = c('sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4'),
+        gt_GT_alleles = c('T/T', 'T/A', './.', 'T/A', 'T/A', 'A/A', '.', 'T/A', 'T/T', 'T/A', NA, NA)
         ),
     missing.genotype.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr3', 'chr4'),

@@ -182,7 +182,7 @@ test_that(
             );
         expect_equal(
             test.missing.genotype$PGS.with.replaced.missing,
-            c(1, 4, 2.5)
+            c(1, 4, 2.5, 2.5)
             );
         }
     );
