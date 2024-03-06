@@ -195,6 +195,7 @@ missing.genotype.test.data <- list(
         beta = c(1.0, 1.0, 1.0, 1.0)
         )
     );
-
-vcf.data <- missing.genotype.test.data$missing.genotype.vcf.data;
-pgs.weight.data <- missing.genotype.test.data$missing.genotype.pgs.weight.data;
+save(
+    missing.genotype.test.data,
+    file = 'tests/testthat/data/missing.genotype.test.data.Rda'
+    );
