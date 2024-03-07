@@ -200,7 +200,7 @@ test_that(
                     row.names = c('variant1', 'variant2', 'variant3')
                     )
                 ),
-            c(variant1 = 0, variant2 = 2/3, variant3 = NA)
+            c(variant1 = 0, variant2 = 2 / 3, variant3 = NA)
             );
         }
     );
