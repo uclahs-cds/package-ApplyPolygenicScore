@@ -28,5 +28,4 @@ get.variant.by.sample.matrix <- function(long.data, variant.id, value.var) {
     variant.by.sample.matrix <- variant.by.sample.matrix[, !colnames(variant.by.sample.matrix) %in% 'NA'];
 
     return(variant.by.sample.matrix);
-
     }
