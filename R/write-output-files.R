@@ -1,19 +1,17 @@
 # utility for constructing a filename
 generate.filename <- function(project.stem, file.core, extension, file.date = Sys.Date()) {
 
-	# build up the filename piece-wise
-	file.name <- paste(project.stem, sep = '_');
-	file.name <- paste(file.name, file.core, sep = '_');
-	file.name <- paste(file.name, extension, sep = '.');
+    # build up the filename piece-wise
+    file.name <- paste(project.stem, sep = '_');
+    file.name <- paste(file.name, file.core, sep = '_');
+    file.name <- paste(file.name, extension, sep = '.');
 
-	# now add the date, if requested
-	if (file.date != FALSE) {
-		file.name <- paste(file.date, file.name, sep = '_');
-		}
-	
-	return(file.name);
-
-	}
+    # now add the date, if requested
+    if (file.date != FALSE) {
+        file.name <- paste(file.date, file.name, sep = '_');
+        }
+    return(file.name);
+    }
 
 #' @title Write PGS per sample table to file
 #' @description Write PGS per sample summary data table to tab separated text file.
