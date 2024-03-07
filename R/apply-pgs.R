@@ -47,20 +47,6 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
         );
     merged.vcf.with.pgs.data <- merged.vcf.with.pgs$merged.vcf.with.pgs.data;
 
-    # check that there are no duplicate variant:allele:sample combinations
-    # assign coordinate-based variant IDs
-    variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$REF, merged.vcf.with.pgs.data$effect_allele, sep = ':');
-    sample.by.variant.combos <- paste0(variant.id, '_', merged.vcf.with.pgs.data$Indiv);
-    sample.by.variant.combos.table <- table(sample.by.variant.combos);
-    if (any(sample.by.variant.combos.table > 1)) {
-        stop(
-            paste('Duplicate variant/effect-allele/sample combinations detected:\n',
-                names(sample.by.variant.combos.table)[which(sample.by.variant.combos.table > 1)],
-                '\nPlease ensure that each sample has only one genotype call for each variant:allele combination.\n'
-                )
-            );
-        }
-
     # calculate dosage
     merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
         called.alleles = merged.vcf.with.pgs.data$gt_GT_alleles,
@@ -70,6 +56,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     ### Start Missing Genotype Handling ###
 
     # create sample by variant dosage matrix
+    variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$REF, merged.vcf.with.pgs.data$effect_allele, sep = ':');
     dosage.matrix <- get.variant.by.sample.matrix(
         long.data = merged.vcf.with.pgs.data,
         variant.id = variant.id,
