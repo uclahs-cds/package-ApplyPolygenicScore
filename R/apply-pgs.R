@@ -4,7 +4,7 @@
 #' @param pgs.weight.data A data.frame containing PGS weight data.
 #' @return A data.frame containing the PGS per sample.
 #' @export
-apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
+apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.method = 'mean.dosage') {
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
         stop('vcf.data must be a data.frame');
@@ -38,6 +38,13 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data) {
     n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
     if (nrow(vcf.data) != n.samples * n.variants) {
         stop('Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.');
+        }
+
+    # check missing genotype method input
+    if (missing.genotype.method %in% c('mean.dosage', 'normalize', 'none')) {
+        missing.genotype.method <- missing.genotype.method;
+        } else {
+        stop('missing.genotype.method must be either "mean.dosage", "normalize", or "none"');
         }
 
     # merge VCF and PGS data
