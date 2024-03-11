@@ -10,9 +10,7 @@ generate.filename <- function(project.stem, file.core, extension, file.date = Sy
     if (file.date != FALSE) {
         file.name <- paste(file.date, file.name, sep = '_');
         }
-
     return(file.name);
-
     }
 
 #' @title Write PGS per sample table to file

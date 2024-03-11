@@ -58,3 +58,17 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         }
     return(dosage);
     }
+
+# The function for calculating a dosage value intended to replace missing genotypes.
+calculate.missing.genotype.dosage <- function(dosage.matrix) {
+    # calculate the mean dosage for each variant
+    mean.dosage <- apply(
+        X = dosage.matrix,
+        MARGIN = 1,
+        FUN = function(x) {
+            # simple mean
+            mean(x, na.rm = TRUE)
+            }
+        );
+    return(mean.dosage);
+    }

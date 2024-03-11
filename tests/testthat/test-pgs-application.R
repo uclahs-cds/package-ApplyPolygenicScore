@@ -40,16 +40,28 @@ test_that(
             'pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta'
             );
 
-        # check for duplicate variants in PGS data
-        test.pgs.weight.data.duplicated.variants <- rbind(test.pgs.weight.data$pgs.weight.data, test.pgs.weight.data$pgs.weight.data[1, ]);
+        # check for duplicate coordinates in PGS data
+        duplicate.row <- test.pgs.weight.data$pgs.weight.data[1, ];
+        duplicate.row.as.multiallelic <- duplicate.row;
+        duplicate.row.as.multiallelic$effect_allele <- 'C';
+        test.pgs.weight.data.duplicated.coordinates <- rbind(test.pgs.weight.data$pgs.weight.data, duplicate.row.as.multiallelic);
         expect_warning(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
-                pgs.weight.data = test.pgs.weight.data.duplicated.variants
+                pgs.weight.data = test.pgs.weight.data.duplicated.coordinates
                 ),
             'Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.'
             );
 
+        # check for duplicate variants in PGS data
+        test.pgs.weight.data.duplicated.variants <- rbind(test.pgs.weight.data$pgs.weight.data, duplicate.row);
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data.duplicated.variants
+                ),
+            'Duplicate variants detected in the PGS weight data. Please ensure only unique coordinate:effect allele combinations are present.'
+            );
 
         # Verify correct number of variants and samples
         expect_error(
@@ -83,7 +95,7 @@ test_that(
             );
         expect_equal(
             ncol(test.pgs.per.sample),
-            2
+            3
             );
         }
     );
@@ -169,6 +181,20 @@ test_that(
                 pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
                 ),
             'Multiple effect alleles found in sample1 genotype, choosing effect allele with highest beta for dosage calculation. Check coordinates chr2:2'
+            );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly handles missing genotypes', {
+        load('data/missing.genotype.test.data.Rda');
+        test.missing.genotype <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data
+            );
+        expect_equal(
+            test.missing.genotype$PGS.with.replaced.missing,
+            c(1, 4, 2.5, 2.5)
             );
         }
     );
