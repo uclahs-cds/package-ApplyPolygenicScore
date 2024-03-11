@@ -42,7 +42,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
         }
 
     # check missing genotype method input
-    if (missing.genotype.method %in% c('mean.dosage', 'normalize', 'none')) {
+    if (all(missing.genotype.method %in% c('mean.dosage', 'normalize', 'none'))) {
         missing.genotype.method <- missing.genotype.method;
         } else {
         stop('missing.genotype.method must be either "mean.dosage", "normalize", or "none"');

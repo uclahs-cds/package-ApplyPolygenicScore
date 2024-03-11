@@ -19,6 +19,34 @@ test_that(
             'pgs.weight.data must be a data.frame'
             );
 
+        # check that missing genotype method input is correct
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = 'not a valid method'
+                ),
+            'missing.genotype.method must be either "mean.dosage", "normalize", or "none"'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = c('mean.dosage', 'normalize', 'not a valid method')
+                ),
+            'missing.genotype.method must be either "mean.dosage", "normalize", or "none"'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = c('mean.dosage', 'none')
+                ),
+            'If "none" is included in missing.genotype.method, it must be the only method included'
+            );
+
         # check that required columns are present
         test.vcf.data.missing.columns <- test.vcf.data$dat;
         test.vcf.data.missing.columns$gt_GT_alleles <- NULL;
