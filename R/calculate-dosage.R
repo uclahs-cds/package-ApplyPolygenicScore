@@ -83,6 +83,10 @@ convert.allele.frequency.to.dosage <- function(allele.frequency) {
     if (!is.numeric(allele.frequency)) {
         stop('allele.frequency must be a numeric vector.');
         }
+    # check for NA
+    if (any(is.na(allele.frequency))) {
+        stop('allele.frequency must not contain NA.');
+        }
     # check that allele.frequency is between 0 and 1
     if (any(allele.frequency < 0) | any(allele.frequency > 1)) {
         stop('allele.frequency must be between 0 and 1.');
