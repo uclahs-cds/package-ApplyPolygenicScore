@@ -261,11 +261,11 @@ test_that(
             );
         expect_equal(
             test.missing.genotype.normalize$PGS.with.normalized.missing,
-            c(1 / 3, 4 / 3, 0, 1)
+            c(1 / 3, 4 / 3, NA, 1)
             );
         expect_equal(
             test.missing.genotype.both$PGS.with.normalized.missing,
-            c(1 / 3, 4 / 3, 0, 1)
+            c(1 / 3, 4 / 3, NA, 1)
             );
         expect_equal(
             test.missing.genotype.both$PGS.with.replaced.missing,
