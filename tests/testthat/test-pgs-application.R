@@ -236,7 +236,7 @@ test_that(
             pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
             missing.genotype.method = 'none'
             );
-        
+
         # check column names
         expect_equal(
             colnames(test.missing.genotype.mean.dosage),

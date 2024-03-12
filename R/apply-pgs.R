@@ -129,7 +129,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
         merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing <- merged.vcf.with.pgs.data$weighted.dosage.with.replaced.missing;
         merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing[non.risk.multiallelic.entries.index] <- NA;
         }
-    if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method){
+    if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
         merged.vcf.with.pgs.data$multiallelic.weighted.dosage <- merged.vcf.with.pgs.data$weighted.dosage;
         merged.vcf.with.pgs.data$multiallelic.weighted.dosage[non.risk.multiallelic.entries.index] <- NA;
         }
