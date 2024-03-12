@@ -30,6 +30,18 @@ get.variant.by.sample.matrix <- function(long.data, variant.id, value.var) {
     return(variant.by.sample.matrix);
     }
 
+custom.aggregation.function <- function(x) {
+    if (length(x) > 1) {
+        if (all(is.na(x))) {
+            return(NA);
+            } else {
+                return(mean(x, na.rm = TRUE));
+                }
+        } else {
+            return(x[1]);
+            }
+    }
+
 # utility function for transforming long data to SNP by sample matrix
 # which handles multiallelic sites by averaging values or returning NA
 get.combined.multiallelic.variant.by.sample.matrix <- function(long.data, variant.id, value.var) {
@@ -38,16 +50,7 @@ get.combined.multiallelic.variant.by.sample.matrix <- function(long.data, varian
         data = long.data,
         formula = variant.id ~ Indiv,
         value.var = value.var,
-        fun.aggregate = function(x) {
-            if (length(x) > 1) {
-                if (all(is.na(x))) {
-                    return(NA);
-                    } else {
-                        return(mean(x, na.rm = TRUE))
-                        }
-                }
-            return(x);
-            }
+        fun.aggregate = custom.aggregation.function
         );
 
     # remove row ID column
