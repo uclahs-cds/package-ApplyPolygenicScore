@@ -179,7 +179,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
             na.rm = TRUE
             );
         colnames(pgs.per.sample) <- c('sample', 'PGS');
-        pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample
+        pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
         }
 
     # format output
