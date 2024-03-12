@@ -191,7 +191,4 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
     sample <- pgs.output.list[[1]]$sample;
     pgs.output <- cbind(sample, PGS.cols);
     return(pgs.output);
-
-
-    return(pgs.per.sample);
     }
