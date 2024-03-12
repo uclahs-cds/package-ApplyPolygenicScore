@@ -157,16 +157,18 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
             FUN = sum,
             na.rm = TRUE
             );
-        colnames(pgs.per.sample.with.replaced.missing) <- c('sample', 'PGS');
+        colnames(pgs.per.sample.with.normalized.missing) <- c('sample', 'PGS');
         bialellic.variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, sep = ':');
         biallelic.snp.by.sample.matrix <- get.combined.multiallelic.variant.by.sample.matrix(
             long.data = merged.vcf.with.pgs.data,
             variant.id = bialellic.variant.id,
             value.var = 'multiallelic.weighted.dosage'
             );
-        per.sample.missing.genotype.count <- rowSums(is.na(biallelic.snp.by.sample.matrix));
-        pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.missing.genotype.count;
-        pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.replaced.missing;
+        per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
+        pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count;
+        # account for division by zero
+        pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- 0;
+        pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
         }
 
     if ('mean.dosage' %in% missing.genotype.method) {
@@ -181,18 +183,15 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
         }
 
     # format output
-    if (length(pgs.output.list) == 1) {
-        return(pgs.output.list[[1]]);
-        } else {
-            # bind PGS columns of list components
-            PGS.cols <- lapply(pgs.output.list, function(x) x$PGS);
-            PGS.cols <- do.call(cbind, PGS.cols);
-            colnames(PGS.cols) <- names(pgs.output.list);
-            # bind sample column of first list component
-            pgs.output <- pgs.output.list[[1]]$sample;
-            pgs.output <- cbind(pgs.output, PGS.cols);
-            return(pgs.output);
-            }
+    # bind PGS columns of list components
+    PGS.cols <- lapply(pgs.output.list, function(x) x$PGS);
+    PGS.cols <- data.frame(do.call(cbind, PGS.cols));
+    colnames(PGS.cols) <- names(pgs.output.list);
+    # bind sample column of first list component
+    sample <- pgs.output.list[[1]]$sample;
+    pgs.output <- cbind(sample, PGS.cols);
+    return(pgs.output);
+
 
     return(pgs.per.sample);
     }
