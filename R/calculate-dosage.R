@@ -72,3 +72,22 @@ calculate.missing.genotype.dosage <- function(dosage.matrix) {
         );
     return(mean.dosage);
     }
+
+#' @title Convert allele frequency to mean dosage
+#' @description Convert a population allele frequency to a mean dosage for that allele.
+#' @param allele.frequency A numeric vector of allele frequencies.
+#' @return A numeric vector of mean dosages for the allele frequencies.
+#' @export
+convert.allele.frequency.to.dosage <- function(allele.frequency) {
+    # check that allele.frequency is a numeric vector
+    if (!is.numeric(allele.frequency)) {
+        stop('allele.frequency must be a numeric vector.');
+        }
+    # check that allele.frequency is between 0 and 1
+    if (any(allele.frequency < 0) | any(allele.frequency > 1)) {
+        stop('allele.frequency must be between 0 and 1.');
+        }
+    # calculate dosage
+    dosage <- 2 * allele.frequency;
+    return(dosage);
+    }
