@@ -289,6 +289,25 @@ test_that(
     );
 
 test_that(
+    'apply.polygenic.score correctly handles external effect allele frequency', {
+        load('data/missing.genotype.test.data.Rda');
+        # add effect allele frequency column to PGS weight data
+        missing.genotype.test.data$missing.genotype.pgs.weight.data$allelefrequency_effect <- c(0.5, 0.25, 0.75, 0.5);
+        test.missing.genotype.mean.dosage <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = 'mean.dosage',
+            use.external.effect.allele.frequency = TRUE
+            );
+
+        expect_equal(
+            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
+            c(1, 4, 3, 3.5)
+            );
+        }
+    );
+
+test_that(
     'apply.polygenic.score works correctly on real data', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
