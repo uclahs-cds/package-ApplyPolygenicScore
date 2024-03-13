@@ -67,6 +67,16 @@ test_that(
                 ),
             'pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta'
             );
+        
+        # check for effect allele frequency column when use.external.effect.allele.frequency option is selected
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                use.external.effect.allele.frequency = TRUE
+                ),
+            'pgs.weight.data must contain a column named allelefrequency_effect if use.external.effect.allele.frequency is TRUE'
+            );
 
         # check for duplicate coordinates in PGS data
         duplicate.row <- test.pgs.weight.data$pgs.weight.data[1, ];
