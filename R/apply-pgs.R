@@ -184,7 +184,7 @@ apply.polygenic.score <- function(
         per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
         pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count;
         # account for division by zero
-        pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- 0;
+        pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
         pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
         }
 
@@ -196,7 +196,7 @@ apply.polygenic.score <- function(
             na.rm = TRUE
             );
         colnames(pgs.per.sample) <- c('sample', 'PGS');
-        pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample
+        pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
         }
 
     # format output
@@ -208,7 +208,4 @@ apply.polygenic.score <- function(
     sample <- pgs.output.list[[1]]$sample;
     pgs.output <- cbind(sample, PGS.cols);
     return(pgs.output);
-
-
-    return(pgs.per.sample);
     }
