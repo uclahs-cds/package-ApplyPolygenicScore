@@ -67,7 +67,7 @@ test_that(
                 ),
             'pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta'
             );
-        
+
         # check for effect allele frequency column when use.external.effect.allele.frequency option is selected
         expect_error(
             apply.polygenic.score(
