@@ -320,21 +320,17 @@ test_that(
             test.merge.vcf.with.pgs.missing$missing.snp.data$POS,
             4
             );
-        expect_equal(
-            test.merge.vcf.with.pgs.missing$missing.snp.data$REF,
-            'NA'
+        expect_true(
+            is.na(test.merge.vcf.with.pgs.missing$missing.snp.data$REF)
             );
-        expect_equal(
-            test.merge.vcf.with.pgs.missing$missing.snp.data$ALT,
-            'NA'
+        expect_true(
+            is.na(test.merge.vcf.with.pgs.missing$missing.snp.data$ALT)
             );
-        expect_equal(
-            test.merge.vcf.with.pgs.missing$missing.snp.data$Indiv,
-            'NA'
+        expect_true(
+            is.na(test.merge.vcf.with.pgs.missing$missing.snp.data$Indiv)
             );
-        expect_equal(
-            test.merge.vcf.with.pgs.missing$missing.snp.data$gt_GT_alleles,
-            'NA'
+        expect_true(
+            is.na(test.merge.vcf.with.pgs.missing$missing.snp.data$gt_GT_alleles)
             );
         expect_equal(
             test.merge.vcf.with.pgs.missing$missing.snp.data$effect_allele,

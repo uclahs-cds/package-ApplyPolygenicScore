@@ -19,6 +19,34 @@ test_that(
             'pgs.weight.data must be a data.frame'
             );
 
+        # check that missing genotype method input is correct
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = 'not a valid method'
+                ),
+            'missing.genotype.method must be either "mean.dosage", "normalize", or "none"'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = c('mean.dosage', 'normalize', 'not a valid method')
+                ),
+            'missing.genotype.method must be either "mean.dosage", "normalize", or "none"'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = c('mean.dosage', 'none')
+                ),
+            'If "none" is included in missing.genotype.method, it must be the only method included'
+            );
+
         # check that required columns are present
         test.vcf.data.missing.columns <- test.vcf.data$dat;
         test.vcf.data.missing.columns$gt_GT_alleles <- NULL;
@@ -95,7 +123,7 @@ test_that(
             );
         expect_equal(
             ncol(test.pgs.per.sample),
-            3
+            2
             );
         }
     );
@@ -188,13 +216,64 @@ test_that(
 test_that(
     'apply.polygenic.score correctly handles missing genotypes', {
         load('data/missing.genotype.test.data.Rda');
-        test.missing.genotype <- apply.polygenic.score(
+        test.missing.genotype.mean.dosage <- apply.polygenic.score(
             vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
-            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = 'mean.dosage'
+            );
+        test.missing.genotype.normalize <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = 'normalize'
+            );
+        test.missing.genotype.both <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = c('mean.dosage', 'normalize')
+            );
+        test.missing.genotype.none <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = 'none'
+            );
+
+        # check column names
+        expect_equal(
+            colnames(test.missing.genotype.mean.dosage),
+            c('sample', 'PGS.with.replaced.missing')
             );
         expect_equal(
-            test.missing.genotype$PGS.with.replaced.missing,
+            colnames(test.missing.genotype.normalize),
+            c('sample', 'PGS.with.normalized.missing')
+            );
+        expect_equal(
+            colnames(test.missing.genotype.both),
+            c('sample', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing')
+            );
+        expect_equal(
+            colnames(test.missing.genotype.none),
+            c('sample', 'PGS')
+            );
+
+        expect_equal(
+            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
+            );
+        expect_equal(
+            test.missing.genotype.normalize$PGS.with.normalized.missing,
+            c(1 / 3, 4 / 3, NA, 1)
+            );
+        expect_equal(
+            test.missing.genotype.both$PGS.with.normalized.missing,
+            c(1 / 3, 4 / 3, NA, 1)
+            );
+        expect_equal(
+            test.missing.genotype.both$PGS.with.replaced.missing,
+            c(1, 4, 2.5, 2.5)
+            );
+        expect_equal(
+            test.missing.genotype.none$PGS,
+            c(1, 4, 0, 2)
             );
         }
     );
