@@ -4,12 +4,21 @@
 \alias{apply.polygenic.score}
 \title{Apply polygenic score to VCF data}
 \usage{
-apply.polygenic.score(vcf.data, pgs.weight.data)
+apply.polygenic.score(
+  vcf.data,
+  pgs.weight.data,
+  missing.genotype.method = "mean.dosage",
+  use.external.effect.allele.frequency = FALSE
+)
 }
 \arguments{
 \item{vcf.data}{A data.frame containing VCF genotype data.}
 
 \item{pgs.weight.data}{A data.frame containing PGS weight data.}
+
+\item{missing.genotype.method}{A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".}
+
+\item{use.external.effect.allele.frequency}{A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.}
 }
 \value{
 A data.frame containing the PGS per sample.

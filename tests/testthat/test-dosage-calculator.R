@@ -204,3 +204,51 @@ test_that(
             );
         }
     );
+
+test_that(
+    'convert.allele.frequency.to.dosage correctly checks input format', {
+        # check for correct input format
+        expect_error(
+            convert.allele.frequency.to.dosage(
+                allele.frequency = c(0, 0.5, 1, 1.1)
+                ),
+            'allele.frequency must be between 0 and 1.'
+            );
+        expect_error(
+            convert.allele.frequency.to.dosage(
+                allele.frequency = c(0, 0.5, 1, -0.1)
+                ),
+            'allele.frequency must be between 0 and 1.'
+            );
+        expect_error(
+            convert.allele.frequency.to.dosage(
+                allele.frequency = c(0, 0.5, 1, 'A')
+                ),
+            'allele.frequency must be a numeric vector.'
+            );
+        expect_error(
+            convert.allele.frequency.to.dosage(
+                allele.frequency = c(0, 0.5, 1, NA)
+                ),
+            'allele.frequency must not contain NA'
+            );
+
+        # check that correct input is accepted
+        expect_silent(
+            convert.allele.frequency.to.dosage(
+                allele.frequency = c(0, 0.5, 1)
+                )
+            );
+        }
+    );
+
+test_that(
+    'convert.allele.frequency.to.dosage correctly calculates dosage', {
+        expect_equal(
+            convert.allele.frequency.to.dosage(
+                allele.frequency = c(0, 0.5, 1)
+                ),
+            c(0, 1, 2)
+            );
+        }
+    );

@@ -3,9 +3,15 @@
 #' @param vcf.data A data.frame containing VCF genotype data.
 #' @param pgs.weight.data A data.frame containing PGS weight data.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
+#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @return A data.frame containing the PGS per sample.
 #' @export
-apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.method = 'mean.dosage') {
+apply.polygenic.score <- function(
+    vcf.data,
+    pgs.weight.data,
+    missing.genotype.method = 'mean.dosage',
+    use.external.effect.allele.frequency = FALSE
+    ) {
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
         stop('vcf.data must be a data.frame');
@@ -22,6 +28,13 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
         }
     if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
         stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
+        }
+
+    if (use.external.effect.allele.frequency) {
+        required.eaf.column <- 'allelefrequency_effect';
+        if (!(required.eaf.column %in% colnames(pgs.weight.data))) {
+            stop('pgs.weight.data must contain a column named allelefrequency_effect if use.external.effect.allele.frequency is TRUE');
+            }
         }
 
     # check for duplicate variants in PGS data
@@ -67,7 +80,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
     ### Start Missing Genotype Handling ###
 
     # create sample by variant dosage matrix
-    variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$REF, merged.vcf.with.pgs.data$effect_allele, sep = ':');
+    variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
     dosage.matrix <- get.variant.by.sample.matrix(
         long.data = merged.vcf.with.pgs.data,
         variant.id = variant.id,
@@ -76,7 +89,12 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
 
     if ('mean.dosage' %in% missing.genotype.method) {
         # calculate dosage to replace missing genotypes
-        missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
+        if (use.external.effect.allele.frequency) {
+            missing.genotype.dosage <- convert.allele.frequency.to.dosage(allele.frequency = pgs.weight.data$allelefrequency_effect);
+            names(missing.genotype.dosage) <- paste(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele, sep = ':');
+            } else {
+            missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
+            }
 
         # identify missing genotypes
         missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage) & !is.na(merged.vcf.with.pgs.data$Indiv));
@@ -84,7 +102,7 @@ apply.polygenic.score <- function(vcf.data, pgs.weight.data, missing.genotype.me
         merged.vcf.with.pgs.data$dosage.with.replaced.missing <- merged.vcf.with.pgs.data$dosage;
         # assign mean dosage to missing genotypes
         for (i in missing.genotype.row.index) {
-            missing.variant.id <- paste(merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], merged.vcf.with.pgs.data[i, 'REF'], merged.vcf.with.pgs.data[i, 'effect_allele'], sep = ':');
+            missing.variant.id <- paste(merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], merged.vcf.with.pgs.data[i, 'effect_allele'], sep = ':');
             missing.variant.dosage <- missing.genotype.dosage[missing.variant.id];
             merged.vcf.with.pgs.data[i, 'dosage.with.replaced.missing'] <- missing.variant.dosage;
             }

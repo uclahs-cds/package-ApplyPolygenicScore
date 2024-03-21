@@ -68,6 +68,16 @@ test_that(
             'pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta'
             );
 
+        # check for effect allele frequency column when use.external.effect.allele.frequency option is selected
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                use.external.effect.allele.frequency = TRUE
+                ),
+            'pgs.weight.data must contain a column named allelefrequency_effect if use.external.effect.allele.frequency is TRUE'
+            );
+
         # check for duplicate coordinates in PGS data
         duplicate.row <- test.pgs.weight.data$pgs.weight.data[1, ];
         duplicate.row.as.multiallelic <- duplicate.row;
@@ -274,6 +284,25 @@ test_that(
         expect_equal(
             test.missing.genotype.none$PGS,
             c(1, 4, 0, 2)
+            );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly handles external effect allele frequency', {
+        load('data/missing.genotype.test.data.Rda');
+        # add effect allele frequency column to PGS weight data
+        missing.genotype.test.data$missing.genotype.pgs.weight.data$allelefrequency_effect <- c(0.5, 0.25, 0.75, 0.5);
+        test.missing.genotype.mean.dosage <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = 'mean.dosage',
+            use.external.effect.allele.frequency = TRUE
+            );
+
+        expect_equal(
+            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
+            c(1, 4, 3, 3.5)
             );
         }
     );
