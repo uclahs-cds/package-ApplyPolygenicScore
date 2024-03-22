@@ -1,4 +1,15 @@
 test_that(
+    'get.pgs.percentiles correctly checks inputs', {
+        # check that pgs is numeric
+        expect_error(get.pgs.percentiles('a'), 'pgs must be a numeric vector');
+
+        # check that n.percentiles is an integer
+        expect_error(get.pgs.percentiles(1, n.percentiles = 1.5), 'n.percentiles must be an integer');
+
+        }
+    );
+
+test_that(
     'get.pgs.percentiles correctly formats output', {
         pgs <- c(5, 2, 3, 4, 1);
         percentile.data <- get.pgs.percentiles(pgs);

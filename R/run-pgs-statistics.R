@@ -5,6 +5,17 @@
 #' @return data frame with columns for percentile, decile, quartile, and optional n.percentiles
 #' @export
 get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
+
+    # check that pgs is numeric
+    if (!is.numeric(pgs)) {
+        stop('pgs must be a numeric vector');
+        }
+
+    # check that n.percentiles is an integer
+    if (!is.null(n.percentiles) && !is.integer(n.percentiles)) {
+        stop('n.percentiles must be an integer');
+        }
+
     sorted.pgs <- sort(pgs, decreasing = TRUE)
     pgs.percentiles <- sapply(
         X = sorted.pgs,
