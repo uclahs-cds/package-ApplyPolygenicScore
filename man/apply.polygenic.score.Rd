@@ -8,7 +8,8 @@ apply.polygenic.score(
   vcf.data,
   pgs.weight.data,
   missing.genotype.method = "mean.dosage",
-  use.external.effect.allele.frequency = FALSE
+  use.external.effect.allele.frequency = FALSE,
+  n.percentiles = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ apply.polygenic.score(
 \item{missing.genotype.method}{A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".}
 
 \item{use.external.effect.allele.frequency}{A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.}
+
+\item{n.percentiles}{An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.}
 }
 \value{
 A data.frame containing the PGS per sample.

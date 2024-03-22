@@ -320,5 +320,13 @@ test_that(
                 )
             )
 
+        expect_no_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                n.percentiles = 5
+                )
+            )
+
         }
     );

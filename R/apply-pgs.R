@@ -4,13 +4,15 @@
 #' @param pgs.weight.data A data.frame containing PGS weight data.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
+#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
 #' @return A data.frame containing the PGS per sample.
 #' @export
 apply.polygenic.score <- function(
     vcf.data,
     pgs.weight.data,
     missing.genotype.method = 'mean.dosage',
-    use.external.effect.allele.frequency = FALSE
+    use.external.effect.allele.frequency = FALSE,
+    n.percentiles = NULL
     ) {
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
@@ -168,7 +170,7 @@ apply.polygenic.score <- function(
         pgs.output <- pgs.per.sample;
 
         # calculate percentiles
-        percentiles <- get.pgs.percentiles(pgs.output$PGS);
+        percentiles <- get.pgs.percentiles(pgs = pgs.output$PGS, n.percentiles = n.percentiles);
         pgs.output <- cbind(pgs.output, percentiles);
         return(pgs.output);
         }
@@ -217,7 +219,7 @@ apply.polygenic.score <- function(
     pgs.output <- cbind(sample, PGS.cols);
 
     # calculate percentiles
-    percentiles <- get.pgs.percentiles(pgs.output[ ,2]); # calculate percentiles on first available score
+    percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,2], n.percentiles = n.percentiles); # calculate percentiles on first available score
     pgs.output <- cbind(pgs.output, percentiles);
 
     return(pgs.output);
