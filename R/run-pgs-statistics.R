@@ -11,8 +11,8 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
         stop('pgs must be a numeric vector');
         }
 
-    # check that n.percentiles is an integer
-    if (!is.null(n.percentiles) && !is.integer(n.percentiles)) {
+    # check that n.percentiles is a mathematical integer
+    if (!is.null(n.percentiles) && (n.percentiles%%1 != 0)) {
         stop('n.percentiles must be an integer');
         }
 
