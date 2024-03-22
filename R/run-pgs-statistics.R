@@ -1,5 +1,9 @@
-# function that returns the percentile of each PGS within the PGS distribution
-# also returns Decile (10% bins) and Quantile (25% bins) of the PGS distribution
+#' @title get.pgs.percentiles
+#' @description Calculate percentiles and report decile and quartile ranks for a vector of polygenic scores
+#' @param pgs numeric vector of polygenic scores
+#' @param n.percentiles integer number of percentiles to calculate (optional)
+#' @return data frame with columns for percentile, decile, quartile, and optional n.percentiles
+#' @export
 get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     sorted.pgs <- sort(pgs, decreasing = TRUE)
     pgs.percentiles <- sapply(
