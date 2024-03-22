@@ -133,7 +133,7 @@ test_that(
             );
         expect_equal(
             ncol(test.pgs.per.sample),
-            2
+            5
             );
         }
     );
@@ -248,21 +248,22 @@ test_that(
             );
 
         # check column names
+        percentile.colnames <- c('percentile', 'decile', 'quartile');
         expect_equal(
             colnames(test.missing.genotype.mean.dosage),
-            c('sample', 'PGS.with.replaced.missing')
+            c('sample', 'PGS.with.replaced.missing', percentile.colnames)
             );
         expect_equal(
             colnames(test.missing.genotype.normalize),
-            c('sample', 'PGS.with.normalized.missing')
+            c('sample', 'PGS.with.normalized.missing', percentile.colnames)
             );
         expect_equal(
             colnames(test.missing.genotype.both),
-            c('sample', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing')
+            c('sample', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames)
             );
         expect_equal(
             colnames(test.missing.genotype.none),
-            c('sample', 'PGS')
+            c('sample', 'PGS', percentile.colnames)
             );
 
         expect_equal(
