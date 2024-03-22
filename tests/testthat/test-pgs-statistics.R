@@ -28,7 +28,7 @@ test_that(
             colnames(percentile.data),
             c('percentile', 'decile', 'quartile')
             );
-        
+
         percentile.data.custom <- get.pgs.percentiles(pgs, n.percentiles = 5);
 
         # check that the data frame has the correct number of columns

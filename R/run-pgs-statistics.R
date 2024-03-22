@@ -12,7 +12,7 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
         }
 
     # check that n.percentiles is a mathematical integer
-    if (!is.null(n.percentiles) && (n.percentiles%%1 != 0)) {
+    if (!is.null(n.percentiles) && (n.percentiles %% 1 != 0)) {
         stop('n.percentiles must be an integer');
         }
 
@@ -36,7 +36,7 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     pgs.percentile.data$quartile <- cut(pgs.percentiles, breaks = seq(0, 1, 0.25), labels = FALSE);
 
     if (!is.null(n.percentiles)) {
-        pgs.percentile.data$percentile.X <- cut(pgs.percentiles, breaks = seq(0, 1, 1/n.percentiles), labels = FALSE);
+        pgs.percentile.data$percentile.X <- cut(pgs.percentiles, breaks = seq(0, 1, 1 / n.percentiles), labels = FALSE);
         # replace column name with the number of percentiles
         colnames(pgs.percentile.data) <- gsub('percentile.X', paste0('percentile.', n.percentiles), colnames(pgs.percentile.data));
         }
