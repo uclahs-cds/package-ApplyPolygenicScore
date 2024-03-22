@@ -165,7 +165,12 @@ apply.polygenic.score <- function(
             na.rm = TRUE
             );
         colnames(pgs.per.sample) <- c('sample', 'PGS');
-        return(pgs.per.sample);
+        pgs.output <- pgs.per.sample;
+
+        # calculate percentiles
+        percentiles <- get.pgs.percentiles(pgs.output$PGS);
+        pgs.output <- cbind(pgs.output, percentiles);
+        return(pgs.output);
         }
 
     if ('normalize' %in% missing.genotype.method) {
@@ -210,5 +215,10 @@ apply.polygenic.score <- function(
     # bind sample column of first list component
     sample <- pgs.output.list[[1]]$sample;
     pgs.output <- cbind(sample, PGS.cols);
+
+    # calculate percentiles
+    percentiles <- get.pgs.percentiles(pgs.output[ ,2]); # calculate percentiles on first available score
+    pgs.output <- cbind(pgs.output, percentiles);
+
     return(pgs.output);
     }
