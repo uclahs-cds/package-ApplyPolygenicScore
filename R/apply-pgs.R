@@ -44,6 +44,11 @@ apply.polygenic.score <- function(
         stop('phenotype.data must contain columns named Indiv')
         }
 
+    # check for at least one matching Indiv between phenotype.data and vcf.data
+    if (!is.null(phenotype.data) && length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
+        stop('No matching Indiv between phenotype.data and vcf.data');
+        }
+
     if (use.external.effect.allele.frequency) {
         required.eaf.column <- 'allelefrequency_effect';
         if (!(required.eaf.column %in% colnames(pgs.weight.data))) {

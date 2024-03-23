@@ -328,6 +328,46 @@ test_that(
     );
 
 test_that(
+    'apply.polygenic.score correctly validates phenotype data', {
+
+        load('data/phenotype.test.data.Rda');
+
+        # check that phenotype data is a data frame
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = phenotype.test.data$vcf.data,
+                pgs.weight.data = phenotype.test.data$pgs.weight.data,
+                phenotype.data = 'not a data frame'
+                ),
+            'phenotype.data must be a data.frame'
+            );
+
+        # check that phenotype data has correct columns
+        phenotype.test.data.missing.columns <- phenotype.test.data$phenotype.data;
+        phenotype.test.data.missing.columns$Indiv <- NULL;
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = phenotype.test.data$vcf.data,
+                pgs.weight.data = phenotype.test.data$pgs.weight.data,
+                phenotype.data = phenotype.test.data.missing.columns
+                ),
+            'phenotype.data must contain columns named Indiv'
+            );
+
+        # check for at least one matching sample in phenotype data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = phenotype.test.data$vcf.data,
+                pgs.weight.data = phenotype.test.data$pgs.weight.data,
+                phenotype.data = data.frame(Indiv = c('sample11'))
+                ),
+            'No matching Indiv between phenotype.data and vcf.data'
+            );
+
+    }
+    );
+
+test_that(
     'apply.polygenic.score works correctly on real data', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
