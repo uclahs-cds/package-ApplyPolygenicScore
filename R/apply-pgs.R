@@ -16,6 +16,8 @@ apply.polygenic.score <- function(
     use.external.effect.allele.frequency = FALSE,
     n.percentiles = NULL
     ) {
+
+    ### Start Input Validation ###
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
         stop('vcf.data must be a data.frame');
@@ -75,6 +77,8 @@ apply.polygenic.score <- function(
     if ('none' %in% missing.genotype.method && length(missing.genotype.method) > 1) {
         stop('If "none" is included in missing.genotype.method, it must be the only method included');
         }
+
+    ### End Input Validation ###
 
     # merge VCF and PGS data
     merged.vcf.with.pgs <- merge.vcf.with.pgs(
@@ -176,6 +180,7 @@ apply.polygenic.score <- function(
     per.sample.missing.genotype.count <- colSums(is.na(biallelic.snp.by.sample.matrix));
     ### End Missing SNP Count ###
 
+    ### Start PGS Application ###
     # calculate PGS per sample
     pgs.output.list <- list();
 
@@ -219,6 +224,7 @@ apply.polygenic.score <- function(
                 }
 
         }
+    ### End PGS Application ###
 
     # format output
     # bind PGS columns of list components
@@ -235,6 +241,17 @@ apply.polygenic.score <- function(
 
     # add missing genotype count
     pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
+
+    # merge PGS data with phenotype data by Indiv column
+    if (!is.null(phenotype.data)) {
+        pgs.output <- merge(
+            x = pgs.output,
+            y = phenotype.data,
+            by = 'Indiv',
+            all.x = TRUE,
+            all.y = TRUE
+            );
+        }
 
     return(pgs.output);
     }
