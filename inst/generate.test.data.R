@@ -232,7 +232,7 @@ phenotype.test.data <- list(
         beta = rnorm(10) # random beta values
         ),
     phenotype.data = data.frame(
-        sample = paste0('sample', 1:n.samples),
+        Indiv = paste0('sample', 1:n.samples),
         continuous.phenotype = rnorm(n.samples), # random phenotype values
         binary.phenotype = rbinom(n.samples, size = 1, prob = 0.5) # random binary phenotype values
         )

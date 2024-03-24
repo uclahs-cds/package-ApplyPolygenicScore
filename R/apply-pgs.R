@@ -196,7 +196,7 @@ apply.polygenic.score <- function(
             FUN = sum,
             na.rm = TRUE
             );
-        colnames(pgs.per.sample) <- c('sample', 'PGS');
+        colnames(pgs.per.sample) <- c('Indiv', 'PGS');
         pgs.output.list$PGS <- pgs.per.sample;
 
         } else {
@@ -207,7 +207,7 @@ apply.polygenic.score <- function(
                     FUN = sum,
                     na.rm = TRUE
                     );
-                colnames(pgs.per.sample.with.normalized.missing) <- c('sample', 'PGS');
+                colnames(pgs.per.sample.with.normalized.missing) <- c('Indiv', 'PGS');
                 per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
                 ploidy <- 2; # hard-coded ploidy for human diploid genome
                 per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count
@@ -224,7 +224,7 @@ apply.polygenic.score <- function(
                     FUN = sum,
                     na.rm = TRUE
                     );
-                colnames(pgs.per.sample) <- c('sample', 'PGS');
+                colnames(pgs.per.sample) <- c('Indiv', 'PGS');
                 pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
                 }
 
@@ -237,8 +237,8 @@ apply.polygenic.score <- function(
     PGS.cols <- data.frame(do.call(cbind, PGS.cols));
     colnames(PGS.cols) <- names(pgs.output.list);
     # bind sample column of first list component
-    sample <- pgs.output.list[[1]]$sample;
-    pgs.output <- cbind(sample, PGS.cols);
+    Indiv <- pgs.output.list[[1]]$Indiv;
+    pgs.output <- cbind(Indiv, PGS.cols);
 
     # calculate percentiles
     percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,2], n.percentiles = n.percentiles); # calculate percentiles on first available score
