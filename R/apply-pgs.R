@@ -2,6 +2,7 @@
 #' @description Apply a polygenic score to VCF data.
 #' @param vcf.data A data.frame containing VCF genotype data.
 #' @param pgs.weight.data A data.frame containing PGS weight data.
+#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
