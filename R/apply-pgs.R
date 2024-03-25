@@ -259,5 +259,19 @@ apply.polygenic.score <- function(
             );
         }
 
+    ### Begin Phenotype Analysis ###
+    if (!is.null(phenotype.analysis.columns)) {
+        # perform linear regression between PGS and each indicated phenotype column in phenotype.data
+        # report beta, se, p-value, and R^2
+        phenotype.regression.data <- run.pgs.regression(
+            pgs.output = pgs.output,
+            phenotype.analysis.columns = phenotype.analysis.columns
+            );
+
+        }
+
+
+    ### End Phenotype Analysis ###
+
     return(pgs.output);
     }
