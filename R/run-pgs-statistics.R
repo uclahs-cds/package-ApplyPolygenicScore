@@ -125,7 +125,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
         model = 'logistic.regression',
         logistic.model.aggregated
         );
-    
+
     all.model.results <- rbind(linear.model.aggregated, logistic.model.aggregated);
 
     return(all.model.results);

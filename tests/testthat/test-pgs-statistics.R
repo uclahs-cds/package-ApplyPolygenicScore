@@ -83,15 +83,15 @@ test_that(
 
 test_that(
     'run.pgs.regression correctly identifies continuous and binary phenotypes', {
-        # create test data
-        phenotype.data <- list(
-            numeric = c(1, 2, 3, 4, 5),
-            binary = c(0, 1, 0, 1, 0),
-            character = c('a', 'b', 'c', 'd', 'e')
-            );
+        # load test data
+        load('data/phenotype.test.data.Rda');
+        pgs <- seq(0, 1, length.out = nrow(phenotype.data));
+        phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
+        phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
+        phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
 
         # run function
-        regression.data <- run.pgs.regression(1, phenotype.data);
+        regression.data <- run.pgs.regression(pgs = pgs, phenotype.data = phenotype.data);
 
         # check that the output is a data frame
         expect_equal(class(regression.data), 'data.frame');
@@ -100,12 +100,44 @@ test_that(
         expect_equal(nrow(regression.data), 2);
 
         # check that the data frame has the correct number of columns
-        expect_equal(ncol(regression.data), 2);
+        expect_equal(ncol(regression.data), 6);
 
         # check that the data frame has the correct column names
+        regression.data.expected.colnames <- c('phenotype', 'model', 'beta', 'se', 'p.value', 'r.squared')
         expect_equal(
             colnames(regression.data),
-            c('continuous', 'binary')
+            regression.data.expected.colnames
+            );
+
+        # check that the data frame has the correct values
+        expect_equal(
+            regression.data$phenotype,
+            phenotype.columns
+            );
+
+        expect_equal(
+            regression.data$model,
+            c('linear.regression', 'logistic.regression')
+            );
+
+        linear.model.expected.results <- summary(lm(continuous.phenotype ~ pgs, data = phenotype.data));
+        logistic.model.expected.results <- summary(glm(binary.phenotype ~ pgs, data = phenotype.data, family = binomial));
+
+        expect_equal(
+            regression.data$beta,
+            c(linear.model.expected.results$coefficients['pgs', 'Estimate'], logistic.model.expected.results$coefficients['pgs', 'Estimate'])
+            );
+        expect_equal(
+            regression.data$se,
+            c(linear.model.expected.results$coefficients['pgs', 'Std. Error'], logistic.model.expected.results$coefficients['pgs', 'Std. Error'])
+            );
+        expect_equal(
+            regression.data$p.value,
+            c(linear.model.expected.results$coefficients['pgs', 'Pr(>|t|)'], logistic.model.expected.results$coefficients['pgs', 'Pr(>|z|)'])
+            );
+        expect_equal(
+            regression.data$r.squared,
+            c(linear.model.expected.results$r.squared, NA)
             );
 
         }
