@@ -45,3 +45,88 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     pgs.percentile.data <- pgs.percentile.data[order(pgs),];
     return(pgs.percentile.data);
     }
+
+run.pgs.regression <- function(pgs, phenotype.data) {
+
+    # identify continuous and binary phenotypes
+    continuous.vars.index <- sapply(
+        X = phenotype.data,
+        FUN = function(x) {
+            'numeric' == class(x) & 2 < length(unique(x));
+            }
+        );
+    binary.vars.index <- sapply(
+        X = phenotype.data,
+        FUN = function(x) {
+            2 == length(unique(x));
+            }
+        );
+
+    other.vars.index <- !continuous.vars.index & !binary.vars.index;
+
+    # run linear regression on continuous phenotypes
+    continuous.data <- subset(phenotype.data, select = continuous.vars.index);
+    linear.model <- lapply(
+        X = continuous.data,
+        FUN = function(x) {
+            summary(lm(x ~ pgs, data = phenotype.data));
+            }
+        );
+
+    # run logistic regression on binary phenotypes
+    binary.data <- subset(phenotype.data, select = binary.vars.index);
+    binary.data <- lapply(
+        X = binary.data,
+        FUN = function(x) {
+            factor(x, levels = c(0, 1));
+            }
+        );
+
+    logistic.model <- lapply(
+        X = binary.data,
+        FUN = function(x) {
+            summary(glm(x ~ pgs, data = binary.data, family = binomial));
+            }
+        );
+
+    # aggregate results in a data frame
+    linear.model.aggregated <- lapply(
+        X = linear.model,
+        FUN = function(x) {
+            data.frame(
+                beta = x$coefficients['pgs', 'Estimate'],
+                se = x$coefficients['pgs', 'Std. Error'],
+                p.value = x$coefficients['pgs', 'Pr(>|t|)'],
+                r.squared = x$r.squared
+                );
+            }
+        );
+    linear.model.aggregated <- do.call(rbind, linear.model.aggregated);
+    linear.model.aggregated <- data.frame(
+        phenotype = names(linear.model),
+        model = 'linear.regression',
+        linear.model.aggregated
+        );
+
+    logistic.model.aggregated <- lapply(
+        X = logistic.model,
+        FUN = function(x) {
+            data.frame(
+                beta = x$coefficients['pgs', 'Estimate'],
+                se = x$coefficients['pgs', 'Std. Error'],
+                p.value = x$coefficients['pgs', 'Pr(>|z|)'],
+                r.squared = NA
+                );
+            }
+        );
+    logistic.model.aggregated <- do.call(rbind, logistic.model.aggregated);
+    logistic.model.aggregated <- data.frame(
+        phenotype = names(logistic.model),
+        model = 'logistic.regression',
+        logistic.model.aggregated
+        );
+    
+    all.model.results <- rbind(linear.model.aggregated, logistic.model.aggregated);
+
+    return(all.model.results);
+    }
