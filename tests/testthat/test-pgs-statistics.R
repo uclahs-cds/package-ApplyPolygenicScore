@@ -80,3 +80,33 @@ test_that(
             );
         }
     );
+
+test_that(
+    'run.pgs.regression correctly identifies continuous and binary phenotypes', {
+        # create test data
+        phenotype.data <- list(
+            numeric = c(1, 2, 3, 4, 5),
+            binary = c(0, 1, 0, 1, 0),
+            character = c('a', 'b', 'c', 'd', 'e')
+            );
+
+        # run function
+        regression.data <- run.pgs.regression(1, phenotype.data);
+
+        # check that the output is a data frame
+        expect_equal(class(regression.data), 'data.frame');
+
+        # check that the data frame has the correct number of rows
+        expect_equal(nrow(regression.data), 2);
+
+        # check that the data frame has the correct number of columns
+        expect_equal(ncol(regression.data), 2);
+
+        # check that the data frame has the correct column names
+        expect_equal(
+            colnames(regression.data),
+            c('continuous', 'binary')
+            );
+
+        }
+    );
