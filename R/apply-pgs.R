@@ -191,7 +191,7 @@ apply.polygenic.score <- function(
             );
         per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
         ploidy <- 2; # hard-coded ploidy for human diploid genome
-        per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count
+        per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count;
         pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count.ploidy.adjusted;
         # account for division by zero
         pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
