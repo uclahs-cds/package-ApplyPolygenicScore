@@ -46,17 +46,17 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     return(pgs.percentile.data);
     }
 
-run.pgs.regression <- function(pgs, phenotype.data) {
-
-    # identify continuous and binary phenotypes
+# utility function for identifying data as continuous or binary for analysis and plotting purposes
+classify.variable.type <- function(data) {
+    # identify continuous and binary variables
     continuous.vars.index <- sapply(
-        X = phenotype.data,
+        X = data,
         FUN = function(x) {
             'numeric' == class(x) & 2 < length(unique(x));
             }
         );
     binary.vars.index <- sapply(
-        X = phenotype.data,
+        X = data,
         FUN = function(x) {
             2 == length(unique(x));
             }
@@ -64,8 +64,21 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 
     other.vars.index <- !continuous.vars.index & !binary.vars.index;
 
+    return(list(
+        continuous = continuous.vars.index,
+        binary = binary.vars.index,
+        other = other.vars.index
+        ));
+    
+}
+
+run.pgs.regression <- function(pgs, phenotype.data) {
+
+    # identify continuous and binary phenotypes
+    variable.index.by.type <- classify.variable.type(phenotype.data);
+
     # run linear regression on continuous phenotypes
-    continuous.data <- subset(phenotype.data, select = continuous.vars.index);
+    continuous.data <- subset(phenotype.data, select = variable.index.by.type$continuous);
     linear.model <- lapply(
         X = continuous.data,
         FUN = function(x) {
@@ -74,7 +87,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
         );
 
     # run logistic regression on binary phenotypes
-    binary.data <- subset(phenotype.data, select = binary.vars.index);
+    binary.data <- subset(phenotype.data, select = variable.index.by.type$binary);
     binary.data <- lapply(
         X = binary.data,
         FUN = function(x) {
