@@ -85,7 +85,7 @@ test_that(
     'run.pgs.regression correctly identifies continuous and binary phenotypes', {
         # load test data
         load('data/phenotype.test.data.Rda');
-        pgs <- seq(0, 1, length.out = nrow(phenotype.data));
+        pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
         phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
         phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
         phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
