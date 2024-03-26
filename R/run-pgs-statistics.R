@@ -20,7 +20,7 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     pgs.percentiles <- sapply(
         X = sorted.pgs,
         FUN = function(x) {
-            sum(pgs >= x) / length(pgs);
+            sum(pgs >= x, na.rm = TRUE) / length(pgs);
             }
         );
 
