@@ -9,7 +9,8 @@ apply.polygenic.score(
   pgs.weight.data,
   missing.genotype.method = "mean.dosage",
   use.external.effect.allele.frequency = FALSE,
-  n.percentiles = NULL
+  n.percentiles = NULL,
+  percentile.source = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ apply.polygenic.score(
 \item{use.external.effect.allele.frequency}{A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.}
 
 \item{n.percentiles}{An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.}
+
+\item{percentile.source}{A character string indicating the source PGS for percentile calculation. Options are "mean.dosage", "normalize", or "none". Default is NULL and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.}
 }
 \value{
 A data.frame containing the PGS per sample.

@@ -47,6 +47,40 @@ test_that(
             'If "none" is included in missing.genotype.method, it must be the only method included'
             );
 
+        # check that percentile.source input is correct
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                percentile.source = c('mean.dosage', 'normalize')
+                ),
+            'percentile.source must be one of the chosen missing genotype methods'
+            );
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                percentile.source = 'not a valid method'
+                ),
+            'percentile.source must be one of the chosen missing genotype methods'
+            );
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = 'normalize',
+                percentile.source = 'mean.dosage'
+                ),
+            'percentile.source must be one of the chosen missing genotype methods'
+            );
+        expect_no_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                percentile.source = 'mean.dosage'
+                )
+            );
+
         # check that required columns are present
         test.vcf.data.missing.columns <- test.vcf.data$dat;
         test.vcf.data.missing.columns$gt_GT_alleles <- NULL;
@@ -239,7 +273,14 @@ test_that(
         test.missing.genotype.both <- apply.polygenic.score(
             vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
             pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
-            missing.genotype.method = c('mean.dosage', 'normalize')
+            missing.genotype.method = c('mean.dosage', 'normalize'),
+            percentile.source = 'mean.dosage'
+            );
+        test.missing.genotype.both.percentile.check <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = c('mean.dosage', 'normalize'),
+            percentile.source = 'normalize'
             );
         test.missing.genotype.none <- apply.polygenic.score(
             vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
@@ -266,7 +307,7 @@ test_that(
             c('sample', 'PGS', percentile.colnames, 'n.missing.genotypes')
             );
 
-        # check missing genotype handling
+        # check that PGS values are calculated correctly
         expect_equal(
             test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
@@ -287,6 +328,17 @@ test_that(
             test.missing.genotype.none$PGS,
             c(1, 4, 0, 2)
             );
+
+        # check that percentiles are calculated correctly
+        expect_equal(
+            test.missing.genotype.mean.dosage$percentile,
+            test.missing.genotype.both$percentile
+            );
+        expect_equal(
+            test.missing.genotype.normalize$percentile,
+            test.missing.genotype.both.percentile.check$percentile
+            );
+
 
         # check missing genotype counts
         expect_equal(
