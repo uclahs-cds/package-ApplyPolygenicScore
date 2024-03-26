@@ -78,5 +78,13 @@ test_that(
             percentile.data$percentile.5,
             c(5, 2, 3, 4, 1)
             );
+
+        # edge case when one of the pgss is NA
+        pgs.with.na <- c(5, 2, 3, 4, 1, NA);
+        percentile.data.with.na <- get.pgs.percentiles(pgs.with.na, n.percentiles = 5);
+        expect_equal(
+            percentile.data.with.na$percentile.5,
+            c(5, 2, 3, 4, 1, NA)
+            );
         }
     );
