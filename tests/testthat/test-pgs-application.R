@@ -167,7 +167,7 @@ test_that(
             );
         expect_equal(
             ncol(test.pgs.per.sample),
-            5
+            6
             );
         }
     );
@@ -292,22 +292,22 @@ test_that(
         percentile.colnames <- c('percentile', 'decile', 'quartile');
         expect_equal(
             colnames(test.missing.genotype.mean.dosage),
-            c('sample', 'PGS.with.replaced.missing', percentile.colnames)
+            c('sample', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
             colnames(test.missing.genotype.normalize),
-            c('sample', 'PGS.with.normalized.missing', percentile.colnames)
+            c('sample', 'PGS.with.normalized.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
             colnames(test.missing.genotype.both),
-            c('sample', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames)
+            c('sample', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
             colnames(test.missing.genotype.none),
-            c('sample', 'PGS', percentile.colnames)
+            c('sample', 'PGS', percentile.colnames, 'n.missing.genotypes')
             );
 
-        # check output values
+        # check that PGS values are calculated correctly
         expect_equal(
             test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
@@ -339,6 +339,24 @@ test_that(
             test.missing.genotype.both.percentile.check$percentile
             );
 
+
+        # check missing genotype counts
+        expect_equal(
+            test.missing.genotype.mean.dosage$n.missing.genotypes,
+            c(1, 1, 4, 2)
+            );
+        expect_equal(
+            test.missing.genotype.normalize$n.missing.genotypes,
+            c(1, 1, 4, 2)
+            );
+        expect_equal(
+            test.missing.genotype.both$n.missing.genotypes,
+            c(1, 1, 4, 2)
+            );
+        expect_equal(
+            test.missing.genotype.none$n.missing.genotypes,
+            c(1, 1, 4, 2)
+            );
         }
     );
 

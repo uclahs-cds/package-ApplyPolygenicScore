@@ -180,6 +180,16 @@ apply.polygenic.score <- function(
 
     ### End Multiallelic Site Handling ###
 
+    ### Start Missing SNP Count ###
+    bialellic.variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, sep = ':');
+    biallelic.snp.by.sample.matrix <- get.combined.multiallelic.variant.by.sample.matrix(
+        long.data = merged.vcf.with.pgs.data,
+        variant.id = bialellic.variant.id,
+        value.var = 'dosage'
+        );
+    per.sample.missing.genotype.count <- colSums(is.na(biallelic.snp.by.sample.matrix));
+    ### End Missing SNP Count ###
+
     # calculate PGS per sample
     pgs.output.list <- list();
 
@@ -202,6 +212,9 @@ apply.polygenic.score <- function(
         # calculate percentiles
         percentiles <- get.pgs.percentiles(pgs = pgs.output$PGS, n.percentiles = n.percentiles);
         pgs.output <- cbind(pgs.output, percentiles);
+
+        # add missing genotype count
+        pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
         return(pgs.output);
         }
 
@@ -213,12 +226,6 @@ apply.polygenic.score <- function(
             na.rm = TRUE
             );
         colnames(pgs.per.sample.with.normalized.missing) <- c('sample', 'PGS');
-        bialellic.variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, sep = ':');
-        biallelic.snp.by.sample.matrix <- get.combined.multiallelic.variant.by.sample.matrix(
-            long.data = merged.vcf.with.pgs.data,
-            variant.id = bialellic.variant.id,
-            value.var = 'multiallelic.weighted.dosage'
-            );
         per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
         ploidy <- 2; # hard-coded ploidy for human diploid genome
         per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count;
@@ -256,6 +263,9 @@ apply.polygenic.score <- function(
         percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,missing.method.to.colname.ref[percentile.source]], n.percentiles = n.percentiles);
         }
     pgs.output <- cbind(pgs.output, percentiles);
+
+    # add missing genotype count
+    pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
 
     return(pgs.output);
     }
