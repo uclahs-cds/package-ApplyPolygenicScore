@@ -39,14 +39,15 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     return(output);
     }
 
-plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL) {
+plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL, width = 10, height = 10) {
     # check input
     plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, filname.prefix = filename.prefix);    
 
+    recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
 
     # identify categorical phenotype variables for plotting
-    if (is.null(phenotype.columns)) {
+    if (!is.null(phenotype.columns)) {
         phenotype.data <- pgs.data[ , phenotype.columns];
         phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
         phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$binary | phenotype.index.by.type$other);
@@ -77,12 +78,12 @@ plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL
             for (phenotype in names(pgs.by.phenotype)) {
                 pgs.data.for.plotting <- pgs.by.phenotype[[phenotype]];
 
-                pgs.density.by.phenotype.plots[[pgs.column]][[phenotype]] <- BoutrosLab.plotting.general::create.densityplot(
+                pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
                     x = pgs.data.for.plotting,
-                    xlab.label = pgs.column,
+                    xlab.label = phenotype,
                     ylab.label = 'Density',
-                    main = phenotype,
-                    main.cex = global.cex,
+                    main = '',
+                    main.cex = 0,
                     ylab.cex = global.cex,
                     xlab.cex = global.cex,
                     yaxis.cex = global.cex,
@@ -100,27 +101,25 @@ plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL
     if (length(pgs.density.by.phenotype.plots) != 0) {
         density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
             plot.objects = c(pgs.density.plots, pgs.density.by.phenotype.plots),
-            #filename = 'test.png',
-            layout.height = 2,#1 + length(pgs.density.by.phenotype.plots[[1]]),
+            filename = 'test.png',
+            layout.height = 1 + length(pgs.density.by.phenotype.plots),
             layout.width = length(pgs.density.plots),
             main = '',
-            main.cex = 0
+            main.cex = 0,
+            width = width,
+            height = height
             );
-        png(filename = 'test.png', width = 1000, height = 1000);
-        print(density.multipanel);
-        dev.off();
         } else {
             density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
                 plot.objects = pgs.density.plots,
-                #filename = 'test.png',
+                filename = 'test.png',
                 layout.height = 1,
                 layout.width = length(pgs.density.plots),
                 main = '',
-                main.cex = 0
+                main.cex = 0,
+                width = width,
+                height = height
                 );
-            png(filename = 'test.png', width = 1000, height = 1000);
-            print(density.multipanel);
-            dev.off();
 
         }
 
