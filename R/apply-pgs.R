@@ -76,7 +76,7 @@ apply.polygenic.score <- function(
     # check that percentile.source is NULL or a character string representing a missing genotype method
     if (!is.null(percentile.source)) {
         if (length(percentile.source) > 1) {
-            stop('percentile.source must be of the chosen missing genotype methods');
+            stop('percentile.source must be one of the chosen missing genotype methods');
             }
         if (!(percentile.source %in% missing.genotype.method)) {
             stop('percentile.source must be one of the chosen missing genotype methods');
