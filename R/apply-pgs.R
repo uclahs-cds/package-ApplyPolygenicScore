@@ -5,6 +5,7 @@
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
+#' @param percentile.source A character string indicating the source PGS for percentile calculation. Options are "mean.dosage", "normalize", or "none". Default is NULL and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.
 #' @return A data.frame containing the PGS per sample.
 #' @export
 apply.polygenic.score <- function(
@@ -12,7 +13,8 @@ apply.polygenic.score <- function(
     pgs.weight.data,
     missing.genotype.method = 'mean.dosage',
     use.external.effect.allele.frequency = FALSE,
-    n.percentiles = NULL
+    n.percentiles = NULL,
+    percentile.source = NULL
     ) {
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
@@ -64,6 +66,28 @@ apply.polygenic.score <- function(
         }
     if ('none' %in% missing.genotype.method && length(missing.genotype.method) > 1) {
         stop('If "none" is included in missing.genotype.method, it must be the only method included');
+        }
+
+    # check that n.percentiles is a mathematical integer
+    if (!is.null(n.percentiles) && (n.percentiles %% 1 != 0)) {
+        stop('n.percentiles must be an integer');
+        }
+
+    # check that percentile.source is NULL or a character string representing a missing genotype method
+    if (!is.null(percentile.source)) {
+        if (length(percentile.source) > 1) {
+            stop('percentile.source must be of the chosen missing genotype methods');
+            }
+        if (!(percentile.source %in% missing.genotype.method)) {
+            stop('percentile.source must be one of the chosen missing genotype methods');
+            }
+        if (length(missing.genotype.method) == 1) {
+            # if only one PGS method will be applied, overwrite percentile.source to NULL
+            percentile.source <- NULL;
+            }
+        } else if (length(missing.genotype.method) > 1) {
+        # if more than one PGS method will be applied, set percentile.source to the mean.dosage source
+        percentile.source <- 'mean.dosage';
         }
 
     # merge VCF and PGS data
@@ -159,6 +183,12 @@ apply.polygenic.score <- function(
     # calculate PGS per sample
     pgs.output.list <- list();
 
+    missing.method.to.colname.ref <- c(
+        'mean.dosage' = 'PGS.with.replaced.missing',
+        'normalize' = 'PGS.with.normalized.missing',
+        'none' = 'PGS'
+        );
+
     if ('none' %in% missing.genotype.method) {
         pgs.per.sample <- aggregate(
             x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
@@ -219,7 +249,12 @@ apply.polygenic.score <- function(
     pgs.output <- cbind(sample, PGS.cols);
 
     # calculate percentiles
-    percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,2], n.percentiles = n.percentiles); # calculate percentiles on first available score
+    if (is.null(percentile.source)) {
+        percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,2], n.percentiles = n.percentiles); # calculate percentiles on first available score
+        } else {
+        # calculate percentiles on user-chosen score
+        percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,missing.method.to.colname.ref[percentile.source]], n.percentiles = n.percentiles);
+        }
     pgs.output <- cbind(pgs.output, percentiles);
 
     return(pgs.output);
