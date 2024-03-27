@@ -11,7 +11,10 @@ plot.pgs.density(
   filename.prefix = NULL,
   file.extension = "png",
   width = 10,
-  height = 10
+  height = 10,
+  xaxes.cex = 1.5,
+  yaxes.cex = 1.5,
+  titles.cex = 1.5
 )
 }
 \arguments{
@@ -28,6 +31,12 @@ plot.pgs.density(
 \item{width}{numeric width of output plot in inches}
 
 \item{height}{numeric height of output plot in inches}
+
+\item{xaxes.cex}{numeric cex for x-axis labels}
+
+\item{yaxes.cex}{numeric cex for y-axis labels}
+
+\item{titles.cex}{numeric cex for plot titles}
 }
 \value{
 multipanel plot object

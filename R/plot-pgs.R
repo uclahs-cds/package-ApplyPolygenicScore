@@ -49,6 +49,9 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param file.extension character file extension for output plots
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
+#' @param xaxes.cex numeric cex for x-axis labels
+#' @param yaxes.cex numeric cex for y-axis labels
+#' @param titles.cex numeric cex for plot titles
 #' @return multipanel plot object
 plot.pgs.density <- function(
     pgs.data,
@@ -57,7 +60,10 @@ plot.pgs.density <- function(
     filename.prefix = NULL,
     file.extension = 'png',
     width = 10,
-    height = 10
+    height = 10,
+    xaxes.cex = 1.5,
+    yaxes.cex = 1.5,
+    titles.cex = 1.5
     ) {
     # check input
     plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);    
@@ -73,7 +79,6 @@ plot.pgs.density <- function(
         }
 
     # Plotting
-    global.cex <- 1.5;
     pgs.density.plots <- list();
     pgs.density.by.phenotype.plots <- list();
     for (pgs.column in pgs.columns) {
@@ -84,10 +89,10 @@ plot.pgs.density <- function(
             x = pgs.data.for.plotting,
             ylab.label = 'Density',
             main = pgs.column,
-            main.cex = global.cex,
-            ylab.cex = global.cex,
-            yaxis.cex = global.cex,
-            xaxis.cex = global.cex,
+            main.cex = titles.cex,
+            ylab.cex = titles.cex,
+            yaxis.cex = yaxes.cex,
+            xaxis.cex = xaxes.cex,
             lwd = 2
             );
 
@@ -103,10 +108,10 @@ plot.pgs.density <- function(
                     ylab.label = 'Density',
                     main = '',
                     main.cex = 0,
-                    ylab.cex = global.cex,
-                    xlab.cex = global.cex,
-                    yaxis.cex = global.cex,
-                    xaxis.cex = global.cex,
+                    ylab.cex = titles.cex,
+                    xlab.cex = titles.cex,
+                    yaxis.cex = yaxes.cex,
+                    xaxis.cex = xaxes.cex,
                     lwd = 2,
                     col = BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting))
                     );
@@ -164,6 +169,9 @@ plot.pgs.density <- function(
 #' @param file.extension character file extension for output plots
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
+#' @param xaxes.cex numeric cex for x-axis labels
+#' @param yaxes.cex numeric cex for y-axis labels
+#' @param titles.cex numeric cex for plot titles
 #' @return multipanel plot object
 #' @export
 plot.pgs.with.continuous.phenotype <- function(
@@ -173,7 +181,10 @@ plot.pgs.with.continuous.phenotype <- function(
     filename.prefix = NULL,
     file.extension = 'png',
     width = 10,
-    height = 10
+    height = 10,
+    xaxes.cex = 1.5,
+    yaxes.cex = 1.5,
+    titles.cex = 1.5
     ) {
     # check input
     plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);
@@ -190,7 +201,6 @@ plot.pgs.with.continuous.phenotype <- function(
         }
 
     # Plotting
-    global.cex <- 1.5;
     pgs.scatterplots <- list();
     for (pgs.column in pgs.columns) {
 
@@ -204,11 +214,10 @@ plot.pgs.with.continuous.phenotype <- function(
                 ylab.label = phenotype,
                 main = '',
                 main.cex = 0,
-                ylab.cex = global.cex,
-                xlab.cex = global.cex,
-                yaxis.cex = global.cex,
-                xaxis.cex = global.cex,
-                lwd = 2
+                ylab.cex = titles.cex,
+                xlab.cex = titles.cex,
+                yaxis.cex = yaxes.cex,
+                xaxis.cex = xaxes.cex
                 );
             }
 
