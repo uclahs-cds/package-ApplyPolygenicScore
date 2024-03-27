@@ -47,8 +47,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
-#' @param width numeric width of output plot
-#' @param height numeric height of output plot
+#' @param width numeric width of output plot in inches
+#' @param height numeric height of output plot in inches
 #' @return multipanel plot object
 plot.pgs.density <- function(
     pgs.data,
@@ -155,6 +155,17 @@ plot.pgs.density <- function(
 
     }
 
+#' @title Plot PGS Scatterplots
+#' @description Create scatterplots for PGS data with continuous phenotype variables
+#' @param pgs.data data.frame with PGS and phenotype data
+#' @param phenotype.columns character vector of continuous phenotype columns in pgs.data to plot
+#' @param output.dir character directory to save output plots
+#' @param filename.prefix character prefix for output filenames
+#' @param file.extension character file extension for output plots
+#' @param width numeric width of output plot in inches
+#' @param height numeric height of output plot in inches
+#' @return multipanel plot object
+#' @export
 plot.pgs.with.continuous.phenotype <- function(
     pgs.data,
     phenotype.columns,
