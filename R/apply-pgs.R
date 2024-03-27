@@ -2,6 +2,7 @@
 #' @description Apply a polygenic score to VCF data.
 #' @param vcf.data A data.frame containing VCF genotype data.
 #' @param pgs.weight.data A data.frame containing PGS weight data.
+#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
@@ -11,11 +12,15 @@
 apply.polygenic.score <- function(
     vcf.data,
     pgs.weight.data,
+    phenotype.data = NULL,
+    phenotype.analysis.columns = NULL,
     missing.genotype.method = 'mean.dosage',
     use.external.effect.allele.frequency = FALSE,
     n.percentiles = NULL,
     percentile.source = NULL
     ) {
+
+    ### Start Input Validation ###
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
         stop('vcf.data must be a data.frame');
@@ -23,15 +28,28 @@ apply.polygenic.score <- function(
     if (!is.data.frame(pgs.weight.data)) {
         stop('pgs.weight.data must be a data.frame');
         }
+    # if provided, phenotype data must be a data.frame
+    if (!is.null(phenotype.data) && !is.data.frame(phenotype.data)) {
+        stop('phenotype.data must be a data.frame')
+        }
 
     # check that inputs contain required columns for PGS application
     required.vcf.columns <- c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles');
     required.pgs.columns <- c('CHROM', 'POS', 'effect_allele', 'beta');
+    required.phenotype.columns <- 'Indiv';
     if (!all(required.vcf.columns %in% colnames(vcf.data))) {
         stop('vcf.data must contain columns named CHROM, POS, REF, ALT, Indiv, and gt_GT_alleles');
         }
     if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
         stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
+        }
+    if (!is.null(phenotype.data) && !all(required.phenotype.columns %in% colnames(phenotype.data))) {
+        stop('phenotype.data must contain columns named Indiv')
+        }
+
+    # check for at least one matching Indiv between phenotype.data and vcf.data
+    if (!is.null(phenotype.data) && length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
+        stop('No matching Indiv between phenotype.data and vcf.data');
         }
 
     if (use.external.effect.allele.frequency) {
@@ -90,6 +108,8 @@ apply.polygenic.score <- function(
         percentile.source <- 'mean.dosage';
         }
 
+    ### End Input Validation ###
+
     # merge VCF and PGS data
     merged.vcf.with.pgs <- merge.vcf.with.pgs(
         vcf.data = vcf.data,
@@ -104,7 +124,6 @@ apply.polygenic.score <- function(
         );
 
     ### Start Missing Genotype Handling ###
-
     # create sample by variant dosage matrix
     variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
     dosage.matrix <- get.variant.by.sample.matrix(
@@ -188,8 +207,10 @@ apply.polygenic.score <- function(
         value.var = 'dosage'
         );
     per.sample.missing.genotype.count <- colSums(is.na(biallelic.snp.by.sample.matrix));
+
     ### End Missing SNP Count ###
 
+    ### Start PGS Application ###
     # calculate PGS per sample
     pgs.output.list <- list();
 
@@ -206,45 +227,41 @@ apply.polygenic.score <- function(
             FUN = sum,
             na.rm = TRUE
             );
-        colnames(pgs.per.sample) <- c('sample', 'PGS');
-        pgs.output <- pgs.per.sample;
+        colnames(pgs.per.sample) <- c('Indiv', 'PGS');
+        pgs.output.list$PGS <- pgs.per.sample;
 
-        # calculate percentiles
-        percentiles <- get.pgs.percentiles(pgs = pgs.output$PGS, n.percentiles = n.percentiles);
-        pgs.output <- cbind(pgs.output, percentiles);
+        } else {
+            if ('normalize' %in% missing.genotype.method) {
+                pgs.per.sample.with.normalized.missing <- aggregate(
+                    x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
+                    by = list(merged.vcf.with.pgs.data$Indiv),
+                    FUN = sum,
+                    na.rm = TRUE
+                    );
+                colnames(pgs.per.sample.with.normalized.missing) <- c('Indiv', 'PGS');
+                per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
+                ploidy <- 2; # hard-coded ploidy for human diploid genome
+                per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count
+                pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count.ploidy.adjusted;
+                # account for division by zero
+                pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
+                pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
+                }
 
-        # add missing genotype count
-        pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
-        return(pgs.output);
+            if ('mean.dosage' %in% missing.genotype.method) {
+                pgs.per.sample <- aggregate(
+                    x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing,
+                    by = list(merged.vcf.with.pgs.data$Indiv),
+                    FUN = sum,
+                    na.rm = TRUE
+                    );
+                colnames(pgs.per.sample) <- c('Indiv', 'PGS');
+                pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
+                }
+
         }
 
-    if ('normalize' %in% missing.genotype.method) {
-        pgs.per.sample.with.normalized.missing <- aggregate(
-            x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
-            by = list(merged.vcf.with.pgs.data$Indiv),
-            FUN = sum,
-            na.rm = TRUE
-            );
-        colnames(pgs.per.sample.with.normalized.missing) <- c('sample', 'PGS');
-        per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
-        ploidy <- 2; # hard-coded ploidy for human diploid genome
-        per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count;
-        pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count.ploidy.adjusted;
-        # account for division by zero
-        pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
-        pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
-        }
-
-    if ('mean.dosage' %in% missing.genotype.method) {
-        pgs.per.sample <- aggregate(
-            x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing,
-            by = list(merged.vcf.with.pgs.data$Indiv),
-            FUN = sum,
-            na.rm = TRUE
-            );
-        colnames(pgs.per.sample) <- c('sample', 'PGS');
-        pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
-        }
+    ### End PGS Application ###
 
     # format output
     # bind PGS columns of list components
@@ -252,8 +269,8 @@ apply.polygenic.score <- function(
     PGS.cols <- data.frame(do.call(cbind, PGS.cols));
     colnames(PGS.cols) <- names(pgs.output.list);
     # bind sample column of first list component
-    sample <- pgs.output.list[[1]]$sample;
-    pgs.output <- cbind(sample, PGS.cols);
+    Indiv <- pgs.output.list[[1]]$Indiv;
+    pgs.output <- cbind(Indiv, PGS.cols);
 
     # calculate percentiles
     if (is.null(percentile.source)) {
@@ -266,6 +283,17 @@ apply.polygenic.score <- function(
 
     # add missing genotype count
     pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
+
+    # merge PGS data with phenotype data by Indiv column
+    if (!is.null(phenotype.data)) {
+        pgs.output <- merge(
+            x = pgs.output,
+            y = phenotype.data,
+            by = 'Indiv',
+            all.x = TRUE,
+            all.y = TRUE
+            );
+        }
 
     return(pgs.output);
     }

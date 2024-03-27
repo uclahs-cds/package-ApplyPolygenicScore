@@ -7,6 +7,8 @@
 apply.polygenic.score(
   vcf.data,
   pgs.weight.data,
+  phenotype.data = NULL,
+  phenotype.analysis.columns = NULL,
   missing.genotype.method = "mean.dosage",
   use.external.effect.allele.frequency = FALSE,
   n.percentiles = NULL,
@@ -17,6 +19,8 @@ apply.polygenic.score(
 \item{vcf.data}{A data.frame containing VCF genotype data.}
 
 \item{pgs.weight.data}{A data.frame containing PGS weight data.}
+
+\item{phenotype.data}{A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.}
 
 \item{missing.genotype.method}{A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".}
 

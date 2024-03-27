@@ -199,3 +199,45 @@ save(
     missing.genotype.test.data,
     file = 'tests/testthat/data/missing.genotype.test.data.Rda'
     );
+
+# create data for testing phenotype related functionality
+# generate random genotype data
+set.seed(123);
+n.samples <- 10;
+n.variants <- 10;
+genotypes <- rmultinom(n = n.samples, size = 2, prob = seq(0, 1, length.out = n.variants));
+genotypes <- as.vector(t(genotypes));
+# convert to ref and alt letter alleles
+ref.alleles <- rep('T', length(genotypes));
+ref.alleles[genotypes == 2] <- 'A';
+alt.alleles <- rep('T', length(genotypes));
+alt.alleles[genotypes == 1] <- 'A';
+alt.alleles[genotypes == 2] <- 'A';
+
+
+phenotype.test.data <- list(
+    # vcf with 10 samples and 10 variants
+    vcf.data = data.frame(
+        CHROM = paste0('chr', rep(1:10, each = 10)),
+        POS = rep(1:10, each = 10),
+        REF = rep('T', 100),
+        ALT = rep('A', 100),
+        Indiv = rep(paste0('sample', 1:n.samples), n.variants),
+        gt_GT_alleles = paste0(ref.alleles, '/', alt.alleles)
+        ),
+    pgs.weight.data = data.frame(
+        CHROM = paste0('chr', 1:10),
+        POS = 1:10,
+        effect_allele = 'A',
+        beta = rnorm(10) # random beta values
+        ),
+    phenotype.data = data.frame(
+        Indiv = paste0('sample', 1:n.samples),
+        continuous.phenotype = rnorm(n.samples), # random phenotype values
+        binary.phenotype = rbinom(n.samples, size = 1, prob = 0.5) # random binary phenotype values
+        )
+    );
+save(
+    phenotype.test.data,
+    file = 'tests/testthat/data/phenotype.test.data.Rda'
+    );

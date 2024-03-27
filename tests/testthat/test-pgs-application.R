@@ -182,7 +182,7 @@ test_that(
 
         # check that output is correct
         expect_equal(
-            test.pgs.per.sample$sample,
+            test.pgs.per.sample$Indiv,
             c('sample1', 'sample2')
             );
         expect_equal(
@@ -292,19 +292,19 @@ test_that(
         percentile.colnames <- c('percentile', 'decile', 'quartile');
         expect_equal(
             colnames(test.missing.genotype.mean.dosage),
-            c('sample', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
             colnames(test.missing.genotype.normalize),
-            c('sample', 'PGS.with.normalized.missing', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS.with.normalized.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
             colnames(test.missing.genotype.both),
-            c('sample', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
             colnames(test.missing.genotype.none),
-            c('sample', 'PGS', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS', percentile.colnames, 'n.missing.genotypes')
             );
 
         # check that PGS values are calculated correctly
@@ -376,6 +376,81 @@ test_that(
             test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
             c(1, 4, 3, 3.5)
             );
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly validates phenotype data', {
+
+        load('data/phenotype.test.data.Rda');
+
+        # check that phenotype data is a data frame
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = phenotype.test.data$vcf.data,
+                pgs.weight.data = phenotype.test.data$pgs.weight.data,
+                phenotype.data = 'not a data frame'
+                ),
+            'phenotype.data must be a data.frame'
+            );
+
+        # check that phenotype data has correct columns
+        phenotype.test.data.missing.columns <- phenotype.test.data$phenotype.data;
+        phenotype.test.data.missing.columns$Indiv <- NULL;
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = phenotype.test.data$vcf.data,
+                pgs.weight.data = phenotype.test.data$pgs.weight.data,
+                phenotype.data = phenotype.test.data.missing.columns
+                ),
+            'phenotype.data must contain columns named Indiv'
+            );
+
+        # check for at least one matching sample in phenotype data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = phenotype.test.data$vcf.data,
+                pgs.weight.data = phenotype.test.data$pgs.weight.data,
+                phenotype.data = data.frame(Indiv = c('sample11'))
+                ),
+            'No matching Indiv between phenotype.data and vcf.data'
+            );
+
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly aggregates phenotype data', {
+        load('data/phenotype.test.data.Rda');
+        test.phenotype.output <- apply.polygenic.score(
+            vcf.data = phenotype.test.data$vcf.data,
+            pgs.weight.data = phenotype.test.data$pgs.weight.data,
+            phenotype.data = phenotype.test.data$phenotype.data,
+            missing.genotype.method = 'none'
+            );
+
+        # check that output is a data.frame
+        expect_s3_class(
+            test.phenotype.output,
+            'data.frame'
+            );
+
+        # check for the correct column names
+        expect_true(
+            all(c(colnames(phenotype.test.data), 'PGS') %in% colnames(test.phenotype.output))
+            );
+
+        # check that phenotype values are correctly matched to samples
+        expect_equal(
+            test.phenotype.output$continuous.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output$Indiv)],
+            phenotype.test.data$phenotype.data$continuous.phenotype
+            );
+
+        expect_equal(
+            test.phenotype.output$binary.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output$Indiv)],
+            phenotype.test.data$phenotype.data$binary.phenotype
+            );
+
         }
     );
 
