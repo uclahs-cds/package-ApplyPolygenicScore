@@ -1,5 +1,5 @@
 # utility function for checking PGS plotting inputs
-plotting.input.checks <- function(pgs.data, phenotype.columns, filname.prefix = NULL) {
+plotting.input.checks <- function(pgs.data, phenotype.columns) {
     # Check that pgs.data is a data.frame
     if (!is.data.frame(pgs.data)) {
         stop("pgs.data must be a data.frame");
@@ -60,7 +60,7 @@ plot.pgs.density <- function(
     height = 10
     ) {
     # check input
-    plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, filname.prefix = filename.prefix);    
+    plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);    
 
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
@@ -152,5 +152,55 @@ plot.pgs.density <- function(
 
         }
     return(density.multipanel); # this returns null when filename is provided to create.multipanelplot
+
+    }
+
+plot.pgs.with.continuous.phenotype <- function(
+    pgs.data,
+    phenotype.columns,
+    output.dir = getwd(),
+    filename.prefix = NULL,
+    file.extension = 'png',
+    width = 10,
+    height = 10
+    ) {
+    # check input
+    plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);
+
+    recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+    pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+
+    # identify continuous phenotype variables for plotting
+    phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
+    phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$continuous);
+
+    if (length(phenotype.data.for.plotting) == 0) {
+        stop("No continuous phenotype variables detected");
+        }
+
+    # Plotting
+    global.cex <- 1.5;
+    pgs.scatterplots <- list();
+    for (pgs.column in pgs.columns) {
+
+        for (phenotype in colnames(phenotype.data.for.plotting)) {
+
+            pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
+                formula = as.formula(paste0(phenotype, ' ~ pgs.data[, pgs.column]')),
+                data = phenotype.data.for.plotting,
+                type = 'p',
+                xlab.label = pgs.column,
+                ylab.label = phenotype,
+                main = '',
+                main.cex = 0,
+                ylab.cex = global.cex,
+                xlab.cex = global.cex,
+                yaxis.cex = global.cex,
+                xaxis.cex = global.cex,
+                lwd = 2
+                );
+            }
+
+        }
 
     }

@@ -7,20 +7,23 @@ skip.plotting.tests <- function(skip.plots = FALSE) {
         }
     }
 
+
+# get test dataset
+load('data/phenotype.test.data.Rda');
+
+# run pgs statistics
+pgs.test <- apply.polygenic.score(
+    vcf.data = phenotype.test.data$vcf.data,
+    pgs.weight.data = phenotype.test.data$pgs.weight.data,
+    phenotype.data = phenotype.test.data$phenotype.data,
+    missing.genotype.method = c('mean.dosage', 'normalize')
+    );
+
 test_that(
     'plot.pgs.density runs with no error', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
-        # load test data
-        load('data/phenotype.test.data.Rda');
-
-        # run pgs statistics
-        pgs.test <- apply.polygenic.score(
-            vcf.data = phenotype.test.data$vcf.data,
-            pgs.weight.data = phenotype.test.data$pgs.weight.data,
-            phenotype.data = phenotype.test.data$phenotype.data
-            );
 
         # plot pgs density
         expect_no_error(
