@@ -70,7 +70,6 @@ classify.variable.type <- function(data) {
         binary = binary.vars.index,
         other = other.vars.index
         ));
-    
 }
 
 # utility function that runs linear and logistic regression on a polygenic score and a set of phenotypes
