@@ -90,7 +90,7 @@ test_that(
     );
 
 test_that(
-    'run.pgs.regression correctly identifies continuous and binary phenotypes', {
+    'run.pgs.regression correctly formats outputs', {
         # load test data
         load('data/phenotype.test.data.Rda');
         pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
@@ -117,12 +117,28 @@ test_that(
             regression.data.expected.colnames
             );
 
-        # check that the data frame has the correct values
+        # check that only continuous and binary phenotypes are outputted
         expect_equal(
             regression.data$phenotype,
             phenotype.columns
             );
 
+    }
+)
+
+test_that(
+    'run.pgs.regression correctly runs regressions', {
+        # load test data
+        load('data/phenotype.test.data.Rda');
+        pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
+        phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
+        phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
+        phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
+
+        # run function
+        regression.data <- run.pgs.regression(pgs = pgs, phenotype.data = phenotype.data);
+
+        # check correct models for continuous and binary phenotypes
         expect_equal(
             regression.data$model,
             c('linear.regression', 'logistic.regression')

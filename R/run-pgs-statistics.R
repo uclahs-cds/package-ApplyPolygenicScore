@@ -73,6 +73,7 @@ classify.variable.type <- function(data) {
     
 }
 
+# utility function that runs linear and logistic regression on a polygenic score and a set of phenotypes
 run.pgs.regression <- function(pgs, phenotype.data) {
 
     # identify continuous and binary phenotypes
