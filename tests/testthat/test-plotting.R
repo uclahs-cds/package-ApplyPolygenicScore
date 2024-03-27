@@ -1,5 +1,16 @@
+# plotting functions take a long time to run, this var toggles off plotting tests for faster testing
+SKIP.PLOTS <- FALSE;
+skip.plotting.tests <- function(skip.plots = FALSE) {
+    # skip plotting tests if 
+    if (skip.plots) {
+        skip('Plotting tests disabled');
+        }
+    }
+
 test_that(
     'plot.pgs.density runs with no error', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
         temp.dir <- tempdir();
         # load test data
         load('data/phenotype.test.data.Rda');
