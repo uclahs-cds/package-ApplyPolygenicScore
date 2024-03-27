@@ -39,6 +39,16 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     return(output);
     }
 
+#' @title Plot PGS Density
+#' @description Create density plots for PGS data
+#' @param pgs.data data.frame with PGS data
+#' @param phenotype.columns character vector of phenotype columns in pgs.data to plot (optional)
+#' @param output.dir character directory to save output plots
+#' @param filename.prefix character prefix for output filenames
+#' @param file.extension character file extension for output plots
+#' @param width numeric width of output plot
+#' @param height numeric height of output plot
+#' @return multipanel plot object
 plot.pgs.density <- function(
     pgs.data,
     phenotype.columns,
@@ -107,7 +117,7 @@ plot.pgs.density <- function(
 
     # create filename
     if (is.null(filename.prefix)) {
-        filename.prefix <- 'ApplyPolygenicScore_Plot';
+        filename.prefix <- 'ApplyPolygenicScore-Plot';
         }
     filename.for.density.multiplot <- generate.filename(
         project.stem = filename.prefix,

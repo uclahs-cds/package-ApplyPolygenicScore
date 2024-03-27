@@ -1,5 +1,6 @@
 test_that(
     'plot.pgs.density runs with no error', {
+        temp.dir <- tempdir();
         # load test data
         load('data/phenotype.test.data.Rda');
 
@@ -14,8 +15,20 @@ test_that(
         expect_no_error(
             plot.pgs.density(
                 pgs.data = pgs.test,
-                phenotype.columns = c('continuous.phenotype', 'binary.phenotype')
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST'
                 )
             );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST',
+            file.core = 'pgs-density',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
         }
     );
