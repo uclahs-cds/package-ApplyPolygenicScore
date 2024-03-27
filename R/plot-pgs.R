@@ -203,4 +203,26 @@ plot.pgs.with.continuous.phenotype <- function(
 
         }
 
+    # create filename
+    if (is.null(filename.prefix)) {
+        filename.prefix <- 'ApplyPolygenicScore-Plot';
+        }
+    filename.for.scatterplot.multiplot <- generate.filename(
+        project.stem = filename.prefix,
+        file.core = 'pgs-scatterplot',
+        extension = file.extension
+        );
+
+    # assemble multipanel plot
+    scatterplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+        plot.objects = pgs.scatterplots,
+        filename = 'test.png',#file.path(output.dir, filename.for.scatterplot.multiplot),
+        layout.height = length(phenotype.data.for.plotting),
+        layout.width = length(pgs.columns),
+        main = '',
+        main.cex = 0,
+        width = width,
+        height = height
+        );
+
     }
