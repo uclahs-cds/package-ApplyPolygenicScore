@@ -22,6 +22,7 @@ plotting.input.checks <- function(pgs.data, phenotype.columns, filname.prefix = 
         }
     }
 
+# utility function that formats PGS data for plotting in density plots
 split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     output <- lapply(
         X = phenotype.data,
@@ -150,6 +151,6 @@ plot.pgs.density <- function(
                 );
 
         }
-    return(density.multipanel);
+    return(density.multipanel); # this returns null when filename is provided to create.multipanelplot
 
     }
