@@ -92,7 +92,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
     binary.data <- lapply(
         X = binary.data,
         FUN = function(x) {
-            factor(x, levels = c(0, 1));
+            factor(x);
             }
         );
 

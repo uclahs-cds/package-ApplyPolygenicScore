@@ -138,6 +138,7 @@ test_that(
         pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
         phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
         phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
+        phenotype.data$binary.factor <- rep(c('a', 'b'), 5); # should be included in the regression
         phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
 
         # run function
@@ -147,7 +148,7 @@ test_that(
         expect_equal(class(regression.data), 'data.frame');
 
         # check that the data frame has the correct number of rows
-        expect_equal(nrow(regression.data), 2);
+        expect_equal(nrow(regression.data), 3);
 
         # check that the data frame has the correct number of columns
         expect_equal(ncol(regression.data), 6);
@@ -162,11 +163,11 @@ test_that(
         # check that only continuous and binary phenotypes are outputted
         expect_equal(
             regression.data$phenotype,
-            phenotype.columns
+            c(phenotype.columns, 'binary.factor')
             );
 
-    }
-)
+        }
+    );
 
 test_that(
     'run.pgs.regression correctly runs regressions', {
@@ -175,6 +176,7 @@ test_that(
         pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
         phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
         phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
+        phenotype.data$binary.factor <- rep(c('a', 'b'), 5); # should be included in the regression
         phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
 
         # run function
@@ -183,27 +185,40 @@ test_that(
         # check correct models for continuous and binary phenotypes
         expect_equal(
             regression.data$model,
-            c('linear.regression', 'logistic.regression')
+            c('linear.regression', 'logistic.regression', 'logistic.regression')
             );
 
         linear.model.expected.results <- summary(lm(continuous.phenotype ~ pgs, data = phenotype.data));
         logistic.model.expected.results <- summary(glm(binary.phenotype ~ pgs, data = phenotype.data, family = binomial));
+        logistic.model.factors.expected.results <- summary(glm(factor(binary.factor) ~ pgs, data = phenotype.data, family = binomial));
 
         expect_equal(
             regression.data$beta,
-            c(linear.model.expected.results$coefficients['pgs', 'Estimate'], logistic.model.expected.results$coefficients['pgs', 'Estimate'])
+            c(
+                linear.model.expected.results$coefficients['pgs', 'Estimate'],
+                logistic.model.expected.results$coefficients['pgs', 'Estimate'],
+                logistic.model.factors.expected.results$coefficients['pgs', 'Estimate']
+                )
             );
         expect_equal(
             regression.data$se,
-            c(linear.model.expected.results$coefficients['pgs', 'Std. Error'], logistic.model.expected.results$coefficients['pgs', 'Std. Error'])
+            c(
+                linear.model.expected.results$coefficients['pgs', 'Std. Error'],
+                logistic.model.expected.results$coefficients['pgs', 'Std. Error'],
+                logistic.model.factors.expected.results$coefficients['pgs', 'Std. Error']
+                )
             );
         expect_equal(
             regression.data$p.value,
-            c(linear.model.expected.results$coefficients['pgs', 'Pr(>|t|)'], logistic.model.expected.results$coefficients['pgs', 'Pr(>|z|)'])
+            c(
+                linear.model.expected.results$coefficients['pgs', 'Pr(>|t|)'],
+                logistic.model.expected.results$coefficients['pgs', 'Pr(>|z|)'],
+                logistic.model.factors.expected.results$coefficients['pgs', 'Pr(>|z|)']
+                )
             );
         expect_equal(
             regression.data$r.squared,
-            c(linear.model.expected.results$r.squared, NA)
+            c(linear.model.expected.results$r.squared, NA, NA)
             );
 
         }
