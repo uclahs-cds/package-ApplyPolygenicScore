@@ -20,9 +20,9 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     pgs.percentiles <- sapply(
         X = sorted.pgs,
         FUN = function(x) {
-            sum(pgs >= x) / length(pgs)
+            sum(pgs >= x, na.rm = TRUE) / length(pgs);
             }
-        )
+        );
 
     # convert to data frame
     pgs.percentile.data <- data.frame(
@@ -36,6 +36,7 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     pgs.percentile.data$quartile <- cut(pgs.percentiles, breaks = seq(0, 1, 0.25), labels = FALSE);
 
     if (!is.null(n.percentiles)) {
+        # calculate user-specified percentiles
         pgs.percentile.data$percentile.X <- cut(pgs.percentiles, breaks = seq(0, 1, 1 / n.percentiles), labels = FALSE);
         # replace column name with the number of percentiles
         colnames(pgs.percentile.data) <- gsub('percentile.X', paste0('percentile.', n.percentiles), colnames(pgs.percentile.data));
