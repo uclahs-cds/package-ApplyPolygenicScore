@@ -39,7 +39,15 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     return(output);
     }
 
-plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL, width = 10, height = 10) {
+plot.pgs.density <- function(
+    pgs.data,
+    phenotype.columns,
+    output.dir = getwd(),
+    filename.prefix = NULL,
+    file.extension = 'png',
+    width = 10,
+    height = 10
+    ) {
     # check input
     plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, filname.prefix = filename.prefix);    
 
@@ -97,11 +105,21 @@ plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL
         
         }
 
+    # create filename
+    if (is.null(filename.prefix)) {
+        filename.prefix <- 'ApplyPolygenicScore_Plot';
+        }
+    filename.for.density.multiplot <- generate.filename(
+        project.stem = filename.prefix,
+        file.core = 'pgs-density',
+        extension = file.extension
+        );
+
     # assemble multipanel plot
     if (length(pgs.density.by.phenotype.plots) != 0) {
         density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
             plot.objects = c(pgs.density.plots, pgs.density.by.phenotype.plots),
-            filename = 'test.png',
+            filename = file.path(output.dir, filename.for.density.multiplot),
             layout.height = 1 + length(pgs.density.by.phenotype.plots),
             layout.width = length(pgs.density.plots),
             main = '',
@@ -112,7 +130,7 @@ plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL
         } else {
             density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
                 plot.objects = pgs.density.plots,
-                filename = 'test.png',
+                filename = file.path(output.dir, filename.for.density.multiplot),
                 layout.height = 1,
                 layout.width = length(pgs.density.plots),
                 main = '',
@@ -122,5 +140,6 @@ plot.pgs.density <- function(pgs.data, phenotype.columns, filename.prefix = NULL
                 );
 
         }
+    return(density.multipanel);
 
-}
+    }
