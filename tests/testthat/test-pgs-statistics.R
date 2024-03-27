@@ -90,6 +90,48 @@ test_that(
     );
 
 test_that(
+    'classify.variable.type correctly identifies continuous and binary variables', {
+        # create test data
+        continuous.var <- c(1, 2, 3, 4, 5);
+        binary.var <- c(1, 2, 1, 2, 1);
+        binary.factor <- c('a', 'b', 'a', 'b', 'a');
+        categorical.var <- c('a', 'b', 'c', 'd', 'e');
+        data <- data.frame(continuous.var, binary.var, binary.factor, categorical.var);
+
+        # run function
+        variable.type <- classify.variable.type(data);
+
+        # check that the output is a list
+        expect_equal(class(variable.type), 'list');
+
+        # check that the list has the correct number of elements
+        expect_equal(length(variable.type), 3);
+
+        # check that the list has the correct element names
+        expect_equal(
+            names(variable.type),
+            c('continuous', 'binary', 'other')
+            );
+
+        # check that the list has the correct element values
+        expect_equal(
+            as.vector(variable.type$continuous),
+            c(TRUE, FALSE, FALSE, FALSE)
+            );
+        expect_equal(
+            as.vector(variable.type$binary),
+            c(FALSE, TRUE, TRUE, FALSE)
+            );
+        expect_equal(
+            as.vector(variable.type$other),
+            c(FALSE, FALSE, FALSE, TRUE)
+            );
+
+        }
+    );
+
+
+test_that(
     'run.pgs.regression correctly formats outputs', {
         # load test data
         load('data/phenotype.test.data.Rda');
