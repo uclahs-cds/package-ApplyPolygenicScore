@@ -68,7 +68,6 @@ plot.pgs.rank <- function(
         formula = n.missing.genotypes ~ Indiv,
         data = pgs.data,
         ylimits = c(0, missing.genotype.count.ymax * 1.05),
-        yat = seq(0, missing.genotype.count.ymax, by = 1),
         xlab.label = '',
         ylab.label = 'Missing Genotypes',
         main = ''
@@ -79,8 +78,5 @@ plot.pgs.rank <- function(
         );
 
     # percentile covariate bars
-    
-
-
 
     }
