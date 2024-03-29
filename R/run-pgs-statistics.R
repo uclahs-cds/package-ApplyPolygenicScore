@@ -48,18 +48,18 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     }
 
 # utility function for identifying data as continuous or binary for analysis and plotting purposes
-classify.variable.type <- function(data) {
+classify.variable.type <- function(data, continuous.threshold = 4) {
     # identify continuous and binary variables
     continuous.vars.index <- sapply(
         X = data,
         FUN = function(x) {
-            'numeric' == class(x) & 2 < length(unique(x));
+            'numeric' == class(x) & continuous.threshold < length(unique(na.omit(x)));
             }
         );
     binary.vars.index <- sapply(
         X = data,
         FUN = function(x) {
-            2 == length(unique(x));
+            2 == length(unique(na.omit(x)));
             }
         );
 
