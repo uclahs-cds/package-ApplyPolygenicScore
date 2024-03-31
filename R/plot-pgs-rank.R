@@ -132,6 +132,21 @@ plot.pgs.rank <- function(
     percentile.covariate.df <- data.frame(t(percentile.covariate.df));
     colnames(percentile.covariate.df) <- pgs.data$Indiv;
     # order by percentile
-    percentile.covariate.df <- percentile.covariate.df[ , order(pgs.data$percentile)];
+    percentile.covariate.df <- percentile.covariate.df[ , rev(order(pgs.data$percentile))];
+
+    # percentile covariate heatmap
+    percentile.covariate.heatmap <- BoutrosLab.plotting.general::create.heatmap(
+        x = percentile.covariate.df,
+        input.colours = TRUE,
+        clustering.method = 'none',
+        same.as.matrix = TRUE,
+        print.colour.key = FALSE,
+        yaxis.lab = rownames(percentile.covariate.df),
+        ylab.cex = 1
+        # main.cex = titles.cex,
+        # ylab.cex = titles.cex,
+        # xaxis.cex = xaxis.cex,
+        # yaxis.cex = yaxis.cex
+        );
 
     }
