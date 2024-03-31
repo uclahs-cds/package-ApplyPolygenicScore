@@ -123,7 +123,7 @@ plot.pgs.rank <- function(
         FUN = function(x) {
             covariate.values <- percentile.covariate.data[ , x];
             color.vector <- create.feature.color.vector(
-                features = covariate.values,
+                features = as.character(covariate.values),
                 color.scheme = percentile.color.scheme.list[[x]]
                 );
             return(color.vector)
@@ -148,5 +148,134 @@ plot.pgs.rank <- function(
         # xaxis.cex = xaxis.cex,
         # yaxis.cex = yaxis.cex
         );
+
+    if (any(phenotype.index.by.type$binary) | any(phenotype.index.by.type$other)) {
+        binary.phenotype.df <- NULL;
+        other.phenotype.df <- NULL;
+
+        if (any(phenotype.index.by.type$binary)) {
+            binary.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$binary);
+            binary.color.schemes <- default.colours(
+                number.of.colours = rep(2, ncol(binary.phenotype.data) + 1),
+                palette = rep('binary', ncol(binary.phenotype.data) + 1)
+                );
+            # remove black and white from binary color schemes
+            binary.color.schemes[[1]] <- NULL;
+
+            for (i in 1:length(binary.color.schemes)) {
+                names(binary.color.schemes[[i]]) <- as.character(sort(unique(binary.phenotype.data[ , i])));
+                }
+
+            names(binary.color.schemes) <- colnames(binary.phenotype.data);
+
+            binary.phenotype.df <- sapply(
+                X = colnames(binary.phenotype.data),
+                FUN = function(x) {
+                    phenotype.values <- binary.phenotype.data[ , x];
+                    color.vector <- create.feature.color.vector(
+                        features = as.character(phenotype.values),
+                        color.scheme = binary.color.schemes[[x]]
+                        );
+                    return(color.vector)
+                    }
+                );
+            binary.phenotype.df <- data.frame(t(binary.phenotype.df));
+            colnames(binary.phenotype.df) <- pgs.data$Indiv;
+            # order by percentile
+            binary.phenotype.df <- binary.phenotype.df[ , rev(order(pgs.data$percentile))];
+
+            # # binary phenotype covariate heatmap
+            # binary.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
+            #     x = data.frame(binary.phenotype.df),
+            #     input.colours = TRUE,
+            #     clustering.method = 'none',
+            #     same.as.matrix = TRUE,
+            #     print.colour.key = FALSE,
+            #     yaxis.lab = rownames(binary.phenotype.df),
+            #     ylab.cex = 1
+            #     # main.cex = titles.cex,
+            #     # ylab.cex = titles.cex,
+            #     # xaxis.cex = xaxis.cex,
+            #     # yaxis.cex = yaxis.cex
+            #     );
+
+            }
+
+        if (any(phenotype.index.by.type$other)) {
+            other.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$other);
+            number.of.categories <- lapply(
+                X = other.phenotype.data,
+                FUN = function(x) {
+                    length(unique(x))
+                    }
+                );
+            max.colors <- 12;
+            all.qual.colors <- default.colours(number.of.colors <- max.colors, palette = 'qual');
+            other.color.schemes <- list();
+            start.palette <- 1;
+            for (i in 1:length(number.of.categories)) {
+                other.color.schemes[[i]] <- all.qual.colors[start.palette:(number.of.categories[[i]] + start.palette - 1)];
+                start.palette <- start.palette + number.of.categories[[i]];
+                }
+
+            for (i in 1:length(other.color.schemes)) {
+                names(other.color.schemes[[i]]) <- as.character(sort(unique(other.phenotype.data[ , i])));
+                }
+
+            names(other.color.schemes) <- colnames(other.phenotype.data);
+
+            other.phenotype.df <- sapply(
+                X = colnames(other.phenotype.data),
+                FUN = function(x) {
+                    phenotype.values <- other.phenotype.data[ , x];
+                    color.vector <- create.feature.color.vector(
+                        features = as.character(phenotype.values),
+                        color.scheme = other.color.schemes[[x]]
+                        );
+                    return(color.vector)
+                    }
+                );
+            other.phenotype.df <- data.frame(t(other.phenotype.df));
+            colnames(other.phenotype.df) <- pgs.data$Indiv;
+
+            # order by percentile
+            other.phenotype.df <- other.phenotype.df[ , rev(order(pgs.data$percentile))];
+
+            # # other phenotype covariate heatmap
+            # other.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
+            #     x = data.frame(other.phenotype.df),
+            #     input.colours = TRUE,
+            #     clustering.method = 'none',
+            #     same.as.matrix = TRUE,
+            #     print.colour.key = FALSE,
+            #     yaxis.lab = rownames(other.phenotype.df),
+            #     ylab.cex = 1
+            #     # main.cex = titles.cex,
+            #     # ylab.cex = titles.cex,
+            #     # xaxis.cex = xaxis.cex,
+            #     # yaxis.cex = yaxis.cex
+                );
+            }
+
+        # combine binary and categorical phenotype covariates into one heatmap
+        all.category.phenotype.df <- rbind(binary.phenotype.df, other.phenotype.df);
+
+        # plot binary and categorical phenotype covariate heatmap
+        categorical.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
+            x = all.category.phenotype.df,
+            input.colours = TRUE,
+            clustering.method = 'none',
+            same.as.matrix = TRUE,
+            print.colour.key = FALSE,
+            yaxis.lab = rownames(all.category.phenotype.df),
+            ylab.cex = 1
+            # main.cex = titles.cex,
+            # ylab.cex = titles.cex,
+            # xaxis.cex = xaxis.cex,
+            # yaxis.cex = yaxis.cex
+            );
+
+        }
+
 
     }
