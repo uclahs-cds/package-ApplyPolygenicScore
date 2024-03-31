@@ -149,18 +149,23 @@ plot.pgs.rank <- function(
         # yaxis.cex = yaxis.cex
         );
 
+    max.binary.colors <- sum(phenotype.index.by.type$binary | phenotype.index.by.type$continuous);
+    if (max.binary.colors > 0) {
+        binary.color.schemes <- default.colours(
+            number.of.colours = rep(2, max.binary.colors + 1),
+            palette = rep('binary', max.binary.colors + 1)
+            );
+        # remove black and white from binary color schemes
+        binary.color.schemes[[1]] <- NULL;
+        binary.color.schemes.start.index <- 1;
+        }
+
     if (any(phenotype.index.by.type$binary) | any(phenotype.index.by.type$other)) {
         binary.phenotype.df <- NULL;
         other.phenotype.df <- NULL;
 
         if (any(phenotype.index.by.type$binary)) {
             binary.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$binary);
-            binary.color.schemes <- default.colours(
-                number.of.colours = rep(2, ncol(binary.phenotype.data) + 1),
-                palette = rep('binary', ncol(binary.phenotype.data) + 1)
-                );
-            # remove black and white from binary color schemes
-            binary.color.schemes[[1]] <- NULL;
 
             for (i in 1:length(binary.color.schemes)) {
                 names(binary.color.schemes[[i]]) <- as.character(sort(unique(binary.phenotype.data[ , i])));
@@ -183,6 +188,8 @@ plot.pgs.rank <- function(
             colnames(binary.phenotype.df) <- pgs.data$Indiv;
             # order by percentile
             binary.phenotype.df <- binary.phenotype.df[ , rev(order(pgs.data$percentile))];
+
+            binary.color.schemes.start.index <- binary.color.schemes.start.index + ncol(binary.phenotype.data);
 
             # # binary phenotype covariate heatmap
             # binary.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
@@ -254,7 +261,7 @@ plot.pgs.rank <- function(
             #     # ylab.cex = titles.cex,
             #     # xaxis.cex = xaxis.cex,
             #     # yaxis.cex = yaxis.cex
-                );
+            #    );
             }
 
         # combine binary and categorical phenotype covariates into one heatmap
@@ -277,5 +284,45 @@ plot.pgs.rank <- function(
 
         }
 
+    # continuous phenotype covariate heatmap
+    if (any(phenotype.index.by.type$continuous)) {
+        continuous.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$continuous);
+
+        continuous.color.schemes <- binary.color.schemes[binary.color.schemes.start.index:length(binary.color.schemes)]
+
+        continuous.phenotypes.df <- sapply(
+            X = 1:length(continuous.phenotype.data),
+            FUN = function(x) {
+                phenotype.values <- continuous.phenotype.data[ , x];
+                color.scheme <- colorRampPalette(continuous.color.schemes[[x]])(length(unique(phenotype.values)));
+                names(color.scheme) <- as.character(sort(unique(phenotype.values)));
+                color.vector <- create.feature.color.vector(
+                    features = as.character(phenotype.values),
+                    color.scheme = color.scheme
+                    );
+                }
+            );
+        continuous.phenotypes.df <- data.frame(t(continuous.phenotypes.df));
+        colnames(continuous.phenotypes.df) <- pgs.data$Indiv;
+        rownames(continuous.phenotypes.df) <- colnames(continuous.phenotype.data);
+        # order by percentile
+        continuous.phenotypes.df <- continuous.phenotypes.df[ , rev(order(pgs.data$percentile))];
+
+        # continuous phenotype covariate heatmap
+        continuous.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
+            x = continuous.phenotypes.df,
+            input.colours = TRUE,
+            clustering.method = 'none',
+            same.as.matrix = TRUE,
+            print.colour.key = FALSE,
+            yaxis.lab = rownames(continuous.phenotypes.df),
+            ylab.cex = 1
+            # main.cex = titles.cex,
+            # ylab.cex = titles.cex,
+            # xaxis.cex = xaxis.cex,
+            # yaxis.cex = yaxis.cex
+            );
+
+        }
 
     }
