@@ -160,6 +160,9 @@ plot.pgs.rank <- function(
         binary.color.schemes.start.index <- 1;
         }
 
+    categorical.phenotype.heatmap <- NULL;
+    continuous.phenotype.heatmap <- NULL;
+
     if (any(phenotype.index.by.type$binary) | any(phenotype.index.by.type$other)) {
         binary.phenotype.df <- NULL;
         other.phenotype.df <- NULL;
@@ -324,5 +327,40 @@ plot.pgs.rank <- function(
             );
 
         }
+
+    if (is.null(filename.prefix)) {
+        filename.prefix <- 'ApplyPolygenicScore-Plot';
+        }
+    # construct multipanel plot
+    filename.for.rank.multiplot <- generate.filename(
+        project.stem = filename.prefix,
+        file.core = 'pgs-rank-plot',
+        extension = file.extension
+        );
+
+    plot.list <- list(
+        missing.genotypes.barplot,
+        rank.barplot,
+        percentile.covariate.heatmap,
+        categorical.phenotype.heatmap,
+        continuous.phenotype.heatmap
+        );
+
+    plot.heights <- rep(1, length(plot.list));
+    plot.heights[1] <- 2;
+    plot.heights[2] <- 5;
+
+    multipanel.plot <- BoutrosLab.plotting.general::create.multipanelplot(
+        plot.objects = plot.list,
+        filename = file.path(output.dir, filename.for.rank.multiplot),
+        main = '',
+        main.cex = 0,
+        layout.height = length(plot.list),
+        layout.width = 1,
+        plot.objects.heights = plot.heights,
+        y.spacing = -1,
+        width = width,
+        height = height
+        );
 
     }
