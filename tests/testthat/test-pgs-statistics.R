@@ -140,6 +140,7 @@ test_that(
         phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
         phenotype.data$binary.factor <- rep(c('a', 'b'), 5); # should be included in the regression
         phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
+        phenotype.data$binary.factor <- rep(c('a', 'b'), 5);
 
         # run function
         regression.data <- run.pgs.regression(pgs = pgs, phenotype.data = phenotype.data);

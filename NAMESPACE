@@ -3,3 +3,4 @@ exportPattern("^[[:alpha:]]+")
 import('vcfR');
 import('data.table');
 import('BoutrosLab.plotting.general');
+import('pROC');

@@ -99,7 +99,20 @@ run.pgs.regression <- function(pgs, phenotype.data) {
     logistic.model <- lapply(
         X = binary.data,
         FUN = function(x) {
-            summary(glm(x ~ pgs, data = binary.data, family = binomial));
+            glm(x ~ pgs, data = binary.data, family = binomial);
+            }
+        );
+
+    logistic.model.summary <- lapply(
+        X = logistic.model,
+        FUN = summary
+        );
+
+    logistic.auc <- lapply(
+        X = logistic.model,
+        FUN = function(x) {
+            predictions <- predict(x, type = 'response'); # get predicted probabilities on the training set
+            auc <- pROC::auc(x$y, predictions); # compute area under the curve on training set
             }
         );
 
@@ -111,7 +124,8 @@ run.pgs.regression <- function(pgs, phenotype.data) {
                 beta = x$coefficients['pgs', 'Estimate'],
                 se = x$coefficients['pgs', 'Std. Error'],
                 p.value = x$coefficients['pgs', 'Pr(>|t|)'],
-                r.squared = x$r.squared
+                r.squared = x$r.squared,
+                AUC = NA
                 );
             }
         );
@@ -123,7 +137,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
         );
 
     logistic.model.aggregated <- lapply(
-        X = logistic.model,
+        X = logistic.model.summary,
         FUN = function(x) {
             data.frame(
                 beta = x$coefficients['pgs', 'Estimate'],
@@ -134,6 +148,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
             }
         );
     logistic.model.aggregated <- do.call(rbind, logistic.model.aggregated);
+    logistic.model.aggregated$AUC <- unlist(logistic.auc);
     logistic.model.aggregated <- data.frame(
         phenotype = names(logistic.model),
         model = 'logistic.regression',
