@@ -162,6 +162,9 @@ plot.pgs.rank <- function(
 
     categorical.phenotype.heatmap <- NULL;
     continuous.phenotype.heatmap <- NULL;
+    binary.covariates.legend <- NULL;
+    categorical.covariates.legend <- NULL;
+    continuous.covariates.legend <- NULL;
 
     if (any(phenotype.index.by.type$binary) | any(phenotype.index.by.type$other)) {
         binary.phenotype.df <- NULL;
@@ -170,11 +173,12 @@ plot.pgs.rank <- function(
         if (any(phenotype.index.by.type$binary)) {
             binary.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$binary);
 
-            for (i in 1:length(binary.color.schemes)) {
-                names(binary.color.schemes[[i]]) <- as.character(sort(unique(binary.phenotype.data[ , i])));
+            binary.covariate.color.schemes <- binary.color.schemes[1:ncol(binary.phenotype.data)];
+            for (i in 1:length(binary.covariate.color.schemes)) {
+                names(binary.covariate.color.schemes[[i]]) <- as.character(sort(unique(binary.phenotype.data[ , i])));
                 }
 
-            names(binary.color.schemes) <- colnames(binary.phenotype.data);
+            names(binary.covariate.color.schemes) <- colnames(binary.phenotype.data);
 
             binary.phenotype.df <- sapply(
                 X = colnames(binary.phenotype.data),
@@ -182,7 +186,7 @@ plot.pgs.rank <- function(
                     phenotype.values <- binary.phenotype.data[ , x];
                     color.vector <- create.feature.color.vector(
                         features = as.character(phenotype.values),
-                        color.scheme = binary.color.schemes[[x]]
+                        color.scheme = binary.covariate.color.schemes[[x]]
                         );
                     return(color.vector)
                     }
@@ -193,6 +197,18 @@ plot.pgs.rank <- function(
             binary.phenotype.df <- binary.phenotype.df[ , rev(order(pgs.data$percentile))];
 
             binary.color.schemes.start.index <- binary.color.schemes.start.index + ncol(binary.phenotype.data);
+
+            # build legend for binary covariates
+            binary.covariates.legend <- lapply(
+                X = 1:length(binary.covariate.color.schemes),
+                FUN = function(x) {
+                    list(
+                        title = names(binary.covariate.color.schemes)[x],
+                        colours = binary.covariate.color.schemes[[x]],
+                        labels = names(binary.covariate.color.schemes[[x]])
+                        );
+                    }
+                );
 
             # # binary phenotype covariate heatmap
             # binary.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
@@ -251,6 +267,18 @@ plot.pgs.rank <- function(
             # order by percentile
             other.phenotype.df <- other.phenotype.df[ , rev(order(pgs.data$percentile))];
 
+            # legend
+            categorical.covariates.legend <- lapply(
+                X = 1:length(other.color.schemes),
+                FUN = function(x) {
+                    list(
+                        title = names(other.color.schemes)[x],
+                        colours = other.color.schemes[[x]],
+                        labels = names(other.color.schemes[[x]])
+                        );
+                    }
+                );
+
             # # other phenotype covariate heatmap
             # other.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
             #     x = data.frame(other.phenotype.df),
@@ -292,6 +320,7 @@ plot.pgs.rank <- function(
         continuous.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$continuous);
 
         continuous.color.schemes <- binary.color.schemes[binary.color.schemes.start.index:length(binary.color.schemes)]
+        names(continuous.color.schemes) <- colnames(continuous.phenotype.data);
 
         continuous.phenotypes.df <- sapply(
             X = 1:length(continuous.phenotype.data),
@@ -326,6 +355,19 @@ plot.pgs.rank <- function(
             # yaxis.cex = yaxis.cex
             );
 
+        # legend
+        continuous.covariates.legend <- lapply(
+            X = 1:length(continuous.color.schemes),
+            FUN = function(x) {
+                list(
+                    title = names(continuous.color.schemes)[x],
+                    colours = continuous.color.schemes[[x]],
+                    labels = c(min(continuous.phenotype.data[ , x]), max(continuous.phenotype.data[ , x])),
+                    continuous = TRUE
+                    );
+                }
+            );
+
         }
 
     if (is.null(filename.prefix)) {
@@ -336,6 +378,18 @@ plot.pgs.rank <- function(
         project.stem = filename.prefix,
         file.core = 'pgs-rank-plot',
         extension = file.extension
+        );
+
+    # assemble plot legend
+    cov.legends <- list(
+        binary.covariates.legend,
+        categorical.covariates.legend,
+        continuous.covariates.legend
+        );
+    names(cov.legends) <- rep('legend', length(cov.legends));
+
+    cov.legend.grob <- BoutrosLab.plotting.general::legend.grob(
+        legends = cov.legends
         );
 
     plot.list <- list(
