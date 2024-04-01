@@ -152,10 +152,10 @@ test_that(
         expect_equal(nrow(regression.data), 3);
 
         # check that the data frame has the correct number of columns
-        expect_equal(ncol(regression.data), 6);
+        expect_equal(ncol(regression.data), 7);
 
         # check that the data frame has the correct column names
-        regression.data.expected.colnames <- c('phenotype', 'model', 'beta', 'se', 'p.value', 'r.squared')
+        regression.data.expected.colnames <- c('phenotype', 'model', 'beta', 'se', 'p.value', 'r.squared', 'AUC');
         expect_equal(
             colnames(regression.data),
             regression.data.expected.colnames
