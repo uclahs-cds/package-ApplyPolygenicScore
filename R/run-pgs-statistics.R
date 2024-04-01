@@ -73,6 +73,13 @@ classify.variable.type <- function(data, continuous.threshold = 4) {
 }
 
 # utility function that runs linear and logistic regression on a polygenic score and a set of phenotypes
+#' @title Run linear and logistic regression on a polygenic score and a set of phenotypes
+#' @description Phenotype data variables are automatically classified as continuous or binary and a simple linear regression or logistic regression, respectively, is run between the polygenic score and each phenotype.
+#' If a binary variable is not formatted as a factor, it will be converted to a factor using as.factor() defaults. For logistic regression, the first level is classified as "failure" and the second "success" by glm defaults.
+#' @param pgs numeric vector of polygenic scores
+#' @param phenotype.data data.frame of phenotypes
+#' @return data frame with columns for phenotype, model, beta, se, p.value, r.squared, and AUC
+#' @export
 run.pgs.regression <- function(pgs, phenotype.data) {
 
     # identify continuous and binary phenotypes
@@ -89,10 +96,16 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 
     # run logistic regression on binary phenotypes
     binary.data <- subset(phenotype.data, select = variable.index.by.type$binary);
+
+    # ensure binary data is formatted as factors
     binary.data <- lapply(
         X = binary.data,
         FUN = function(x) {
-            factor(x);
+            if (!is.factor(x)) {
+                return(as.factor(x));
+                } else {
+                return(x);
+                }
             }
         );
 
