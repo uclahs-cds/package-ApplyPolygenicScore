@@ -1,3 +1,75 @@
+
+validate.vcf.input <- function(vcf.data) {
+    # check that inputs are data.frames
+    if (!is.data.frame(vcf.data)) {
+        stop('vcf.data must be a data.frame');
+        }
+
+    # check that vcf.data contains required columns
+    required.vcf.columns <- c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles');
+
+    if (!all(required.vcf.columns %in% colnames(vcf.data))) {
+        stop('vcf.data must contain columns named CHROM, POS, REF, ALT, Indiv, and gt_GT_alleles');
+        }
+
+    # check that all samples have variant data represented for all variants
+    n.samples <- length(unique(vcf.data$Indiv));
+    n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
+    if (nrow(vcf.data) != n.samples * n.variants) {
+        stop('Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.');
+        }
+
+    }
+
+validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.frequency) {
+    if (!is.data.frame(pgs.weight.data)) {
+        stop('pgs.weight.data must be a data.frame');
+        }
+
+    required.pgs.columns <- c('CHROM', 'POS', 'effect_allele', 'beta');
+
+    if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
+        stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
+        }
+
+    if (use.external.effect.allele.frequency) {
+        required.eaf.column <- 'allelefrequency_effect';
+        if (!(required.eaf.column %in% colnames(pgs.weight.data))) {
+            stop('pgs.weight.data must contain a column named allelefrequency_effect if use.external.effect.allele.frequency is TRUE');
+            }
+        }
+
+    # check for duplicate variants in PGS data
+    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele)))) {
+        stop('Duplicate variants detected in the PGS weight data. Please ensure only unique coordinate:effect allele combinations are present.');
+        }
+
+    # check for duplicate coordinates in PGS data
+    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
+        warning('Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.');
+        }
+    }
+
+validate.phenotype.data.input <- function(phenotype.data, vcf.data) {
+    if (!is.null(phenotype.data)) {
+        if (!is.data.frame(phenotype.data)) {
+            stop('phenotype.data must be a data.frame');
+            }
+
+        required.phenotype.columns <- 'Indiv';
+
+        if (!all(required.phenotype.columns %in% colnames(phenotype.data))) {
+            stop('phenotype.data must contain columns named Indiv');
+            }
+
+        # check for at least one matching Indiv between phenotype.data and vcf.data
+        if (length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
+            stop('No matching Indiv between phenotype.data and vcf.data');
+            }
+        }
+
+    }
+
 #' @title Apply polygenic score to VCF data
 #' @description Apply a polygenic score to VCF data.
 #' @param vcf.data A data.frame containing VCF genotype data.
@@ -21,60 +93,11 @@ apply.polygenic.score <- function(
     ) {
 
     ### Start Input Validation ###
-    # check that inputs are data.frames
-    if (!is.data.frame(vcf.data)) {
-        stop('vcf.data must be a data.frame');
-        }
-    if (!is.data.frame(pgs.weight.data)) {
-        stop('pgs.weight.data must be a data.frame');
-        }
-    # if provided, phenotype data must be a data.frame
-    if (!is.null(phenotype.data) && !is.data.frame(phenotype.data)) {
-        stop('phenotype.data must be a data.frame')
-        }
 
-    # check that inputs contain required columns for PGS application
-    required.vcf.columns <- c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles');
-    required.pgs.columns <- c('CHROM', 'POS', 'effect_allele', 'beta');
-    required.phenotype.columns <- 'Indiv';
-    if (!all(required.vcf.columns %in% colnames(vcf.data))) {
-        stop('vcf.data must contain columns named CHROM, POS, REF, ALT, Indiv, and gt_GT_alleles');
-        }
-    if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
-        stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
-        }
-    if (!is.null(phenotype.data) && !all(required.phenotype.columns %in% colnames(phenotype.data))) {
-        stop('phenotype.data must contain columns named Indiv')
-        }
+    validate.vcf.input(vcf.data = vcf.data);
+    validate.pgs.data.input(pgs.weight.data = pgs.weight.data, use.external.effect.allele.frequency = use.external.effect.allele.frequency);
+    validate.phenotype.data.input(phenotype.data = phenotype.data, vcf.data = vcf.data);
 
-    # check for at least one matching Indiv between phenotype.data and vcf.data
-    if (!is.null(phenotype.data) && length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
-        stop('No matching Indiv between phenotype.data and vcf.data');
-        }
-
-    if (use.external.effect.allele.frequency) {
-        required.eaf.column <- 'allelefrequency_effect';
-        if (!(required.eaf.column %in% colnames(pgs.weight.data))) {
-            stop('pgs.weight.data must contain a column named allelefrequency_effect if use.external.effect.allele.frequency is TRUE');
-            }
-        }
-
-    # check for duplicate variants in PGS data
-    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele)))) {
-        stop('Duplicate variants detected in the PGS weight data. Please ensure only unique coordinate:effect allele combinations are present.');
-        }
-
-    # check for duplicate coordinates in PGS data
-    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
-        warning('Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.');
-        }
-
-    # check that all samples have variant data represented for all variants
-    n.samples <- length(unique(vcf.data$Indiv));
-    n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
-    if (nrow(vcf.data) != n.samples * n.variants) {
-        stop('Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.');
-        }
 
     # check missing genotype method input
     if (all(missing.genotype.method %in% c('mean.dosage', 'normalize', 'none'))) {
@@ -298,7 +321,7 @@ apply.polygenic.score <- function(
     ### Begin Phenotype Analysis ###
     if (!is.null(phenotype.analysis.columns)) {
         # perform linear regression between PGS and each indicated phenotype column in phenotype.data
-        # report beta, se, p-value, and R^2
+        # report beta, se, p-value, R^2, and AUC
         phenotype.regression.data <- run.pgs.regression(
             pgs.output = pgs.output,
             phenotype.analysis.columns = phenotype.analysis.columns
