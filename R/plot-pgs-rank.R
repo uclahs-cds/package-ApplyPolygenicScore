@@ -110,6 +110,7 @@ plot.pgs.rank <- function(
         # yaxis.cex = yaxis.cex
         );
 
+    ## Begin Percentile Covariate Heatmap Assembly ##
     # Assemble covariate heatmap for deciles, quartiles, and user-defined percentiles
 
     # assign percentiles to shades of grey
@@ -166,31 +167,40 @@ plot.pgs.rank <- function(
         # xaxis.cex = xaxis.cex,
         # yaxis.cex = yaxis.cex
         );
+    ## End Percentile Covariate Heatmap Assembly ##
 
-    max.binary.colors <- sum(phenotype.index.by.type$binary | phenotype.index.by.type$continuous);
-    if (max.binary.colors > 0) {
-        binary.color.schemes <- default.colours(
-            number.of.colours = rep(2, max.binary.colors + 1),
-            palette = rep('binary', max.binary.colors + 1)
-            );
-        # remove black and white from binary color schemes
-        binary.color.schemes[[1]] <- NULL;
-        binary.color.schemes.start.index <- 1;
-        }
+    ## Begin Phenotype Covariate Heatmap Assembly ##
 
+    # initialize variables for phenotype covariates as NULL since they are optional
     categorical.phenotype.heatmap <- NULL;
     continuous.phenotype.heatmap <- NULL;
     binary.covariates.legend <- NULL;
     categorical.covariates.legend <- NULL;
     continuous.covariates.legend <- NULL;
 
+    # retrieve binary color schemes sufficient for plotting all binary and continuous phenotypes
+    max.binary.colors <- sum(phenotype.index.by.type$binary | phenotype.index.by.type$continuous);
+    if (max.binary.colors > 0) {
+        binary.color.schemes <- BoutrosLab.plotting.general::default.colours(
+            number.of.colours = rep(2, max.binary.colors + 1),
+            palette = rep('binary', max.binary.colors + 1)
+            );
+        # remove black and white from binary color schemes (always returned first by default.colours())
+        binary.color.schemes[[1]] <- NULL;
+        binary.color.schemes.start.index <- 1;
+        }
+
+
+    # assemble binary and categorical phenotype covariates in one heatmap
     if (any(phenotype.index.by.type$binary) | any(phenotype.index.by.type$other)) {
         binary.phenotype.df <- NULL;
         other.phenotype.df <- NULL;
 
+        # binary phenotype covariate data
         if (any(phenotype.index.by.type$binary)) {
             binary.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$binary);
 
+            # extract the required number of color schemes for binary covariates from pre-generated list
             binary.covariate.color.schemes <- binary.color.schemes[1:ncol(binary.phenotype.data)];
             for (i in 1:length(binary.covariate.color.schemes)) {
                 names(binary.covariate.color.schemes[[i]]) <- as.character(sort(unique(binary.phenotype.data[ , i])));
@@ -198,22 +208,17 @@ plot.pgs.rank <- function(
 
             names(binary.covariate.color.schemes) <- colnames(binary.phenotype.data);
 
-            binary.phenotype.df <- sapply(
-                X = colnames(binary.phenotype.data),
-                FUN = function(x) {
-                    phenotype.values <- binary.phenotype.data[ , x];
-                    color.vector <- create.feature.color.vector(
-                        features = as.character(phenotype.values),
-                        color.scheme = binary.covariate.color.schemes[[x]]
-                        );
-                    return(color.vector)
-                    }
+            # replace covariate data with colors
+            binary.phenotype.df <- assemble.heatmap.colors(
+                covariate.data = binary.phenotype.data,
+                color.scheme.list = binary.covariate.color.schemes
                 );
+            # reorient data frame to match barplot layout (samples on x-axis)
             binary.phenotype.df <- data.frame(t(binary.phenotype.df));
             colnames(binary.phenotype.df) <- pgs.data$Indiv;
             # order by percentile
-            binary.phenotype.df <- binary.phenotype.df[ , rev(order(pgs.data$percentile))];
-
+            binary.phenotype.df <- binary.phenotype.df[ , order(pgs.data$percentile)];
+            # update binary color schemes start index for continuous phenotypes
             binary.color.schemes.start.index <- binary.color.schemes.start.index + ncol(binary.phenotype.data);
 
             # build legend for binary covariates
@@ -245,16 +250,29 @@ plot.pgs.rank <- function(
 
             }
 
+        # categorical phenotype covariate data
         if (any(phenotype.index.by.type$other)) {
             other.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$other);
+
+            # count number of categories in each covariate
             number.of.categories <- lapply(
                 X = other.phenotype.data,
                 FUN = function(x) {
                     length(unique(x))
                     }
                 );
+            total.categories <- sum(unlist(number.of.categories));
+
+            # retrieve colors for qualitative data that can be divided up into color schemes
+            # only 12 distinct colors are available in the default color palette
             max.colors <- 12;
             all.qual.colors <- default.colours(number.of.colors <- max.colors, palette = 'qual');
+            # if there are more categories than colors, extend the size of the color palette by repeating colors
+            if (total.categories > max.colors) {
+                all.qual.colors <- rep(all.qual.colors, ceiling(total.categories / max.colors));
+                }
+
+            # assemble a color scheme for each categorical variable
             other.color.schemes <- list();
             start.palette <- 1;
             for (i in 1:length(number.of.categories)) {
@@ -268,22 +286,17 @@ plot.pgs.rank <- function(
 
             names(other.color.schemes) <- colnames(other.phenotype.data);
 
-            other.phenotype.df <- sapply(
-                X = colnames(other.phenotype.data),
-                FUN = function(x) {
-                    phenotype.values <- other.phenotype.data[ , x];
-                    color.vector <- create.feature.color.vector(
-                        features = as.character(phenotype.values),
-                        color.scheme = other.color.schemes[[x]]
-                        );
-                    return(color.vector)
-                    }
+            # replace covariate data with colors
+            other.phenotype.df <- assemble.heatmap.colors(
+                covariate.data = other.phenotype.data,
+                color.scheme.list = other.color.schemes
                 );
+            # reorient data frame to match barplot layout (samples on x-axis)
             other.phenotype.df <- data.frame(t(other.phenotype.df));
             colnames(other.phenotype.df) <- pgs.data$Indiv;
 
             # order by percentile
-            other.phenotype.df <- other.phenotype.df[ , rev(order(pgs.data$percentile))];
+            other.phenotype.df <- other.phenotype.df[ , order(pgs.data$percentile)];
 
             # legend
             categorical.covariates.legend <- lapply(
@@ -317,13 +330,19 @@ plot.pgs.rank <- function(
         all.category.phenotype.df <- rbind(binary.phenotype.df, other.phenotype.df);
 
         # plot binary and categorical phenotype covariate heatmap
+        # account for weird behaviour when only one row is given to heatmap
+        if (nrow(all.category.phenotype.df) == 1) {
+            cat.yaxis.lab = NULL;
+            } else {
+                cat.yaxis.lab = rownames(all.category.phenotype.df);
+            }
         categorical.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
             x = all.category.phenotype.df,
             input.colours = TRUE,
             clustering.method = 'none',
             same.as.matrix = TRUE,
             print.colour.key = FALSE,
-            yaxis.lab = rownames(all.category.phenotype.df),
+            yaxis.lab = cat.yaxis.lab,
             ylab.cex = 1
             # main.cex = titles.cex,
             # ylab.cex = titles.cex,
@@ -333,13 +352,15 @@ plot.pgs.rank <- function(
 
         }
 
-    # continuous phenotype covariate heatmap
+    # assemble continuous phenotype covariates in one heatmap
     if (any(phenotype.index.by.type$continuous)) {
         continuous.phenotype.data <- subset(phenotype.data, select = phenotype.index.by.type$continuous);
 
+        # retreive remaining binary color schemes
         continuous.color.schemes <- binary.color.schemes[binary.color.schemes.start.index:length(binary.color.schemes)]
         names(continuous.color.schemes) <- colnames(continuous.phenotype.data);
 
+        # assemble color ramps for continuous covariates and replace covariate data with colors
         continuous.phenotypes.df <- sapply(
             X = 1:length(continuous.phenotype.data),
             FUN = function(x) {
@@ -356,16 +377,23 @@ plot.pgs.rank <- function(
         colnames(continuous.phenotypes.df) <- pgs.data$Indiv;
         rownames(continuous.phenotypes.df) <- colnames(continuous.phenotype.data);
         # order by percentile
-        continuous.phenotypes.df <- continuous.phenotypes.df[ , rev(order(pgs.data$percentile))];
+        continuous.phenotypes.df <- continuous.phenotypes.df[ , order(pgs.data$percentile)];
 
         # continuous phenotype covariate heatmap
+        # account for weird behaviour when only one row is given to heatmap
+        if (nrow(continuous.phenotypes.df) == 1) {
+            cont.yaxis.lab = NULL;
+            } else {
+                cont.yaxis.lab = rownames(continuous.phenotypes.df);
+            }
+
         continuous.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
             x = continuous.phenotypes.df,
             input.colours = TRUE,
             clustering.method = 'none',
             same.as.matrix = TRUE,
             print.colour.key = FALSE,
-            yaxis.lab = rownames(continuous.phenotypes.df),
+            yaxis.lab = cont.yaxis.lab,
             ylab.cex = 1
             # main.cex = titles.cex,
             # ylab.cex = titles.cex,

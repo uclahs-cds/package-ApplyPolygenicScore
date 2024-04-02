@@ -16,7 +16,8 @@ pgs.test <- apply.polygenic.score(
     vcf.data = phenotype.test.data$vcf.data,
     pgs.weight.data = phenotype.test.data$pgs.weight.data,
     phenotype.data = phenotype.test.data$phenotype.data,
-    missing.genotype.method = c('mean.dosage', 'normalize')
+    missing.genotype.method = c('mean.dosage', 'normalize'),
+    n.percentiles = 2
     );
 
 test_that(
@@ -38,6 +39,34 @@ test_that(
         test.filename <- generate.filename(
             project.stem = 'TEST',
             file.core = 'pgs-density',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.rank runs with no error', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # plot pgs rank
+        expect_no_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'binary.factor.phenotype', 'categorical.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST',
+            file.core = 'pgs-rank',
             extension = 'png'
             );
         expect_true(
