@@ -46,3 +46,129 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
     pgs.percentile.data <- pgs.percentile.data[order(pgs),];
     return(pgs.percentile.data);
     }
+
+# utility function for identifying data as continuous or binary for analysis and plotting purposes
+classify.variable.type <- function(data, continuous.threshold = 4) {
+    # identify continuous and binary variables
+    continuous.vars.index <- sapply(
+        X = data,
+        FUN = function(x) {
+            'numeric' == class(x) & continuous.threshold < length(unique(na.omit(x)));
+            }
+        );
+    binary.vars.index <- sapply(
+        X = data,
+        FUN = function(x) {
+            2 == length(unique(na.omit(x)));
+            }
+        );
+
+    other.vars.index <- !continuous.vars.index & !binary.vars.index;
+
+    return(list(
+        continuous = continuous.vars.index,
+        binary = binary.vars.index,
+        other = other.vars.index
+        ));
+}
+
+# utility function that runs linear and logistic regression on a polygenic score and a set of phenotypes
+#' @title Run linear and logistic regression on a polygenic score and a set of phenotypes
+#' @description Phenotype data variables are automatically classified as continuous or binary and a simple linear regression or logistic regression, respectively, is run between the polygenic score and each phenotype.
+#' If a binary variable is not formatted as a factor, it will be converted to a factor using as.factor() defaults. For logistic regression, the first level is classified as "failure" and the second "success" by glm defaults.
+#' @param pgs numeric vector of polygenic scores
+#' @param phenotype.data data.frame of phenotypes
+#' @return data frame with columns for phenotype, model, beta, se, p.value, r.squared, and AUC
+#' @export
+run.pgs.regression <- function(pgs, phenotype.data) {
+
+    # identify continuous and binary phenotypes
+    variable.index.by.type <- classify.variable.type(phenotype.data);
+
+    # run linear regression on continuous phenotypes
+    continuous.data <- subset(phenotype.data, select = variable.index.by.type$continuous);
+    linear.model <- lapply(
+        X = continuous.data,
+        FUN = function(x) {
+            summary(lm(x ~ pgs, data = phenotype.data));
+            }
+        );
+
+    # run logistic regression on binary phenotypes
+    binary.data <- subset(phenotype.data, select = variable.index.by.type$binary);
+
+    # ensure binary data is formatted as factors
+    binary.data <- lapply(
+        X = binary.data,
+        FUN = function(x) {
+            if (!is.factor(x)) {
+                return(as.factor(x));
+                } else {
+                return(x);
+                }
+            }
+        );
+
+    logistic.model <- lapply(
+        X = binary.data,
+        FUN = function(x) {
+            glm(x ~ pgs, data = binary.data, family = binomial);
+            }
+        );
+
+    logistic.model.summary <- lapply(
+        X = logistic.model,
+        FUN = summary
+        );
+
+    logistic.auc <- lapply(
+        X = logistic.model,
+        FUN = function(x) {
+            predictions <- predict(x, type = 'response'); # get predicted probabilities on the training set
+            auc <- pROC::auc(x$y, predictions); # compute area under the curve on training set
+            }
+        );
+
+    # aggregate results in a data frame
+    linear.model.aggregated <- lapply(
+        X = linear.model,
+        FUN = function(x) {
+            data.frame(
+                beta = x$coefficients['pgs', 'Estimate'],
+                se = x$coefficients['pgs', 'Std. Error'],
+                p.value = x$coefficients['pgs', 'Pr(>|t|)'],
+                r.squared = x$r.squared,
+                AUC = NA
+                );
+            }
+        );
+    linear.model.aggregated <- do.call(rbind, linear.model.aggregated);
+    linear.model.aggregated <- data.frame(
+        phenotype = names(linear.model),
+        model = 'linear.regression',
+        linear.model.aggregated
+        );
+
+    logistic.model.aggregated <- lapply(
+        X = logistic.model.summary,
+        FUN = function(x) {
+            data.frame(
+                beta = x$coefficients['pgs', 'Estimate'],
+                se = x$coefficients['pgs', 'Std. Error'],
+                p.value = x$coefficients['pgs', 'Pr(>|z|)'],
+                r.squared = NA
+                );
+            }
+        );
+    logistic.model.aggregated <- do.call(rbind, logistic.model.aggregated);
+    logistic.model.aggregated$AUC <- unlist(logistic.auc);
+    logistic.model.aggregated <- data.frame(
+        phenotype = names(logistic.model),
+        model = 'logistic.regression',
+        logistic.model.aggregated
+        );
+
+    all.model.results <- rbind(linear.model.aggregated, logistic.model.aggregated);
+
+    return(all.model.results);
+    }
