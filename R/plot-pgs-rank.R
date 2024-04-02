@@ -232,6 +232,12 @@ plot.pgs.rank <- function(
                         );
                     }
                 );
+            names(binary.covariates.legend) <- rep('legend', length(binary.covariates.legend));
+            legend.grob(
+                list(
+                    legend = binary.covariates.legend[[1]]
+                )
+            )
 
             # # binary phenotype covariate heatmap
             # binary.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
@@ -415,6 +421,8 @@ plot.pgs.rank <- function(
             );
 
         }
+
+    ## End Phenotype Covariate Heatmap Assembly ##
 
     if (is.null(filename.prefix)) {
         filename.prefix <- 'ApplyPolygenicScore-Plot';
