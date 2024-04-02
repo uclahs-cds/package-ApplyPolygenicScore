@@ -50,7 +50,7 @@ validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.
         }
     }
 
-validate.phenotype.data.input <- function(phenotype.data, vcf.data) {
+validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.columns, vcf.data) {
     if (!is.null(phenotype.data)) {
         if (!is.data.frame(phenotype.data)) {
             stop('phenotype.data must be a data.frame');
@@ -66,7 +66,17 @@ validate.phenotype.data.input <- function(phenotype.data, vcf.data) {
         if (length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
             stop('No matching Indiv between phenotype.data and vcf.data');
             }
-        }
+
+        # validate phenotype.analysis.columns if provided
+        if (!is.null(phenotype.analysis.columns)) {
+            if (!all(phenotype.analysis.columns %in% colnames(phenotype.data))) {
+                stop('phenotype.analysis.columns must be columns in phenotype.data');
+                }
+            }
+
+        } else if (!is.null(phenotype.analysis.columns)) {
+            stop('phenotype.analysis.columns provided but no phenotype data detected');
+            }
 
     }
 
@@ -75,6 +85,7 @@ validate.phenotype.data.input <- function(phenotype.data, vcf.data) {
 #' @param vcf.data A data.frame containing VCF genotype data.
 #' @param pgs.weight.data A data.frame containing PGS weight data.
 #' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
+#' @param phenotype.analysis.columns A character vector of phenotype columns to analyze. Default is NULL.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
@@ -96,7 +107,7 @@ apply.polygenic.score <- function(
 
     validate.vcf.input(vcf.data = vcf.data);
     validate.pgs.data.input(pgs.weight.data = pgs.weight.data, use.external.effect.allele.frequency = use.external.effect.allele.frequency);
-    validate.phenotype.data.input(phenotype.data = phenotype.data, vcf.data = vcf.data);
+    validate.phenotype.data.input(phenotype.data = phenotype.data, phenotype.analysis.columns = phenotype.analysis.columns, vcf.data = vcf.data);
 
 
     # check missing genotype method input
@@ -319,15 +330,15 @@ apply.polygenic.score <- function(
         }
 
     ### Begin Phenotype Analysis ###
-    if (!is.null(phenotype.analysis.columns)) {
-        # perform linear regression between PGS and each indicated phenotype column in phenotype.data
-        # report beta, se, p-value, R^2, and AUC
-        phenotype.regression.data <- run.pgs.regression(
-            pgs.output = pgs.output,
-            phenotype.analysis.columns = phenotype.analysis.columns
-            );
+    # if (!is.null(phenotype.analysis.columns)) {
+    #     # perform linear regression between PGS and each indicated phenotype column in phenotype.data
+    #     # report beta, se, p-value, R^2, and AUC
+    #     phenotype.regression.data <- run.pgs.regression(
+    #         pgs = pgs.output,
+    #         phenotype.data = phenotype.analysis.columns
+    #         );
 
-        }
+    #     }
 
 
     ### End Phenotype Analysis ###

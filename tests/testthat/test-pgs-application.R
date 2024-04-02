@@ -2,6 +2,7 @@ test_that(
     'apply.polygenic.score correctly checks inputs', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
+        test.phenotype.data <- data.frame(Indiv = c('HG001', '2:HG001'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1));
 
         # check that only data frame inputs are accepted
         expect_error(
@@ -79,6 +80,57 @@ test_that(
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
                 percentile.source = 'mean.dosage'
                 )
+            );
+
+        # check that phenotype data input is correct
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = 'not a data frame'
+                ),
+            'phenotype.data must be a data.frame'
+            );
+
+        # check for matching samples between phenotype and vcf data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = data.frame(Indiv = c('sample11'))
+                ),
+            'No matching Indiv between phenotype.data and vcf.data'
+            );
+
+        # check required columns in phenotype data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = subset(test.phenotype.data, select = -Indiv)
+                ),
+            'phenotype.data must contain columns named Indiv'
+            );
+
+        # check for correct phenotype analysis columns
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = test.phenotype.data,
+                phenotype.analysis.columns = c('not a valid column')
+                ),
+            'phenotype.analysis.columns must be columns in phenotype.data'
+            );
+
+        # check for missing phenotype data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.analysis.columns = 'continuous.phenotype'
+                ),
+            'phenotype.analysis.columns provided but no phenotype data detected'
             );
 
         # check that required columns are present
@@ -458,6 +510,7 @@ test_that(
     'apply.polygenic.score works correctly on real data', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
+        test.phenotype.data <- data.frame(Indiv = c('HG001', '2:HG001'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1));
 
         expect_no_error(
             apply.polygenic.score(
@@ -471,6 +524,15 @@ test_that(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
                 n.percentiles = 5
+                )
+            )
+
+        expect_no_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = test.phenotype.data,
+                phenotype.analysis.columns = c('continuous.phenotype')
                 )
             )
 
