@@ -14,6 +14,23 @@ create.feature.color.vector <- function(features, color.scheme) {
   return(feature.colors);
   }
 
+# utility function for assembling a data frame of colors for heatmap plotting
+# Given a data frame of covariate data and a list of color schemes with matching colnames/names
+# return a data frame with all covariate data replaced by colors indicated by color schemes.
+assemble.heatmap.colors <- function(covariate.data, color.scheme.list) {
+    covariate.df <- sapply(
+        X = colnames(covariate.data),
+        FUN = function(x) {
+            covariate.values <- covariate.data[ , x];
+            color.vector <- create.feature.color.vector(
+                features = as.character(covariate.values),
+                color.scheme = color.scheme.list[[x]]
+                );
+            return(color.vector)
+            }
+        );
+    }
+
 rank.plotting.input.checks <- function(pgs.data, phenotype.columns) {
     # check pgs.data
     if (!is.data.frame(pgs.data)) {
@@ -56,14 +73,13 @@ plot.pgs.rank <- function(
     rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);
 
     # factor Indiv by perentile rank
-    pgs.data$Indiv <- factor(pgs.data$Indiv, levels = pgs.data$Indiv[rev(order(pgs.data$percentile))]);
+    pgs.data$Indiv <- factor(pgs.data$Indiv, levels = pgs.data$Indiv[order(pgs.data$percentile)]);
 
     phenotype.data <- subset(pgs.data, select = phenotype.columns);
     # identify phenotype variable type
     phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
 
-    # Plotting
-    # percentile rank barplot
+    # Plot percentile rank barplot
     rank.barplot <- BoutrosLab.plotting.general::create.barplot(
         formula = percentile ~ Indiv,
         data = pgs.data,
@@ -78,7 +94,8 @@ plot.pgs.rank <- function(
         # yaxis.cex = yaxis.cex
         );
 
-    # missing genotypes barplot
+    # Plot missing genotypes barplot
+    # handle plot limits in case where there are no missing genotypes
     missing.genotype.count.ymax <- ifelse(max(pgs.data$n.missing.genotypes) == 0, 1, max(pgs.data$n.missing.genotypes));
     missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
         formula = n.missing.genotypes ~ Indiv,
@@ -93,11 +110,11 @@ plot.pgs.rank <- function(
         # yaxis.cex = yaxis.cex
         );
 
-    # percentile covariate bars
+    # Assemble covariate heatmap for deciles, quartiles, and user-defined percentiles
 
-    # quantile color schemes
+    # assign percentiles to shades of grey
     decile.color.scheme <- c(
-        paste0('grey', seq(1,100, length.out = 10))
+        paste0('grey', seq(100,1, length.out = 10))
         );
     names(decile.color.scheme) <- as.character(1:10);
 
@@ -106,35 +123,36 @@ plot.pgs.rank <- function(
         );
     names(quartile.color.scheme) <- as.character(1:4);
 
-    if ('n.percentile' %in% colnames(pgs.data)) {
+    user.defined.percentile.column.index <- grep('percentile\\.[0-9]', colnames(pgs.data));
+    if (length(user.defined.percentile.column.index) == 1) {
+        # assign user-defined percentiles to shades of grey
         percentile.color.scheme <- c(
-            paste0('grey', round(seq(1,100, length.out = length(unique(pgs.data$n.percentile)))))
+            paste0('grey', round(seq(100,1, length.out = length(unique(pgs.data[ ,user.defined.percentile.column.index])))))
             );
-        names(percentile.color.scheme) <- as.character(unique(pgs.data$n.percentile));
-        percentile.color.scheme.list <- list(decile = decile.color.scheme, quartile = quartile.color.scheme, n.percentile = percentile.color.scheme);
-        percentile.covariate.data <- subset(pgs.data, select = c('decile', 'quartile', 'n.percentile'));
+        names(percentile.color.scheme) <- as.character(sort(unique(pgs.data[ ,user.defined.percentile.column.index])));
+        # assemble all percentiles color schemes and data
+        percentile.color.scheme.list <- list(decile.color.scheme, quartile.color.scheme, percentile.color.scheme);
+        names(percentile.color.scheme.list) <- c('decile', 'quartile', colnames(pgs.data)[user.defined.percentile.column.index]);
+        percentile.covariate.data <- subset(pgs.data, select = c('decile', 'quartile', colnames(pgs.data)[user.defined.percentile.column.index]));
         } else {
+            # assemble all percentiles color schemes and data
             percentile.covariate.data <- subset(pgs.data, select = c('decile', 'quartile'));
             percentile.color.scheme.list <- list(decile = decile.color.scheme, quartile = quartile.color.scheme);
             }
 
-    percentile.covariate.df <- sapply(
-        X = colnames(percentile.covariate.data),#1:length(percentile.covariate.data),
-        FUN = function(x) {
-            covariate.values <- percentile.covariate.data[ , x];
-            color.vector <- create.feature.color.vector(
-                features = as.character(covariate.values),
-                color.scheme = percentile.color.scheme.list[[x]]
-                );
-            return(color.vector)
-            }
+    # replace covariate data with colors
+    percentile.covariate.df <- assemble.heatmap.colors(
+        covariate.data = percentile.covariate.data,
+        color.scheme.list = percentile.color.scheme.list
         );
+
+    # reorient data frame to match barplot layout (samples on x-axis)
     percentile.covariate.df <- data.frame(t(percentile.covariate.df));
     colnames(percentile.covariate.df) <- pgs.data$Indiv;
     # order by percentile
-    percentile.covariate.df <- percentile.covariate.df[ , rev(order(pgs.data$percentile))];
+    percentile.covariate.df <- percentile.covariate.df[ , order(pgs.data$percentile)];
 
-    # percentile covariate heatmap
+    # Plot percentile covariate heatmap
     percentile.covariate.heatmap <- BoutrosLab.plotting.general::create.heatmap(
         x = percentile.covariate.df,
         input.colours = TRUE,
