@@ -306,17 +306,23 @@ apply.polygenic.score <- function(
     Indiv <- pgs.output.list[[1]]$Indiv;
     pgs.output <- cbind(Indiv, PGS.cols);
 
-    # calculate percentiles
+    # retrieve pgs for statisitical analyses
     if (is.null(percentile.source)) {
-        percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,2], n.percentiles = n.percentiles); # calculate percentiles on first available score
+        pgs.for.stats <- pgs.output[ ,2] # first available score
         } else {
-        # calculate percentiles on user-chosen score
-        percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,missing.method.to.colname.ref[percentile.source]], n.percentiles = n.percentiles);
+        pgs.for.stats <- pgs.output[ ,missing.method.to.colname.ref[percentile.source]];
         }
+
+    # calculate percentiles
+    percentiles <- get.pgs.percentiles(pgs = pgs.for.stats, n.percentiles = n.percentiles);
+
     pgs.output <- cbind(pgs.output, percentiles);
 
     # add missing genotype count
     pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
+
+    # initialize regression output
+    regression.output <- NULL;
 
     # merge PGS data with phenotype data by Indiv column
     if (!is.null(phenotype.data)) {
@@ -327,21 +333,23 @@ apply.polygenic.score <- function(
             all.x = TRUE,
             all.y = TRUE
             );
+
+        ### Begin Phenotype Analysis ###
+
+        if (!is.null(phenotype.analysis.columns)) {
+            regression.output <- run.pgs.regression(
+                pgs = pgs.for.stats,
+                phenotype.data = subset(phenotype.data, select = phenotype.analysis.columns)
+                );
+            }
+        ### End Phenotype Analysis ###
+
         }
 
-    ### Begin Phenotype Analysis ###
-    # if (!is.null(phenotype.analysis.columns)) {
-    #     # perform linear regression between PGS and each indicated phenotype column in phenotype.data
-    #     # report beta, se, p-value, R^2, and AUC
-    #     phenotype.regression.data <- run.pgs.regression(
-    #         pgs = pgs.output,
-    #         phenotype.data = phenotype.analysis.columns
-    #         );
+    final.output <- list(
+        pgs.output = pgs.output,
+        regression.output = regression.output
+        );
 
-    #     }
-
-
-    ### End Phenotype Analysis ###
-
-    return(pgs.output);
+    return(final.output);
     }
