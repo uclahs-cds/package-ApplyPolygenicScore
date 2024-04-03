@@ -82,91 +82,110 @@ classify.variable.type <- function(data, continuous.threshold = 4) {
 #' @export
 run.pgs.regression <- function(pgs, phenotype.data) {
 
+    # initialize conditional outputs
+    linear.model.aggregated <- NULL;
+    logistic.model.aggregated <- NULL;
+
     # identify continuous and binary phenotypes
     variable.index.by.type <- classify.variable.type(phenotype.data);
 
     # run linear regression on continuous phenotypes
-    continuous.data <- subset(phenotype.data, select = variable.index.by.type$continuous);
-    linear.model <- lapply(
-        X = continuous.data,
-        FUN = function(x) {
-            summary(lm(x ~ pgs, data = phenotype.data));
-            }
-        );
+    if (any(variable.index.by.type$continuous)) {
+        continuous.data <- subset(phenotype.data, select = variable.index.by.type$continuous);
+        linear.model <- lapply(
+            X = continuous.data,
+            FUN = function(x) {
+                # if (length(unique(na.omit(x))) < 4) {
+                #     warning('Insufficient sample size for linear regression');
+                #     return(NULL);
+                #     } else {
+                    return(summary(lm(x ~ pgs, data = phenotype.data)));
+                #    }
+                }
+            );
+
+        # aggregate results in a data frame
+        linear.model.aggregated <- lapply(
+            X = linear.model,
+            FUN = function(x) {
+                coeff.index <- if (nrow(x$coefficients) == 1) NA else 'pgs';
+                data.frame(
+                    beta = x$coefficients[coeff.index, 'Estimate'],
+                    se = x$coefficients[coeff.index, 'Std. Error'],
+                    p.value = x$coefficients[coeff.index, 'Pr(>|t|)'],
+                    r.squared = x$r.squared,
+                    AUC = NA
+                    );
+                }
+            );
+        linear.model.aggregated <- do.call(rbind, linear.model.aggregated);
+        linear.model.aggregated <- data.frame(
+            phenotype = names(linear.model),
+            model = 'linear.regression',
+            linear.model.aggregated
+            );
+
+    }
+
 
     # run logistic regression on binary phenotypes
-    binary.data <- subset(phenotype.data, select = variable.index.by.type$binary);
+    if (any(variable.index.by.type$binary)) {
 
-    # ensure binary data is formatted as factors
-    binary.data <- lapply(
-        X = binary.data,
-        FUN = function(x) {
-            if (!is.factor(x)) {
-                return(as.factor(x));
-                } else {
-                return(x);
+        binary.data <- subset(phenotype.data, select = variable.index.by.type$binary);
+
+        # ensure binary data is formatted as factors
+        binary.data <- lapply(
+            X = binary.data,
+            FUN = function(x) {
+                if (!is.factor(x)) {
+                    return(as.factor(x));
+                    } else {
+                    return(x);
+                    }
                 }
-            }
-        );
+            );
 
-    logistic.model <- lapply(
-        X = binary.data,
-        FUN = function(x) {
-            glm(x ~ pgs, data = binary.data, family = binomial);
-            }
-        );
+        logistic.model <- lapply(
+            X = binary.data,
+            FUN = function(x) {
+                return(glm(x ~ pgs, data = binary.data, family = binomial));
+                }
+            );
 
-    logistic.model.summary <- lapply(
-        X = logistic.model,
-        FUN = summary
-        );
+        logistic.model.summary <- lapply(
+            X = logistic.model,
+            FUN = summary
+            );
 
-    logistic.auc <- lapply(
-        X = logistic.model,
-        FUN = function(x) {
-            predictions <- predict(x, type = 'response'); # get predicted probabilities on the training set
-            auc <- pROC::auc(x$y, predictions); # compute area under the curve on training set
-            }
-        );
+        logistic.auc <- lapply(
+            X = logistic.model,
+            FUN = function(x) {
+                predictions <- predict(x, type = 'response'); # get predicted probabilities on the training set
+                auc <- pROC::auc(x$y, predictions); # compute area under the curve on training set
+                }
+            );
 
-    # aggregate results in a data frame
-    linear.model.aggregated <- lapply(
-        X = linear.model,
-        FUN = function(x) {
-            data.frame(
-                beta = x$coefficients['pgs', 'Estimate'],
-                se = x$coefficients['pgs', 'Std. Error'],
-                p.value = x$coefficients['pgs', 'Pr(>|t|)'],
-                r.squared = x$r.squared,
-                AUC = NA
-                );
-            }
-        );
-    linear.model.aggregated <- do.call(rbind, linear.model.aggregated);
-    linear.model.aggregated <- data.frame(
-        phenotype = names(linear.model),
-        model = 'linear.regression',
-        linear.model.aggregated
-        );
 
-    logistic.model.aggregated <- lapply(
-        X = logistic.model.summary,
-        FUN = function(x) {
-            data.frame(
-                beta = x$coefficients['pgs', 'Estimate'],
-                se = x$coefficients['pgs', 'Std. Error'],
-                p.value = x$coefficients['pgs', 'Pr(>|z|)'],
-                r.squared = NA
-                );
-            }
-        );
-    logistic.model.aggregated <- do.call(rbind, logistic.model.aggregated);
-    logistic.model.aggregated$AUC <- unlist(logistic.auc);
-    logistic.model.aggregated <- data.frame(
-        phenotype = names(logistic.model),
-        model = 'logistic.regression',
-        logistic.model.aggregated
-        );
+        logistic.model.aggregated <- lapply(
+            X = logistic.model.summary,
+            FUN = function(x) {
+                coeff.index <- if (nrow(x$coefficients) == 1) NA else 'pgs';
+                data.frame(
+                    beta = x$coefficients[coeff.index, 'Estimate'],
+                    se = x$coefficients[coeff.index, 'Std. Error'],
+                    p.value = x$coefficients[coeff.index, 'Pr(>|z|)'],
+                    r.squared = NA
+                    );
+                }
+            );
+        logistic.model.aggregated <- do.call(rbind, logistic.model.aggregated);
+        logistic.model.aggregated$AUC <- unlist(logistic.auc);
+        logistic.model.aggregated <- data.frame(
+            phenotype = names(logistic.model),
+            model = 'logistic.regression',
+            logistic.model.aggregated
+            );
+    }
 
     all.model.results <- rbind(linear.model.aggregated, logistic.model.aggregated);
 
