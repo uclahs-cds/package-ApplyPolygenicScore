@@ -257,6 +257,47 @@ test_that(
     );
 
 test_that(
+    'apply.polygenic.score correctly formats regression output', {
+        load('data/simple.pgs.application.test.data.Rda')
+        test.pgs.per.sample.with.phenotype <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data,
+            phenotype.data = data.frame(Indiv = c('sample1', 'sample2'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1)),
+            phenotype.analysis.columns = c('continuous.phenotype', 'binary.phenotype')
+            );
+
+        # check that output is a data.frame
+        expect_s3_class(
+            test.pgs.per.sample.with.phenotype[[REGRESSION.OUTPUT.INDEX]],
+            'data.frame'
+            );
+
+        # check that output has correct number of rows and columns
+        expect_equal(
+            nrow(test.pgs.per.sample.with.phenotype[[REGRESSION.OUTPUT.INDEX]]),
+            2
+            );
+        expect_equal(
+            ncol(test.pgs.per.sample.with.phenotype[[REGRESSION.OUTPUT.INDEX]]),
+            7
+            );
+
+        # check NULL output when no phenotype data is provided
+        test.pgs.per.sample.no.phenotype <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+
+        expect_equal(
+            test.pgs.per.sample.no.phenotype[[REGRESSION.OUTPUT.INDEX]],
+            NULL
+            );
+
+        }
+    );
+
+
+test_that(
     'apply.polygenic.score correctly calculates pgs', {
         load('data/simple.pgs.application.test.data.Rda')
         test.pgs.per.sample <- apply.polygenic.score(
