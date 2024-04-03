@@ -201,7 +201,37 @@ test_that(
     );
 
 test_that(
-    'apply.polygenic.score correctly formats outputs', {
+    'apply.polygenic.score correctly formats general output', {
+        load('data/simple.pgs.application.test.data.Rda')
+        test.pgs.per.sample <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+
+        # check that output is a list
+        expect_equal(
+            class(test.pgs.per.sample),
+            'list'
+            );
+
+        # check that output has correct number of elements
+        expect_equal(
+            length(test.pgs.per.sample),
+            2
+            );
+        
+        # check that output has correct names
+        output.names <- c('pgs.output', 'regression.output');
+        expect_equal(
+            names(test.pgs.per.sample),
+            output.names
+            );
+
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly formats pgs output', {
         load('data/simple.pgs.application.test.data.Rda')
         test.pgs.per.sample <- apply.polygenic.score(
             vcf.data = simple.pgs.application.test.data$vcf.data,
