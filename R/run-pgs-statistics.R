@@ -161,7 +161,8 @@ run.pgs.regression <- function(pgs, phenotype.data) {
             X = logistic.model,
             FUN = function(x) {
                 predictions <- predict(x, type = 'response'); # get predicted probabilities on the training set
-                auc <- pROC::auc(x$y, predictions); # compute area under the curve on training set
+                # auc is a bit wordy by default
+                auc <- suppressMessages(pROC::auc(x$y, predictions)); # compute area under the curve on training set
                 }
             );
 
