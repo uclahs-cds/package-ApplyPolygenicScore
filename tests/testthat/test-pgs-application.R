@@ -1,3 +1,5 @@
+PGS.OUTPUT.INDEX <- 1;
+REGRESSION.OUTPUT.INDEX <- 2;
 test_that(
     'apply.polygenic.score correctly checks inputs', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
@@ -208,17 +210,17 @@ test_that(
 
         # check that output is a data.frame
         expect_s3_class(
-            test.pgs.per.sample,
+            test.pgs.per.sample[[PGS.OUTPUT.INDEX]],
             'data.frame'
             );
 
         # check that output has correct number of rows and columns
         expect_equal(
-            nrow(test.pgs.per.sample),
+            nrow(test.pgs.per.sample[[PGS.OUTPUT.INDEX]]),
             2
             );
         expect_equal(
-            ncol(test.pgs.per.sample),
+            ncol(test.pgs.per.sample[[PGS.OUTPUT.INDEX]]),
             6
             );
         }
@@ -234,11 +236,11 @@ test_that(
 
         # check that output is correct
         expect_equal(
-            test.pgs.per.sample$Indiv,
+            test.pgs.per.sample[[PGS.OUTPUT.INDEX]]$Indiv,
             c('sample1', 'sample2')
             );
         expect_equal(
-            test.pgs.per.sample$PGS,
+            test.pgs.per.sample[[PGS.OUTPUT.INDEX]]$PGS,
             c(1, 3)
             );
         }
@@ -253,7 +255,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$ref.as.single.risk.allele.multiallelic.pgs.weight.data
             );
         expect_equal(
-            ref.as.single.risk.allele.test$PGS,
+            ref.as.single.risk.allele.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(4, 3, 0)
             );
 
@@ -263,7 +265,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data
             );
         expect_equal(
-            alt.as.single.risk.allele.test$PGS,
+            alt.as.single.risk.allele.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(2, 1, 2)
             );
         expect_no_warning(
@@ -279,7 +281,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data
             );
         expect_equal(
-            alt.as.two.risk.alleles.test$PGS,
+            alt.as.two.risk.alleles.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(2, 1.5, 3)
             );
         expect_warning(
@@ -296,7 +298,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
             );
         expect_equal(
-            ref.and.alt.as.two.risk.alleles.test$PGS,
+            ref.and.alt.as.two.risk.alleles.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(2, 1.5, 2)
             );
         expect_warning(
@@ -343,70 +345,70 @@ test_that(
         # check column names
         percentile.colnames <- c('percentile', 'decile', 'quartile');
         expect_equal(
-            colnames(test.missing.genotype.mean.dosage),
+            colnames(test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
-            colnames(test.missing.genotype.normalize),
+            colnames(test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS.with.normalized.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
-            colnames(test.missing.genotype.both),
+            colnames(test.missing.genotype.both[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
-            colnames(test.missing.genotype.none),
+            colnames(test.missing.genotype.none[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS', percentile.colnames, 'n.missing.genotypes')
             );
 
         # check that PGS values are calculated correctly
         expect_equal(
-            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
             );
         expect_equal(
-            test.missing.genotype.normalize$PGS.with.normalized.missing,
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$PGS.with.normalized.missing,
             c(1 / 6, 4 / 6, NA, 0.5)
             );
         expect_equal(
-            test.missing.genotype.both$PGS.with.normalized.missing,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$PGS.with.normalized.missing,
             c(1 / 6, 4 / 6, NA, 0.5)
             );
         expect_equal(
-            test.missing.genotype.both$PGS.with.replaced.missing,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
             );
         expect_equal(
-            test.missing.genotype.none$PGS,
+            test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$PGS,
             c(1, 4, 0, 2)
             );
 
         # check that percentiles are calculated correctly
         expect_equal(
-            test.missing.genotype.mean.dosage$percentile,
-            test.missing.genotype.both$percentile
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$percentile,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$percentile
             );
         expect_equal(
-            test.missing.genotype.normalize$percentile,
-            test.missing.genotype.both.percentile.check$percentile
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$percentile,
+            test.missing.genotype.both.percentile.check[[PGS.OUTPUT.INDEX]]$percentile
             );
 
 
         # check missing genotype counts
         expect_equal(
-            test.missing.genotype.mean.dosage$n.missing.genotypes,
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         expect_equal(
-            test.missing.genotype.normalize$n.missing.genotypes,
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         expect_equal(
-            test.missing.genotype.both$n.missing.genotypes,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         expect_equal(
-            test.missing.genotype.none$n.missing.genotypes,
+            test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         }
@@ -425,7 +427,7 @@ test_that(
             );
 
         expect_equal(
-            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
             c(1, 4, 3, 3.5)
             );
         }
@@ -483,23 +485,23 @@ test_that(
 
         # check that output is a data.frame
         expect_s3_class(
-            test.phenotype.output,
+            test.phenotype.output[[PGS.OUTPUT.INDEX]],
             'data.frame'
             );
 
         # check for the correct column names
         expect_true(
-            all(c(colnames(phenotype.test.data), 'PGS') %in% colnames(test.phenotype.output))
+            all(c(colnames(phenotype.test.data), 'PGS') %in% colnames(test.phenotype.output[[PGS.OUTPUT.INDEX]]))
             );
 
         # check that phenotype values are correctly matched to samples
         expect_equal(
-            test.phenotype.output$continuous.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output$Indiv)],
+            test.phenotype.output[[PGS.OUTPUT.INDEX]]$continuous.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output[[PGS.OUTPUT.INDEX]]$Indiv)],
             phenotype.test.data$phenotype.data$continuous.phenotype
             );
 
         expect_equal(
-            test.phenotype.output$binary.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output$Indiv)],
+            test.phenotype.output[[PGS.OUTPUT.INDEX]]$binary.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output[[PGS.OUTPUT.INDEX]]$Indiv)],
             phenotype.test.data$phenotype.data$binary.phenotype
             );
 
