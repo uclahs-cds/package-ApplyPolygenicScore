@@ -95,12 +95,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
         linear.model <- lapply(
             X = continuous.data,
             FUN = function(x) {
-                # if (length(unique(na.omit(x))) < 4) {
-                #     warning('Insufficient sample size for linear regression');
-                #     return(NULL);
-                #     } else {
-                    return(summary(lm(x ~ pgs, data = phenotype.data)));
-                #    }
+                return(summary(lm(x ~ pgs, data = phenotype.data)));
                 }
             );
 
