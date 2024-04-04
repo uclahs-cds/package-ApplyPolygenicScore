@@ -219,7 +219,7 @@ test_that(
             length(test.pgs.per.sample),
             2
             );
-        
+
         # check that output has correct names
         output.names <- c('pgs.output', 'regression.output');
         expect_equal(
