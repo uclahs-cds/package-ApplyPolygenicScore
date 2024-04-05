@@ -167,6 +167,28 @@ plot.pgs.rank <- function(
         # xaxis.cex = xaxis.cex,
         # yaxis.cex = yaxis.cex
         );
+
+        percentile.covariates.legend <- list(list(
+            title = 'Percentiles',
+            colours = c(decile.color.scheme[1], decile.color.scheme[10]),
+            labels = c('lowest', 'highest'),
+            continuous = TRUE
+            ));
+        names(percentile.covariates.legend) <- 'legend';
+        # percentile.covariates.legend <- lapply(
+        #     X = 1:length(continuous.color.schemes),
+        #     FUN = function(x) {
+        #         list(
+        #             title = names(continuous.color.schemes)[x],
+        #             colours = continuous.color.schemes[[x]],
+        #             labels = round(c(min(continuous.phenotype.data[ , x]), max(continuous.phenotype.data[ , x])), 1),
+        #             continuous = TRUE
+        #             );
+        #         }
+        #     );
+        # names(continuous.covariates.legend) <- rep('legend', length(continuous.covariates.legend));
+
+
     ## End Percentile Covariate Heatmap Assembly ##
 
     ## Begin Phenotype Covariate Heatmap Assembly ##
@@ -233,11 +255,11 @@ plot.pgs.rank <- function(
                     }
                 );
             names(binary.covariates.legend) <- rep('legend', length(binary.covariates.legend));
-            legend.grob(
-                list(
-                    legend = binary.covariates.legend[[1]]
-                )
-            )
+            # test.grob <- legend.grob(
+            #     #list(
+            #         binary.covariates.legend#legend = binary.covariates.legend[[1]]
+            #     #)
+            # )
 
             # # binary phenotype covariate heatmap
             # binary.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
@@ -315,6 +337,7 @@ plot.pgs.rank <- function(
                         );
                     }
                 );
+            names(categorical.covariates.legend) <- rep('legend', length(categorical.covariates.legend));
 
             # # other phenotype covariate heatmap
             # other.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
@@ -414,11 +437,12 @@ plot.pgs.rank <- function(
                 list(
                     title = names(continuous.color.schemes)[x],
                     colours = continuous.color.schemes[[x]],
-                    labels = c(min(continuous.phenotype.data[ , x]), max(continuous.phenotype.data[ , x])),
+                    labels = round(c(min(continuous.phenotype.data[ , x]), max(continuous.phenotype.data[ , x])), 1),
                     continuous = TRUE
                     );
                 }
             );
+        names(continuous.covariates.legend) <- rep('legend', length(continuous.covariates.legend));
 
         }
 
@@ -435,15 +459,16 @@ plot.pgs.rank <- function(
         );
 
     # assemble plot legend
-    cov.legends <- list(
+    cov.legends <- c(
+        percentile.covariates.legend,
         binary.covariates.legend,
         categorical.covariates.legend,
         continuous.covariates.legend
         );
-    names(cov.legends) <- rep('legend', length(cov.legends));
+    #names(cov.legends) <- rep('legend', length(cov.legends));
 
     cov.legend.grob <- BoutrosLab.plotting.general::legend.grob(
-        legends = cov.legends
+        cov.legends
         );
 
     plot.list <- list(
@@ -467,6 +492,7 @@ plot.pgs.rank <- function(
         layout.width = 1,
         plot.objects.heights = plot.heights,
         y.spacing = -1,
+        legend = list(right = list(fun = cov.legend.grob)),
         width = width,
         height = height
         );
