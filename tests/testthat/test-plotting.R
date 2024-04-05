@@ -1,5 +1,6 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- TRUE#FALSE;
+SKIP.PLOTS <- FALSE;
+SKIP.COMPREHENSIVE.CASES <- FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     # skip plotting tests if 
     if (skip.plots) {
@@ -86,24 +87,49 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.rank runs with no error', {
+    'plot.pgs.rank runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
-        # plot pgs rank
         expect_no_error(
             plot.pgs.rank(
                 pgs.data = pgs.test,
-                phenotype.columns = 'categorical.phenotype',#c('continuous.phenotype','binary.phenotype', 'binary.factor.phenotype', 'categorical.phenotype'),
-                #output.dir = temp.dir,
-                filename.prefix = 'TEST'
+                filename.prefix = 'TEST',
+                output.dir = temp.dir
                 )
             );
 
         test.filename <- generate.filename(
             project.stem = 'TEST',
-            file.core = 'pgs-rank',
+            file.core = 'pgs-rank-plot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.rank runs correctly with user provided phenotypes',{
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        expect_no_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
+                filename.prefix = 'TEST',
+                output.dir = temp.dir
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST',
+            file.core = 'pgs-rank-plot',
             extension = 'png'
             );
         expect_true(
