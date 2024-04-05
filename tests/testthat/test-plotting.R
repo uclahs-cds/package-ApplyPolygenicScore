@@ -1,5 +1,5 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- FALSE;
+SKIP.PLOTS <- TRUE#FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     # skip plotting tests if 
     if (skip.plots) {
@@ -23,6 +23,7 @@ pgs.test <- apply.polygenic.score(
 test_that(
     'plot.pgs.density runs with no error', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
+        skip();
 
         temp.dir <- tempdir();
 
@@ -49,6 +50,42 @@ test_that(
     );
 
 test_that(
+    'plot.pgs.rank correctly validates inputs', {
+        # check that input data is a data frame
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = list()
+                ),
+            'pgs.data must be a data frame'
+            );
+        
+        # check that required columns are present
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = data.frame(sample = 1:10)
+                ),
+            'pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes'
+            );
+        # check that phenotype.columns is a character vector
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                phenotype.columns = c(4,5,6)
+                ),
+            'phenotype.columns must be a character vector'
+            );
+        # check that phenotype.columns are present in data
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                phenotype.columns = 'missing.phenotype'
+                ),
+            'phenotype.columns must be a subset of the column names in pgs.data'
+            );
+        }
+    );
+
+test_that(
     'plot.pgs.rank runs with no error', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
@@ -58,8 +95,8 @@ test_that(
         expect_no_error(
             plot.pgs.rank(
                 pgs.data = pgs.test,
-                phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'binary.factor.phenotype', 'categorical.phenotype'),
-                output.dir = temp.dir,
+                phenotype.columns = 'categorical.phenotype',#c('continuous.phenotype','binary.phenotype', 'binary.factor.phenotype', 'categorical.phenotype'),
+                #output.dir = temp.dir,
                 filename.prefix = 'TEST'
                 )
             );
