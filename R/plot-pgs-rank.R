@@ -64,9 +64,10 @@ plot.pgs.rank <- function(
     file.extension = 'png',
     width = 8,
     height = 8,
-    xaxis.cex = 1.5,
-    yaxis.cex = 1.5,
-    titles.cex = 1.5
+    xaxis.cex = 1.2,
+    yaxis.cex = 1,
+    titles.cex = 1.2,
+    border.padding = 1
     ) {
 
     # check input
@@ -85,13 +86,14 @@ plot.pgs.rank <- function(
         data = pgs.data,
         ylimits = c(0, 1.05),
         yat = seq(0, 1, 0.2),
+        xaxis.rot = 90,
         xlab.label = '',
-        ylab.label = 'Percentile',
-        main = ''
-        # main.cex = titles.cex,
-        # ylab.cex = titles.cex,
-        # xaxis.cex = xaxis.cex,
-        # yaxis.cex = yaxis.cex
+        ylab.label = 'PGS Percentile',
+        main = '',
+        main.cex = 0,
+        ylab.cex = titles.cex,
+        xaxis.cex = xaxis.cex,
+        yaxis.cex = yaxis.cex
         );
 
     # Plot missing genotypes barplot
@@ -102,12 +104,14 @@ plot.pgs.rank <- function(
         data = pgs.data,
         ylimits = c(0, missing.genotype.count.ymax * 1.05),
         xlab.label = '',
-        ylab.label = 'Missing Genotypes',
-        main = ''
-        # main.cex = titles.cex,
-        # ylab.cex = titles.cex,
-        # xaxis.cex = xaxis.cex,
-        # yaxis.cex = yaxis.cex
+        ylab.label = 'Missing GT',
+        xaxis.lab = '',
+        yat = 'auto',
+        main = '',#'Missing Genotypes',
+        main.cex = 0,
+        ylab.cex = titles.cex,
+        xaxis.cex = 0,
+        yaxis.cex = yaxis.cex
         );
 
     ## Begin Percentile Covariate Heatmap Assembly ##
@@ -161,11 +165,11 @@ plot.pgs.rank <- function(
         same.as.matrix = TRUE,
         print.colour.key = FALSE,
         yaxis.lab = rownames(percentile.covariate.df),
-        ylab.cex = 1
+        #ylab.cex = title.cex,
         # main.cex = titles.cex,
         # ylab.cex = titles.cex,
-        # xaxis.cex = xaxis.cex,
-        # yaxis.cex = yaxis.cex
+        xaxis.cex = xaxis.cex,
+        yaxis.cex = yaxis.cex
         );
 
         percentile.covariates.legend <- list(list(
@@ -323,8 +327,8 @@ plot.pgs.rank <- function(
             clustering.method = 'none',
             same.as.matrix = TRUE,
             print.colour.key = FALSE,
-            yaxis.lab = cat.yaxis.lab,
-            ylab.cex = 1
+            yaxis.lab = NULL, #cat.yaxis.lab,
+            ylab.cex = 0
             # main.cex = titles.cex,
             # ylab.cex = titles.cex,
             # xaxis.cex = xaxis.cex,
@@ -443,10 +447,15 @@ plot.pgs.rank <- function(
         layout.height = length(plot.list),
         layout.width = 1,
         plot.objects.heights = plot.heights,
-        y.spacing = -1,
+        y.spacing = -2,
+        ylab.axis.padding = -2,
         legend = list(right = list(fun = cov.legend.grob)),
         width = width,
-        height = height
+        height = height,
+        right.padding = border.padding,
+        left.padding = border.padding,
+        top.padding = border.padding,
+        bottom.padding = border.padding
         );
 
     }
