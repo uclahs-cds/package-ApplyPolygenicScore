@@ -175,19 +175,6 @@ plot.pgs.rank <- function(
             continuous = TRUE
             ));
         names(percentile.covariates.legend) <- 'legend';
-        # percentile.covariates.legend <- lapply(
-        #     X = 1:length(continuous.color.schemes),
-        #     FUN = function(x) {
-        #         list(
-        #             title = names(continuous.color.schemes)[x],
-        #             colours = continuous.color.schemes[[x]],
-        #             labels = round(c(min(continuous.phenotype.data[ , x]), max(continuous.phenotype.data[ , x])), 1),
-        #             continuous = TRUE
-        #             );
-        #         }
-        #     );
-        # names(continuous.covariates.legend) <- rep('legend', length(continuous.covariates.legend));
-
 
     ## End Percentile Covariate Heatmap Assembly ##
 
@@ -255,27 +242,6 @@ plot.pgs.rank <- function(
                     }
                 );
             names(binary.covariates.legend) <- rep('legend', length(binary.covariates.legend));
-            # test.grob <- legend.grob(
-            #     #list(
-            #         binary.covariates.legend#legend = binary.covariates.legend[[1]]
-            #     #)
-            # )
-
-            # # binary phenotype covariate heatmap
-            # binary.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
-            #     x = data.frame(binary.phenotype.df),
-            #     input.colours = TRUE,
-            #     clustering.method = 'none',
-            #     same.as.matrix = TRUE,
-            #     print.colour.key = FALSE,
-            #     yaxis.lab = rownames(binary.phenotype.df),
-            #     ylab.cex = 1
-            #     # main.cex = titles.cex,
-            #     # ylab.cex = titles.cex,
-            #     # xaxis.cex = xaxis.cex,
-            #     # yaxis.cex = yaxis.cex
-            #     );
-
             }
 
         # categorical phenotype covariate data
@@ -339,20 +305,6 @@ plot.pgs.rank <- function(
                 );
             names(categorical.covariates.legend) <- rep('legend', length(categorical.covariates.legend));
 
-            # # other phenotype covariate heatmap
-            # other.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
-            #     x = data.frame(other.phenotype.df),
-            #     input.colours = TRUE,
-            #     clustering.method = 'none',
-            #     same.as.matrix = TRUE,
-            #     print.colour.key = FALSE,
-            #     yaxis.lab = rownames(other.phenotype.df),
-            #     ylab.cex = 1
-            #     # main.cex = titles.cex,
-            #     # ylab.cex = titles.cex,
-            #     # xaxis.cex = xaxis.cex,
-            #     # yaxis.cex = yaxis.cex
-            #    );
             }
 
         # combine binary and categorical phenotype covariates into one heatmap
