@@ -31,7 +31,7 @@ assemble.heatmap.colors <- function(covariate.data, color.scheme.list) {
         );
     }
 
-rank.plotting.input.checks <- function(pgs.data, phenotype.columns) {
+rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
     # check pgs.data
     if (!is.data.frame(pgs.data)) {
         stop('pgs.data must be a data frame');
@@ -53,12 +53,17 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns) {
         stop('pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes');
         }
 
+    # validate output.dir
+    if (!is.null(output.dir) && !dir.exists(output.dir)) {
+        stop(paste0(output.dir), ' does not exist');
+        }
+
     }
 
 plot.pgs.rank <- function(
     pgs.data,
     phenotype.columns = NULL,
-    output.dir = getwd(),
+    output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
     width = 8,
@@ -70,7 +75,7 @@ plot.pgs.rank <- function(
     ) {
 
     # check input
-    rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);
+    rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
     # factor Indiv by perentile rank
     pgs.data$Indiv <- factor(pgs.data$Indiv, levels = pgs.data$Indiv[order(pgs.data$percentile)]);
@@ -159,6 +164,7 @@ plot.pgs.rank <- function(
         clustering.method = 'none',
         same.as.matrix = TRUE,
         print.colour.key = FALSE,
+        fill.colour = 'stripe',
         yaxis.lab = rownames(percentile.covariate.df),
         #ylab.cex = title.cex,
         # main.cex = titles.cex,
@@ -404,15 +410,25 @@ plot.pgs.rank <- function(
     }
     ## End Phenotype Covariate Heatmap Assembly ##
 
-    if (is.null(filename.prefix)) {
-        filename.prefix <- 'ApplyPolygenicScore-Plot';
+    # organize filename if plot writing requested
+    if (!is.null(output.dir)) {
+
+        if (is.null(filename.prefix)) {
+            filename.prefix <- 'ApplyPolygenicScore-Plot';
+            }
+        # construct multipanel plot
+        filename.for.rank.multiplot <- generate.filename(
+            project.stem = filename.prefix,
+            file.core = 'pgs-rank-plot',
+            extension = file.extension
+            );
+
+        output.path <- file.path(output.dir, filename.for.rank.multiplot);
+        } else {
+            output.path <- NULL;
         }
-    # construct multipanel plot
-    filename.for.rank.multiplot <- generate.filename(
-        project.stem = filename.prefix,
-        file.core = 'pgs-rank-plot',
-        extension = file.extension
-        );
+
+    
 
     # assemble plot legend
     cov.legends <- c(
@@ -421,7 +437,6 @@ plot.pgs.rank <- function(
         categorical.covariates.legend,
         continuous.covariates.legend
         );
-    #names(cov.legends) <- rep('legend', length(cov.legends));
 
     cov.legend.grob <- BoutrosLab.plotting.general::legend.grob(
         cov.legends
@@ -441,14 +456,14 @@ plot.pgs.rank <- function(
 
     multipanel.plot <- BoutrosLab.plotting.general::create.multipanelplot(
         plot.objects = plot.list,
-        filename = file.path(output.dir, filename.for.rank.multiplot),
+        filename = output.path,
         main = '',
         main.cex = 0,
         layout.height = length(plot.list),
         layout.width = 1,
         plot.objects.heights = plot.heights,
         y.spacing = -2,
-        ylab.axis.padding = -2,
+        ylab.axis.padding = -6,
         legend = list(right = list(fun = cov.legend.grob)),
         width = width,
         height = height,
@@ -458,4 +473,5 @@ plot.pgs.rank <- function(
         bottom.padding = border.padding
         );
 
+    return(multipanel.plot);
     }

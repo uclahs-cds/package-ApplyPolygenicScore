@@ -20,6 +20,15 @@ pgs.test <- apply.polygenic.score(
     missing.genotype.method = c('mean.dosage', 'normalize'),
     n.percentiles = 2
     );
+# add missing genotpye counts
+pgs.test$n.missing.genotypes <- sample(1:10, nrow(pgs.test), replace = TRUE);
+# add some missing data
+pgs.test$continuous.phenotype[1:2] <- NA;
+pgs.test$binary.phenotype[2:3] <- NA;
+pgs.test$categorical.phenotype[3:4] <- NA;
+pgs.test$decile[4:5] <- NA;
+pgs.test$percentile[5:6] <- NA;
+
 
 test_that(
     'plot.pgs.density runs with no error', {
@@ -59,7 +68,7 @@ test_that(
                 ),
             'pgs.data must be a data frame'
             );
-        
+
         # check that required columns are present
         expect_error(
             plot.pgs.rank(
@@ -83,6 +92,14 @@ test_that(
                 ),
             'phenotype.columns must be a subset of the column names in pgs.data'
             );
+        # check that output.dir is a directory
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                output.dir = 'not/a/directory'
+                ),
+            'not/a/directory does not exist'
+            );
         }
     );
 
@@ -90,6 +107,7 @@ test_that(
     'plot.pgs.rank runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
+        # check file writing
         temp.dir <- tempdir();
 
         expect_no_error(
@@ -107,6 +125,17 @@ test_that(
             );
         expect_true(
             file.exists(file.path(temp.dir, test.filename))
+            );
+
+        # check returned object
+        test.plot.object <- plot.pgs.rank(
+            pgs.data = pgs.test,
+            filename.prefix = 'TEST',
+            output.dir = NULL
+            );
+        expect_equal(
+            class(test.plot.object),
+            'multipanel'
             );
 
         }
