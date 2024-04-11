@@ -286,9 +286,9 @@ plot.pgs.with.continuous.phenotype <- function(
 
     # Plotting
     pgs.scatterplots <- list();
-    for (pgs.column in pgs.columns) {
+    for (phenotype in colnames(phenotype.data.for.plotting)) {
 
-        for (phenotype in colnames(phenotype.data.for.plotting)) {
+        for (pgs.column in pgs.columns) {
 
             pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
                 formula = as.formula(paste0(phenotype, ' ~ pgs.data[, pgs.column]')),
@@ -334,7 +334,13 @@ plot.pgs.with.continuous.phenotype <- function(
         main = '',
         main.cex = 0,
         width = width,
-        height = height
+        height = height,
+        x.spacing = 1.5,
+        y.spacing = 0,
+        left.padding = border.padding,
+        right.padding = border.padding,
+        bottom.padding = border.padding,
+        top.padding = border.padding
         );
 
     }

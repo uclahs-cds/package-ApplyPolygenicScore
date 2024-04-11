@@ -7,6 +7,7 @@ skip.plotting.tests <- function(skip.plots = FALSE) {
         }
     }
 
+set.seed(123);
 
 # get test dataset
 load('data/phenotype.test.data.Rda');
@@ -265,9 +266,9 @@ test_that(
         # plot pgs with continuous phenotype
         expect_no_error(
             plot.pgs.with.continuous.phenotype(
-                pgs.data = pgs.test,
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
                 phenotype.columns = 'continuous.phenotype',
-                output.dir = temp.dir,
+                output.dir = getwd(),#temp.dir,
                 filename.prefix = 'TEST'
                 )
             );
@@ -291,6 +292,37 @@ test_that(
         expect_equal(
             class(test.plot.object),
             'multipanel'
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs correctly with multiple phenotypes', {
+        #skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        # add another continuous phenotype
+        pgs.test$continuous.phenotype2 <- rnorm(nrow(pgs.test));
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2'),
+                output.dir = getwd(),#temp.dir,
+                filename.prefix = 'TEST-two-continuous-phenotypes'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-two-continuous-phenotypes',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
             );
 
         }
