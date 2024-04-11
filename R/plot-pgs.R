@@ -174,7 +174,7 @@ plot.pgs.density <- function(
                 }
 
             }
-        
+
         }
 
     # organize filename if plot writing requested
