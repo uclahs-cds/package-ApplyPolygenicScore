@@ -244,17 +244,18 @@ plot.pgs.density <- function(
 plot.pgs.with.continuous.phenotype <- function(
     pgs.data,
     phenotype.columns,
-    output.dir = getwd(),
+    output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
     yaxes.cex = 1.5,
-    titles.cex = 1.5
+    titles.cex = 1.5,
+    border.padding = 1
     ) {
     # check input
-    plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);
+    pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
@@ -290,20 +291,28 @@ plot.pgs.with.continuous.phenotype <- function(
 
         }
 
-    # create filename
-    if (is.null(filename.prefix)) {
-        filename.prefix <- 'ApplyPolygenicScore-Plot';
+    # organize filename if plot writing requested
+    if (!is.null(output.dir)) {
+
+        if (is.null(filename.prefix)) {
+            filename.prefix <- 'ApplyPolygenicScore-Plot';
+            }
+        # construct multipanel plot
+        filename.for.scatterplot.multiplot <- generate.filename(
+            project.stem = filename.prefix,
+            file.core = 'pgs-scatter',
+            extension = file.extension
+            );
+
+        output.path <- file.path(output.dir, filename.for.scatterplot.multiplot);
+        } else {
+            output.path <- NULL;
         }
-    filename.for.scatterplot.multiplot <- generate.filename(
-        project.stem = filename.prefix,
-        file.core = 'pgs-scatterplot',
-        extension = file.extension
-        );
 
     # assemble multipanel plot
     scatterplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
         plot.objects = pgs.scatterplots,
-        filename = 'test.png',#file.path(output.dir, filename.for.scatterplot.multiplot),
+        filename = output.path,
         layout.height = length(phenotype.data.for.plotting),
         layout.width = length(pgs.columns),
         main = '',
