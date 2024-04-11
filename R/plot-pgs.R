@@ -127,21 +127,29 @@ plot.pgs.density <- function(
         
         }
 
-    # create filename
-    if (is.null(filename.prefix)) {
-        filename.prefix <- 'ApplyPolygenicScore-Plot';
+    # organize filename if plot writing requested
+    if (!is.null(output.dir)) {
+
+        if (is.null(filename.prefix)) {
+            filename.prefix <- 'ApplyPolygenicScore-Plot';
+            }
+        # construct multipanel plot
+        filename.for.density.multiplot <- generate.filename(
+            project.stem = filename.prefix,
+            file.core = 'pgs-density',
+            extension = file.extension
+            );
+
+        output.path <- file.path(output.dir, filename.for.density.multiplot);
+        } else {
+            output.path <- NULL;
         }
-    filename.for.density.multiplot <- generate.filename(
-        project.stem = filename.prefix,
-        file.core = 'pgs-density',
-        extension = file.extension
-        );
 
     # assemble multipanel plot
     if (length(pgs.density.by.phenotype.plots) != 0) {
         density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
             plot.objects = c(pgs.density.plots, pgs.density.by.phenotype.plots),
-            filename = file.path(output.dir, filename.for.density.multiplot),
+            filename = output.path,
             layout.height = 1 + length(pgs.density.by.phenotype.plots),
             layout.width = length(pgs.density.plots),
             main = '',
@@ -152,7 +160,7 @@ plot.pgs.density <- function(
         } else {
             density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
                 plot.objects = pgs.density.plots,
-                filename = file.path(output.dir, filename.for.density.multiplot),
+                filename = output.path,
                 layout.height = 1,
                 layout.width = length(pgs.density.plots),
                 main = '',

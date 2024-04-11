@@ -77,7 +77,7 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.density runs with no error', {
+    'plot.pgs.density runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
@@ -86,7 +86,7 @@ test_that(
         expect_no_error(
             plot.pgs.density(
                 pgs.data = pgs.test,
-                phenotype.columns = c('continuous.phenotype', 'binary.phenotype'),
+                phenotype.columns = NULL,
                 output.dir = temp.dir,
                 filename.prefix = 'TEST'
                 )
@@ -99,6 +99,17 @@ test_that(
             );
         expect_true(
             file.exists(file.path(temp.dir, test.filename))
+            );
+
+        # check returned object
+        test.plot.object <- plot.pgs.density(
+            pgs.data = pgs.test,
+            filename.prefix = 'TEST',
+            output.dir = NULL
+            );
+        expect_equal(
+            class(test.plot.object),
+            'multipanel'
             );
 
         }
