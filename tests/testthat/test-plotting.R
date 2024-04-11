@@ -2,7 +2,6 @@
 SKIP.PLOTS <- FALSE;
 SKIP.COMPREHENSIVE.CASES <- FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
-    # skip plotting tests if 
     if (skip.plots) {
         skip('Plotting tests disabled');
         }

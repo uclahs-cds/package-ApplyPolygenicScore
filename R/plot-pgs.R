@@ -2,7 +2,7 @@
 pgs.distribution.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
     # Check that pgs.data is a data.frame
     if (!is.data.frame(pgs.data)) {
-        stop("pgs.data must be a data.frame");
+        stop('pgs.data must be a data.frame');
         }
 
     # validate phenotype.columns
@@ -23,7 +23,7 @@ pgs.distribution.plotting.input.checks <- function(pgs.data, phenotype.columns, 
     # Identify possible PGS columns
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     if (!any(recognized.pgs.colnames %in% colnames(pgs.data))) {
-        stop("No recognized PGS columns found in pgs.data");
+        stop('No recognized PGS columns found in pgs.data');
         }
 
     # validate output.dir
