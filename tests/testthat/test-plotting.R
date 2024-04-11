@@ -65,6 +65,14 @@ test_that(
                 ),
             'phenotype.columns must be a subset of the column names in pgs.data'
             );
+        # check that phenotype.columns do not contain recognized PGS columns
+        expect_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                phenotype.columns = c('PGS.with.replaced.missing')
+                ),
+            'phenotype.columns cannot contain recognized PGS column names'
+            );
         # check that output.dir is a real directory
         expect_error(
             plot.pgs.density(
@@ -85,7 +93,7 @@ test_that(
         # plot pgs density
         expect_no_error(
             plot.pgs.density(
-                pgs.data = pgs.test,
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
                 filename.prefix = 'TEST'

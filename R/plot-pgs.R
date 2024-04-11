@@ -13,6 +13,11 @@ pgs.distribution.plotting.input.checks <- function(pgs.data, phenotype.columns, 
         if (!all(phenotype.columns %in% colnames(pgs.data))) {
             stop('phenotype.columns must be a subset of the column names in pgs.data');
             }
+        # check for collisions with recognized PGS columns
+        recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+        if (any(phenotype.columns %in% recognized.pgs.colnames)) {
+            stop('phenotype.columns cannot contain recognized PGS column names');
+            }
         }
 
     # Identify possible PGS columns
@@ -47,7 +52,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     }
 
 #' @title Plot PGS Density
-#' @description Create density plots for PGS data
+#' @description Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
+#' If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 #' @param pgs.data data.frame with PGS data
 #' @param phenotype.columns character vector of phenotype columns in pgs.data to plot (optional)
 #' @param output.dir character directory to save output plots
@@ -55,11 +61,11 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param file.extension character file extension for output plots
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
-#' @param xaxes.cex numeric cex for x-axis labels in inches
-#' @param yaxes.cex numeric cex for y-axis labels in inches
-#' @param titles.cex numeric cex for plot titles in inches
+#' @param xaxes.cex numeric cex for all x-axis labels in inches
+#' @param yaxes.cex numeric cex for all y-axis labels in inches
+#' @param titles.cex numeric cex for all plot titles in inches
 #' @param border.padding numeric padding for plot borders
-#' @return multipanel plot object
+#' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
 #' @export
 plot.pgs.density <- function(
     pgs.data,
