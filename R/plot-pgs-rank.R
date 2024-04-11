@@ -31,6 +31,15 @@ assemble.heatmap.colors <- function(covariate.data, color.scheme.list) {
         );
     }
 
+# utility function for formatting coordinates of missing values in a heatmap matrix
+get.na.coordinates.for.heatmap <- function(data) {
+    na.boolean <- is.na(data);
+    rev.na.boolean <- na.boolean[nrow(na.boolean):1, , drop = FALSE];
+    na.col.coordinates <- which(na.boolean, arr.ind = TRUE);
+    na.row.coordinates <- which(rev.na.boolean, arr.ind = TRUE);
+    return(list(col = na.col.coordinates[ ,'col'], row = na.row.coordinates[ ,'row']));
+    }
+
 rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
     # check pgs.data
     if (!is.data.frame(pgs.data)) {
@@ -158,13 +167,20 @@ plot.pgs.rank <- function(
     percentile.covariate.df <- percentile.covariate.df[ , order(pgs.data$percentile)];
 
     # Plot percentile covariate heatmap
+    percentile.cov.na.coords <- get.na.coordinates.for.heatmap(percentile.covariate.df);
     percentile.covariate.heatmap <- BoutrosLab.plotting.general::create.heatmap(
         x = percentile.covariate.df,
         input.colours = TRUE,
         clustering.method = 'none',
         same.as.matrix = TRUE,
         print.colour.key = FALSE,
-        fill.colour = 'stripe',
+        # missing value handling
+        fill.colour = 'grey',
+        cell.text = 'NA', #na.text.matrix,
+        col.pos = percentile.cov.na.coords$col,
+        row.pos = percentile.cov.na.coords$row,
+        text.col = 'white',
+        text.cex = 0.5,
         yaxis.lab = rownames(percentile.covariate.df),
         #ylab.cex = title.cex,
         # main.cex = titles.cex,
@@ -321,19 +337,20 @@ plot.pgs.rank <- function(
             all.category.phenotype.df <- rbind(binary.phenotype.df, other.phenotype.df);
 
             # plot binary and categorical phenotype covariate heatmap
-            # account for weird behaviour when only one row is given to heatmap
-            if (nrow(all.category.phenotype.df) == 1) {
-                cat.yaxis.lab = NULL;
-                } else {
-                    cat.yaxis.lab = rownames(all.category.phenotype.df);
-                }
+            cat.phen.na.coords <- get.na.coordinates.for.heatmap(all.category.phenotype.df);
             categorical.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
                 x = all.category.phenotype.df,
                 input.colours = TRUE,
                 clustering.method = 'none',
                 same.as.matrix = TRUE,
                 print.colour.key = FALSE,
-                yaxis.lab = NULL, #cat.yaxis.lab,
+                fill.colour = 'grey',
+                cell.text = 'NA',
+                col.pos = cat.phen.na.coords$col,
+                row.pos = cat.phen.na.coords$row,
+                text.col = 'white',
+                text.cex = 0.5,
+                yaxis.lab = NULL,
                 ylab.cex = 0
                 # main.cex = titles.cex,
                 # ylab.cex = titles.cex,
@@ -371,20 +388,23 @@ plot.pgs.rank <- function(
             continuous.phenotypes.df <- continuous.phenotypes.df[ , order(pgs.data$percentile)];
 
             # continuous phenotype covariate heatmap
-            # account for weird behaviour when only one row is given to heatmap
-            if (nrow(continuous.phenotypes.df) == 1) {
-                cont.yaxis.lab = NULL;
-                } else {
-                    cont.yaxis.lab = rownames(continuous.phenotypes.df);
-                }
+            # test.continuous.phenotypes.df <- rbind(continuous.phenotypes.df, continuous.phenotypes.df);
+            # test.continuous.phenotypes.df$sample6 <- rep('#BFF2F3', 2)
 
+            cont.pheno.na.coords <- get.na.coordinates.for.heatmap(continuous.phenotypes.df);
             continuous.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
                 x = continuous.phenotypes.df,
                 input.colours = TRUE,
                 clustering.method = 'none',
                 same.as.matrix = TRUE,
                 print.colour.key = FALSE,
-                yaxis.lab = cont.yaxis.lab,
+                #fill.colour = 'red',
+                cell.text = 'NA',
+                col.pos = cont.pheno.na.coords$col,
+                row.pos = cont.pheno.na.coords$row,
+                text.col = 'white',
+                text.cex = 0.5,
+                yaxis.lab = NULL,
                 ylab.cex = 1
                 # main.cex = titles.cex,
                 # ylab.cex = titles.cex,
