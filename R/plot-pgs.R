@@ -128,7 +128,29 @@ plot.pgs.density <- function(
                     yaxis.cex = yaxes.cex,
                     xaxis.cex = xaxes.cex,
                     lwd = 2,
-                    col = BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting))
+                    col = BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting)),
+                    # Legend
+                    legend = list(
+                        inside = list(
+                            fun = lattice::draw.key,
+                            args = list(
+                                key = list(
+                                    lines = list(
+                                        col = BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting)),
+                                        lwd = 2
+                                        ),
+                                    text = list(
+                                        lab = names(pgs.data.for.plotting)
+                                        ),
+                                    padding.text = c(0,5,0),
+                                    cex = 1
+                                    )
+                                ),
+                            x = 0.65,
+                            y = 0.97,
+                            draw = FALSE
+                            )
+                        )
                     );
                 }
 
