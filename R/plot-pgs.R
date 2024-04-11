@@ -79,7 +79,7 @@ plot.pgs.density <- function(
 
     # identify categorical phenotype variables for plotting
     if (!is.null(phenotype.columns)) {
-        phenotype.data <- pgs.data[ , phenotype.columns];
+        phenotype.data <- subset(pgs.data, select = phenotype.columns);
         phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
         phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$binary | phenotype.index.by.type$other);
         }
@@ -105,6 +105,15 @@ plot.pgs.density <- function(
         ### Density Plots by Phenotype ###
         if (!is.null(phenotype.columns)) {
             pgs.by.phenotype <- split.pgs.by.phenotype(pgs = pgs.data[ , pgs.column], phenotype.data = phenotype.data.for.plotting);
+
+            # remove phenotype categories with fewer than 2 samples
+            pgs.by.phenotype <- lapply(
+                X = pgs.by.phenotype,
+                FUN = function(x) {
+                    x <- x[sapply(x, length) > 1];
+                    }
+                );
+
             for (phenotype in names(pgs.by.phenotype)) {
                 pgs.data.for.plotting <- pgs.by.phenotype[[phenotype]];
 

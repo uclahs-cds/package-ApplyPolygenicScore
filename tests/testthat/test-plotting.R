@@ -114,3 +114,50 @@ test_that(
 
         }
     );
+
+test_that(
+    'plot.pgs.density runs correctily with user provided phenotypes', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # check handling of many phenotypes
+        expect_no_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-all-phenotypes'
+                )
+            );
+
+        # check handling of only continuous phenotype (not supposed to be plotted, how can I test for multipanel dimensions over a multipanel object?)
+        expect_no_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-continuous-phenotype'
+                )
+            );
+
+        test.filename.all.phenotypes <- generate.filename(
+            project.stem = 'TEST-all-phenotypes',
+            file.core = 'pgs-density',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename.all.phenotypes))
+            );
+
+        test.filename.continuous.phenotype <- generate.filename(
+            project.stem = 'TEST-continuous-phenotype',
+            file.core = 'pgs-density',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename.continuous.phenotype))
+            );
+
+        }
+    );
