@@ -276,11 +276,12 @@ plot.pgs.with.continuous.phenotype <- function(
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
 
     # identify continuous phenotype variables for plotting
+    phenotype.data <- subset(pgs.data, select = phenotype.columns);
     phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
     phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$continuous);
 
     if (length(phenotype.data.for.plotting) == 0) {
-        stop("No continuous phenotype variables detected");
+        stop('No continuous phenotype variables detected');
         }
 
     # Plotting
