@@ -1,5 +1,5 @@
 # utility function for checking PGS plotting inputs
-plotting.input.checks <- function(pgs.data, phenotype.columns) {
+plotting.input.checks <- function(pgs.data, phenotype.columns, filename.prefix = NULL) {
     # Check that pgs.data is a data.frame
     if (!is.data.frame(pgs.data)) {
         stop("pgs.data must be a data.frame");
