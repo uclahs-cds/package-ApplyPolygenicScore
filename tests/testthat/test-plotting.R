@@ -124,6 +124,27 @@ test_that(
     );
 
 test_that(
+    'plot.pgs.density runs correctly with tidy titles enabled', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # plot pgs density
+        expect_no_error(
+            plot.pgs.density(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                phenotype.columns = NULL,
+                output.dir = getwd(),#temp.dir,
+                filename.prefix = 'TEST-tidy-titles',
+                tidy.titles = TRUE
+                )
+            );
+
+        }
+    );
+
+
+test_that(
     'plot.pgs.density runs correctily with user provided phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
 

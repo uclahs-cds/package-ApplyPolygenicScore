@@ -59,6 +59,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
+#' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
 #' @param xaxes.cex numeric cex for all x-axis labels in inches
@@ -73,6 +74,7 @@ plot.pgs.density <- function(
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
+    tidy.titles = FALSE,
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
@@ -102,10 +104,17 @@ plot.pgs.density <- function(
         ### Single Density Plots ###
         pgs.data.for.plotting <- data.frame(pgs.data[ , pgs.column]);
 
+        # tidy titles
+        if (tidy.titles) {
+            pgs.column.main <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
+            } else {
+                pgs.column.main <- pgs.column;
+            }
+
         pgs.density.plots[[pgs.column]] <- BoutrosLab.plotting.general::create.densityplot(
             x = pgs.data.for.plotting,
             ylab.label = NULL,
-            main = pgs.column,
+            main = pgs.column.main,
             main.cex = titles.cex,
             yaxis.cex = yaxes.cex,
             xaxis.cex = xaxes.cex,
