@@ -6,15 +6,16 @@
 \usage{
 plot.pgs.density(
   pgs.data,
-  phenotype.columns,
-  output.dir = getwd(),
+  phenotype.columns = NULL,
+  output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
   width = 10,
   height = 10,
   xaxes.cex = 1.5,
   yaxes.cex = 1.5,
-  titles.cex = 1.5
+  titles.cex = 1.5,
+  border.padding = 1
 )
 }
 \arguments{
@@ -32,11 +33,13 @@ plot.pgs.density(
 
 \item{height}{numeric height of output plot in inches}
 
-\item{xaxes.cex}{numeric cex for x-axis labels}
+\item{xaxes.cex}{numeric cex for x-axis labels in inches}
 
-\item{yaxes.cex}{numeric cex for y-axis labels}
+\item{yaxes.cex}{numeric cex for y-axis labels in inches}
 
-\item{titles.cex}{numeric cex for plot titles}
+\item{titles.cex}{numeric cex for plot titles in inches}
+
+\item{border.padding}{numeric padding for plot borders}
 }
 \value{
 multipanel plot object
