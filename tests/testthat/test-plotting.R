@@ -2,7 +2,6 @@
 SKIP.PLOTS <- FALSE;
 SKIP.COMPREHENSIVE.CASES <- FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
-    # skip plotting tests if 
     if (skip.plots) {
         skip('Plotting tests disabled');
         }
@@ -65,6 +64,14 @@ test_that(
                 ),
             'phenotype.columns must be a subset of the column names in pgs.data'
             );
+        # check that phenotype.columns do not contain recognized PGS columns
+        expect_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                phenotype.columns = c('PGS.with.replaced.missing')
+                ),
+            'phenotype.columns cannot contain recognized PGS column names'
+            );
         # check that output.dir is a real directory
         expect_error(
             plot.pgs.density(
@@ -85,7 +92,7 @@ test_that(
         # plot pgs density
         expect_no_error(
             plot.pgs.density(
-                pgs.data = pgs.test,
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
                 filename.prefix = 'TEST'
@@ -116,8 +123,29 @@ test_that(
     );
 
 test_that(
+    'plot.pgs.density runs correctly with tidy titles enabled', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # plot pgs density
+        expect_no_error(
+            plot.pgs.density(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                phenotype.columns = NULL,
+                output.dir = getwd(),#temp.dir,
+                filename.prefix = 'TEST-tidy-titles',
+                tidy.titles = TRUE
+                )
+            );
+
+        }
+    );
+
+
+test_that(
     'plot.pgs.density runs correctily with user provided phenotypes', {
-        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 

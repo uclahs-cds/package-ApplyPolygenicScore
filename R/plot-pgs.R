@@ -2,7 +2,7 @@
 pgs.distribution.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
     # Check that pgs.data is a data.frame
     if (!is.data.frame(pgs.data)) {
-        stop("pgs.data must be a data.frame");
+        stop('pgs.data must be a data.frame');
         }
 
     # validate phenotype.columns
@@ -13,12 +13,17 @@ pgs.distribution.plotting.input.checks <- function(pgs.data, phenotype.columns, 
         if (!all(phenotype.columns %in% colnames(pgs.data))) {
             stop('phenotype.columns must be a subset of the column names in pgs.data');
             }
+        # check for collisions with recognized PGS columns
+        recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+        if (any(phenotype.columns %in% recognized.pgs.colnames)) {
+            stop('phenotype.columns cannot contain recognized PGS column names');
+            }
         }
 
     # Identify possible PGS columns
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     if (!any(recognized.pgs.colnames %in% colnames(pgs.data))) {
-        stop("No recognized PGS columns found in pgs.data");
+        stop('No recognized PGS columns found in pgs.data');
         }
 
     # validate output.dir
@@ -47,19 +52,21 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     }
 
 #' @title Plot PGS Density
-#' @description Create density plots for PGS data
+#' @description Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
+#' If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 #' @param pgs.data data.frame with PGS data
 #' @param phenotype.columns character vector of phenotype columns in pgs.data to plot (optional)
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
+#' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
-#' @param xaxes.cex numeric cex for x-axis labels in inches
-#' @param yaxes.cex numeric cex for y-axis labels in inches
-#' @param titles.cex numeric cex for plot titles in inches
+#' @param xaxes.cex numeric cex for all x-axis labels in inches
+#' @param yaxes.cex numeric cex for all y-axis labels in inches
+#' @param titles.cex numeric cex for all plot titles in inches
 #' @param border.padding numeric padding for plot borders
-#' @return multipanel plot object
+#' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
 #' @export
 plot.pgs.density <- function(
     pgs.data,
@@ -67,6 +74,7 @@ plot.pgs.density <- function(
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
+    tidy.titles = FALSE,
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
@@ -96,10 +104,17 @@ plot.pgs.density <- function(
         ### Single Density Plots ###
         pgs.data.for.plotting <- data.frame(pgs.data[ , pgs.column]);
 
+        # tidy titles
+        if (tidy.titles) {
+            pgs.column.main <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
+            } else {
+                pgs.column.main <- pgs.column;
+            }
+
         pgs.density.plots[[pgs.column]] <- BoutrosLab.plotting.general::create.densityplot(
             x = pgs.data.for.plotting,
             ylab.label = NULL,
-            main = pgs.column,
+            main = pgs.column.main,
             main.cex = titles.cex,
             yaxis.cex = yaxes.cex,
             xaxis.cex = xaxes.cex,
@@ -159,7 +174,7 @@ plot.pgs.density <- function(
                 }
 
             }
-        
+
         }
 
     # organize filename if plot writing requested

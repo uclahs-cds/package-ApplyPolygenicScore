@@ -1,53 +1,35 @@
-#' @title Apply polygenic score to VCF data
-#' @description Apply a polygenic score to VCF data.
-#' @param vcf.data A data.frame containing VCF genotype data.
-#' @param pgs.weight.data A data.frame containing PGS weight data.
-#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
-#' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
-#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
-#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
-#' @return A data.frame containing the PGS per sample.
-#' @export
-apply.polygenic.score <- function(
-    vcf.data,
-    pgs.weight.data,
-    phenotype.data = NULL,
-    phenotype.analysis.columns = NULL,
-    missing.genotype.method = 'mean.dosage',
-    use.external.effect.allele.frequency = FALSE,
-    n.percentiles = NULL
-    ) {
 
-    ### Start Input Validation ###
+validate.vcf.input <- function(vcf.data) {
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {
         stop('vcf.data must be a data.frame');
         }
-    if (!is.data.frame(pgs.weight.data)) {
-        stop('pgs.weight.data must be a data.frame');
-        }
-    # if provided, phenotype data must be a data.frame
-    if (!is.null(phenotype.data) && !is.data.frame(phenotype.data)) {
-        stop('phenotype.data must be a data.frame')
-        }
 
-    # check that inputs contain required columns for PGS application
+    # check that vcf.data contains required columns
     required.vcf.columns <- c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles');
-    required.pgs.columns <- c('CHROM', 'POS', 'effect_allele', 'beta');
-    required.phenotype.columns <- 'Indiv';
+
     if (!all(required.vcf.columns %in% colnames(vcf.data))) {
         stop('vcf.data must contain columns named CHROM, POS, REF, ALT, Indiv, and gt_GT_alleles');
         }
-    if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
-        stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
-        }
-    if (!is.null(phenotype.data) && !all(required.phenotype.columns %in% colnames(phenotype.data))) {
-        stop('phenotype.data must contain columns named Indiv')
+
+    # check that all samples have variant data represented for all variants
+    n.samples <- length(unique(vcf.data$Indiv));
+    n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
+    if (nrow(vcf.data) != n.samples * n.variants) {
+        stop('Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.');
         }
 
-    # check for at least one matching Indiv between phenotype.data and vcf.data
-    if (!is.null(phenotype.data) && length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
-        stop('No matching Indiv between phenotype.data and vcf.data');
+    }
+
+validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.frequency) {
+    if (!is.data.frame(pgs.weight.data)) {
+        stop('pgs.weight.data must be a data.frame');
+        }
+
+    required.pgs.columns <- c('CHROM', 'POS', 'effect_allele', 'beta');
+
+    if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
+        stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
         }
 
     if (use.external.effect.allele.frequency) {
@@ -66,13 +48,68 @@ apply.polygenic.score <- function(
     if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
         warning('Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.');
         }
+    }
 
-    # check that all samples have variant data represented for all variants
-    n.samples <- length(unique(vcf.data$Indiv));
-    n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
-    if (nrow(vcf.data) != n.samples * n.variants) {
-        stop('Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.');
-        }
+validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.columns, vcf.data) {
+    if (!is.null(phenotype.data)) {
+        if (!is.data.frame(phenotype.data)) {
+            stop('phenotype.data must be a data.frame');
+            }
+
+        required.phenotype.columns <- 'Indiv';
+
+        if (!all(required.phenotype.columns %in% colnames(phenotype.data))) {
+            stop('phenotype.data must contain columns named Indiv');
+            }
+
+        # check for at least one matching Indiv between phenotype.data and vcf.data
+        if (length(intersect(phenotype.data$Indiv, vcf.data$Indiv)) == 0) {
+            stop('No matching Indiv between phenotype.data and vcf.data');
+            }
+
+        # validate phenotype.analysis.columns if provided
+        if (!is.null(phenotype.analysis.columns)) {
+            if (!all(phenotype.analysis.columns %in% colnames(phenotype.data))) {
+                stop('phenotype.analysis.columns must be columns in phenotype.data');
+                }
+            }
+
+        } else if (!is.null(phenotype.analysis.columns)) {
+            stop('phenotype.analysis.columns provided but no phenotype data detected');
+            }
+
+    }
+
+#' @title Apply polygenic score to VCF data
+#' @description Apply a polygenic score to VCF data.
+#' @param vcf.data A data.frame containing VCF genotype data.
+#' @param pgs.weight.data A data.frame containing PGS weight data.
+#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
+#' @param phenotype.analysis.columns A character vector of phenotype columns to analyze. Default is NULL.
+#' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
+#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
+#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
+#' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
+#' When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.
+#' @return A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
+#' @export
+apply.polygenic.score <- function(
+    vcf.data,
+    pgs.weight.data,
+    phenotype.data = NULL,
+    phenotype.analysis.columns = NULL,
+    missing.genotype.method = 'mean.dosage',
+    use.external.effect.allele.frequency = FALSE,
+    n.percentiles = NULL,
+    analysis.source.pgs = NULL
+    ) {
+
+    ### Start Input Validation ###
+
+    validate.vcf.input(vcf.data = vcf.data);
+    validate.pgs.data.input(pgs.weight.data = pgs.weight.data, use.external.effect.allele.frequency = use.external.effect.allele.frequency);
+    validate.phenotype.data.input(phenotype.data = phenotype.data, phenotype.analysis.columns = phenotype.analysis.columns, vcf.data = vcf.data);
+
 
     # check missing genotype method input
     if (all(missing.genotype.method %in% c('mean.dosage', 'normalize', 'none'))) {
@@ -82,6 +119,28 @@ apply.polygenic.score <- function(
         }
     if ('none' %in% missing.genotype.method && length(missing.genotype.method) > 1) {
         stop('If "none" is included in missing.genotype.method, it must be the only method included');
+        }
+
+    # check that n.percentiles is a mathematical integer
+    if (!is.null(n.percentiles) && (n.percentiles %% 1 != 0)) {
+        stop('n.percentiles must be an integer');
+        }
+
+    # check that analysis.source.pgs is NULL or a character string representing a missing genotype method
+    if (!is.null(analysis.source.pgs)) {
+        if (length(analysis.source.pgs) > 1) {
+            stop('analysis.source.pgs must be one of the chosen missing genotype methods');
+            }
+        if (!(analysis.source.pgs %in% missing.genotype.method)) {
+            stop('analysis.source.pgs must be one of the chosen missing genotype methods');
+            }
+        if (length(missing.genotype.method) == 1) {
+            # if only one PGS method will be applied, overwrite analysis.source.pgs to NULL
+            analysis.source.pgs <- NULL;
+            }
+        } else if (length(missing.genotype.method) > 1) {
+        # if more than one PGS method will be applied, set analysis.source.pgs to the mean.dosage source
+        analysis.source.pgs <- 'mean.dosage';
         }
 
     ### End Input Validation ###
@@ -100,7 +159,6 @@ apply.polygenic.score <- function(
         );
 
     ### Start Missing Genotype Handling ###
-
     # create sample by variant dosage matrix
     variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
     dosage.matrix <- get.variant.by.sample.matrix(
@@ -184,11 +242,18 @@ apply.polygenic.score <- function(
         value.var = 'dosage'
         );
     per.sample.missing.genotype.count <- colSums(is.na(biallelic.snp.by.sample.matrix));
+
     ### End Missing SNP Count ###
 
     ### Start PGS Application ###
     # calculate PGS per sample
     pgs.output.list <- list();
+
+    missing.method.to.colname.ref <- c(
+        'mean.dosage' = 'PGS.with.replaced.missing',
+        'normalize' = 'PGS.with.normalized.missing',
+        'none' = 'PGS'
+        );
 
     if ('none' %in% missing.genotype.method) {
         pgs.per.sample <- aggregate(
@@ -230,6 +295,7 @@ apply.polygenic.score <- function(
                 }
 
         }
+
     ### End PGS Application ###
 
     # format output
@@ -241,12 +307,23 @@ apply.polygenic.score <- function(
     Indiv <- pgs.output.list[[1]]$Indiv;
     pgs.output <- cbind(Indiv, PGS.cols);
 
+    # retrieve pgs for statisitical analyses
+    if (is.null(analysis.source.pgs)) {
+        pgs.for.stats <- pgs.output[ ,2] # first available score
+        } else {
+        pgs.for.stats <- pgs.output[ ,missing.method.to.colname.ref[analysis.source.pgs]];
+        }
+
     # calculate percentiles
-    percentiles <- get.pgs.percentiles(pgs = pgs.output[ ,2], n.percentiles = n.percentiles); # calculate percentiles on first available score
+    percentiles <- get.pgs.percentiles(pgs = pgs.for.stats, n.percentiles = n.percentiles);
+
     pgs.output <- cbind(pgs.output, percentiles);
 
     # add missing genotype count
     pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
+
+    # initialize regression output
+    regression.output <- NULL;
 
     # merge PGS data with phenotype data by Indiv column
     if (!is.null(phenotype.data)) {
@@ -257,21 +334,23 @@ apply.polygenic.score <- function(
             all.x = TRUE,
             all.y = TRUE
             );
+
+        ### Begin Phenotype Analysis ###
+
+        if (!is.null(phenotype.analysis.columns)) {
+            regression.output <- run.pgs.regression(
+                pgs = pgs.for.stats,
+                phenotype.data = subset(phenotype.data, select = phenotype.analysis.columns)
+                );
+            }
+        ### End Phenotype Analysis ###
+
         }
 
-    ### Begin Phenotype Analysis ###
-    if (!is.null(phenotype.analysis.columns)) {
-        # perform linear regression between PGS and each indicated phenotype column in phenotype.data
-        # report beta, se, p-value, and R^2
-        phenotype.regression.data <- run.pgs.regression(
-            pgs.output = pgs.output,
-            phenotype.analysis.columns = phenotype.analysis.columns
-            );
+    final.output <- list(
+        pgs.output = pgs.output,
+        regression.output = regression.output
+        );
 
-        }
-
-
-    ### End Phenotype Analysis ###
-
-    return(pgs.output);
+    return(final.output);
     }
