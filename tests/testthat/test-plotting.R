@@ -255,3 +255,43 @@ test_that(
             );
         }
     );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs with no error with basic inputs', {
+        #skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        # check returned object
+        test.plot.object <- plot.pgs.with.continuous.phenotype(
+            pgs.data = pgs.test,
+            phenotype.columns = 'continuous.phenotype',
+            filename.prefix = 'TEST',
+            output.dir = NULL
+            );
+        expect_equal(
+            class(test.plot.object),
+            'multipanel'
+            );
+
+        }
+    );
