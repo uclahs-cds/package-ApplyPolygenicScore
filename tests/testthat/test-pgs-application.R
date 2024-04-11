@@ -1,7 +1,10 @@
+PGS.OUTPUT.INDEX <- 1;
+REGRESSION.OUTPUT.INDEX <- 2;
 test_that(
     'apply.polygenic.score correctly checks inputs', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
+        test.phenotype.data <- data.frame(Indiv = c('HG001', '2:HG001'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1));
 
         # check that only data frame inputs are accepted
         expect_error(
@@ -45,6 +48,91 @@ test_that(
                 missing.genotype.method = c('mean.dosage', 'none')
                 ),
             'If "none" is included in missing.genotype.method, it must be the only method included'
+            );
+
+        # check that analysis.source.pgs input is correct
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                analysis.source.pgs = c('mean.dosage', 'normalize')
+                ),
+            'analysis.source.pgs must be one of the chosen missing genotype methods'
+            );
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                analysis.source.pgs = 'not a valid method'
+                ),
+            'analysis.source.pgs must be one of the chosen missing genotype methods'
+            );
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                missing.genotype.method = 'normalize',
+                analysis.source.pgs = 'mean.dosage'
+                ),
+            'analysis.source.pgs must be one of the chosen missing genotype methods'
+            );
+        expect_no_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                analysis.source.pgs = 'mean.dosage'
+                )
+            );
+
+        # check that phenotype data input is correct
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = 'not a data frame'
+                ),
+            'phenotype.data must be a data.frame'
+            );
+
+        # check for matching samples between phenotype and vcf data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = data.frame(Indiv = c('sample11'))
+                ),
+            'No matching Indiv between phenotype.data and vcf.data'
+            );
+
+        # check required columns in phenotype data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = subset(test.phenotype.data, select = -Indiv)
+                ),
+            'phenotype.data must contain columns named Indiv'
+            );
+
+        # check for correct phenotype analysis columns
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = test.phenotype.data,
+                phenotype.analysis.columns = c('not a valid column')
+                ),
+            'phenotype.analysis.columns must be columns in phenotype.data'
+            );
+
+        # check for missing phenotype data
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.analysis.columns = 'continuous.phenotype'
+                ),
+            'phenotype.analysis.columns provided but no phenotype data detected'
             );
 
         # check that required columns are present
@@ -113,7 +201,37 @@ test_that(
     );
 
 test_that(
-    'apply.polygenic.score correctly formats outputs', {
+    'apply.polygenic.score correctly formats general output', {
+        load('data/simple.pgs.application.test.data.Rda')
+        test.pgs.per.sample <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+
+        # check that output is a list
+        expect_equal(
+            class(test.pgs.per.sample),
+            'list'
+            );
+
+        # check that output has correct number of elements
+        expect_equal(
+            length(test.pgs.per.sample),
+            2
+            );
+
+        # check that output has correct names
+        output.names <- c('pgs.output', 'regression.output');
+        expect_equal(
+            names(test.pgs.per.sample),
+            output.names
+            );
+
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly formats pgs output', {
         load('data/simple.pgs.application.test.data.Rda')
         test.pgs.per.sample <- apply.polygenic.score(
             vcf.data = simple.pgs.application.test.data$vcf.data,
@@ -122,21 +240,62 @@ test_that(
 
         # check that output is a data.frame
         expect_s3_class(
-            test.pgs.per.sample,
+            test.pgs.per.sample[[PGS.OUTPUT.INDEX]],
             'data.frame'
             );
 
         # check that output has correct number of rows and columns
         expect_equal(
-            nrow(test.pgs.per.sample),
+            nrow(test.pgs.per.sample[[PGS.OUTPUT.INDEX]]),
             2
             );
         expect_equal(
-            ncol(test.pgs.per.sample),
+            ncol(test.pgs.per.sample[[PGS.OUTPUT.INDEX]]),
             6
             );
         }
     );
+
+test_that(
+    'apply.polygenic.score correctly formats regression output', {
+        load('data/simple.pgs.application.test.data.Rda')
+        test.pgs.per.sample.with.phenotype <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data,
+            phenotype.data = data.frame(Indiv = c('sample1', 'sample2'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1)),
+            phenotype.analysis.columns = c('continuous.phenotype', 'binary.phenotype')
+            );
+
+        # check that output is a data.frame
+        expect_s3_class(
+            test.pgs.per.sample.with.phenotype[[REGRESSION.OUTPUT.INDEX]],
+            'data.frame'
+            );
+
+        # check that output has correct number of rows and columns
+        expect_equal(
+            nrow(test.pgs.per.sample.with.phenotype[[REGRESSION.OUTPUT.INDEX]]),
+            2
+            );
+        expect_equal(
+            ncol(test.pgs.per.sample.with.phenotype[[REGRESSION.OUTPUT.INDEX]]),
+            7
+            );
+
+        # check NULL output when no phenotype data is provided
+        test.pgs.per.sample.no.phenotype <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$vcf.data,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+
+        expect_equal(
+            test.pgs.per.sample.no.phenotype[[REGRESSION.OUTPUT.INDEX]],
+            NULL
+            );
+
+        }
+    );
+
 
 test_that(
     'apply.polygenic.score correctly calculates pgs', {
@@ -148,11 +307,11 @@ test_that(
 
         # check that output is correct
         expect_equal(
-            test.pgs.per.sample$Indiv,
+            test.pgs.per.sample[[PGS.OUTPUT.INDEX]]$Indiv,
             c('sample1', 'sample2')
             );
         expect_equal(
-            test.pgs.per.sample$PGS,
+            test.pgs.per.sample[[PGS.OUTPUT.INDEX]]$PGS,
             c(1, 3)
             );
         }
@@ -167,7 +326,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$ref.as.single.risk.allele.multiallelic.pgs.weight.data
             );
         expect_equal(
-            ref.as.single.risk.allele.test$PGS,
+            ref.as.single.risk.allele.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(4, 3, 0)
             );
 
@@ -177,7 +336,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data
             );
         expect_equal(
-            alt.as.single.risk.allele.test$PGS,
+            alt.as.single.risk.allele.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(2, 1, 2)
             );
         expect_no_warning(
@@ -193,7 +352,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data
             );
         expect_equal(
-            alt.as.two.risk.alleles.test$PGS,
+            alt.as.two.risk.alleles.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(2, 1.5, 3)
             );
         expect_warning(
@@ -210,7 +369,7 @@ test_that(
             pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
             );
         expect_equal(
-            ref.and.alt.as.two.risk.alleles.test$PGS,
+            ref.and.alt.as.two.risk.alleles.test[[PGS.OUTPUT.INDEX]]$PGS,
             c(2, 1.5, 2)
             );
         expect_warning(
@@ -239,7 +398,14 @@ test_that(
         test.missing.genotype.both <- apply.polygenic.score(
             vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
             pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
-            missing.genotype.method = c('mean.dosage', 'normalize')
+            missing.genotype.method = c('mean.dosage', 'normalize'),
+            analysis.source.pgs = 'mean.dosage'
+            );
+        test.missing.genotype.both.percentile.check <- apply.polygenic.score(
+            vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
+            pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
+            missing.genotype.method = c('mean.dosage', 'normalize'),
+            analysis.source.pgs = 'normalize'
             );
         test.missing.genotype.none <- apply.polygenic.score(
             vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
@@ -250,59 +416,70 @@ test_that(
         # check column names
         percentile.colnames <- c('percentile', 'decile', 'quartile');
         expect_equal(
-            colnames(test.missing.genotype.mean.dosage),
+            colnames(test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
-            colnames(test.missing.genotype.normalize),
+            colnames(test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS.with.normalized.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
-            colnames(test.missing.genotype.both),
+            colnames(test.missing.genotype.both[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
             );
         expect_equal(
-            colnames(test.missing.genotype.none),
+            colnames(test.missing.genotype.none[[PGS.OUTPUT.INDEX]]),
             c('Indiv', 'PGS', percentile.colnames, 'n.missing.genotypes')
             );
 
-        # check missing genotype handling
+        # check that PGS values are calculated correctly
         expect_equal(
-            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
             );
         expect_equal(
-            test.missing.genotype.normalize$PGS.with.normalized.missing,
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$PGS.with.normalized.missing,
             c(1 / 6, 4 / 6, NA, 0.5)
             );
         expect_equal(
-            test.missing.genotype.both$PGS.with.normalized.missing,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$PGS.with.normalized.missing,
             c(1 / 6, 4 / 6, NA, 0.5)
             );
         expect_equal(
-            test.missing.genotype.both$PGS.with.replaced.missing,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
             c(1, 4, 2.5, 2.5)
             );
         expect_equal(
-            test.missing.genotype.none$PGS,
+            test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$PGS,
             c(1, 4, 0, 2)
             );
 
+        # check that percentiles are calculated correctly
+        expect_equal(
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$percentile,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$percentile
+            );
+        expect_equal(
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$percentile,
+            test.missing.genotype.both.percentile.check[[PGS.OUTPUT.INDEX]]$percentile
+            );
+
+
         # check missing genotype counts
         expect_equal(
-            test.missing.genotype.mean.dosage$n.missing.genotypes,
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         expect_equal(
-            test.missing.genotype.normalize$n.missing.genotypes,
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         expect_equal(
-            test.missing.genotype.both$n.missing.genotypes,
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         expect_equal(
-            test.missing.genotype.none$n.missing.genotypes,
+            test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
         }
@@ -321,7 +498,7 @@ test_that(
             );
 
         expect_equal(
-            test.missing.genotype.mean.dosage$PGS.with.replaced.missing,
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
             c(1, 4, 3, 3.5)
             );
         }
@@ -379,23 +556,23 @@ test_that(
 
         # check that output is a data.frame
         expect_s3_class(
-            test.phenotype.output,
+            test.phenotype.output[[PGS.OUTPUT.INDEX]],
             'data.frame'
             );
 
         # check for the correct column names
         expect_true(
-            all(c(colnames(phenotype.test.data), 'PGS') %in% colnames(test.phenotype.output))
+            all(c(colnames(phenotype.test.data), 'PGS') %in% colnames(test.phenotype.output[[PGS.OUTPUT.INDEX]]))
             );
 
         # check that phenotype values are correctly matched to samples
         expect_equal(
-            test.phenotype.output$continuous.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output$Indiv)],
+            test.phenotype.output[[PGS.OUTPUT.INDEX]]$continuous.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output[[PGS.OUTPUT.INDEX]]$Indiv)],
             phenotype.test.data$phenotype.data$continuous.phenotype
             );
 
         expect_equal(
-            test.phenotype.output$binary.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output$Indiv)],
+            test.phenotype.output[[PGS.OUTPUT.INDEX]]$binary.phenotype[match(phenotype.test.data$phenotype.data$Indiv, test.phenotype.output[[PGS.OUTPUT.INDEX]]$Indiv)],
             phenotype.test.data$phenotype.data$binary.phenotype
             );
 
@@ -406,6 +583,7 @@ test_that(
     'apply.polygenic.score works correctly on real data', {
         test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
+        test.phenotype.data <- data.frame(Indiv = c('HG001', '2:HG001'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1));
 
         expect_no_error(
             apply.polygenic.score(
@@ -419,6 +597,15 @@ test_that(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
                 n.percentiles = 5
+                )
+            )
+
+        expect_no_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                phenotype.data = test.phenotype.data,
+                phenotype.analysis.columns = c('continuous.phenotype')
                 )
             )
 

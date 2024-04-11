@@ -7,3 +7,4 @@ importFrom(
     );
 import('reshape2');
 import('BoutrosLab.plotting.general');
+import('pROC');
