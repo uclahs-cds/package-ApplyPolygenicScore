@@ -58,6 +58,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param xaxes.cex numeric cex for x-axis labels
 #' @param yaxes.cex numeric cex for y-axis labels
 #' @param titles.cex numeric cex for plot titles
+#' @param border.padding numeric padding for plot borders
 #' @return multipanel plot object
 plot.pgs.density <- function(
     pgs.data,
@@ -69,7 +70,8 @@ plot.pgs.density <- function(
     height = 10,
     xaxes.cex = 1.5,
     yaxes.cex = 1.5,
-    titles.cex = 1.5
+    titles.cex = 1.5,
+    border.padding = 1
     ) {
     # check input
     pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);    
@@ -93,10 +95,9 @@ plot.pgs.density <- function(
 
         pgs.density.plots[[pgs.column]] <- BoutrosLab.plotting.general::create.densityplot(
             x = pgs.data.for.plotting,
-            ylab.label = 'Density',
+            ylab.label = NULL,
             main = pgs.column,
             main.cex = titles.cex,
-            ylab.cex = titles.cex,
             yaxis.cex = yaxes.cex,
             xaxis.cex = xaxes.cex,
             lwd = 2
@@ -120,10 +121,9 @@ plot.pgs.density <- function(
                 pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
                     x = pgs.data.for.plotting,
                     xlab.label = phenotype,
-                    ylab.label = 'Density',
+                    ylab.label = NULL,
                     main = '',
                     main.cex = 0,
-                    ylab.cex = titles.cex,
                     xlab.cex = titles.cex,
                     yaxis.cex = yaxes.cex,
                     xaxis.cex = xaxes.cex,
@@ -181,12 +181,21 @@ plot.pgs.density <- function(
         density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
             plot.objects = c(pgs.density.plots, pgs.density.by.phenotype.plots),
             filename = output.path,
-            layout.height = 1 + length(pgs.density.by.phenotype.plots),
+            layout.height = 1 + length(pgs.by.phenotype),
             layout.width = length(pgs.density.plots),
             main = '',
             main.cex = 0,
+            ylab.label = 'Density',
+            ylab.cex = titles.cex,
+            ylab.axis.padding = -5,
             width = width,
-            height = height
+            height = height,
+            x.spacing = 1.5,
+            y.spacing = 0,
+            left.padding = border.padding,
+            right.padding = border.padding,
+            bottom.padding = border.padding,
+            top.padding = border.padding
             );
         } else {
             density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
@@ -196,8 +205,17 @@ plot.pgs.density <- function(
                 layout.width = length(pgs.density.plots),
                 main = '',
                 main.cex = 0,
+                ylab.label = 'Density',
+                ylab.cex = titles.cex,
+                ylab.axis.padding = -5,
                 width = width,
-                height = height
+                height = height,
+                x.spacing = 1.5,
+                y.spacing = 0,
+                left.padding = border.padding,
+                right.padding = border.padding,
+                bottom.padding = border.padding,
+                top.padding = border.padding
                 );
 
         }
