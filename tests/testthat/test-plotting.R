@@ -20,14 +20,61 @@ pgs.test <- apply.polygenic.score(
     missing.genotype.method = c('mean.dosage', 'normalize'),
     n.percentiles = 2
     );
-    # add missing genotpye counts
-    pgs.test$n.missing.genotypes <- sample(1:10, nrow(pgs.test), replace = TRUE);
-    # add some missing data
-    pgs.test$continuous.phenotype[1:2] <- NA;
-    pgs.test$binary.phenotype[2:3] <- NA;
-    pgs.test$categorical.phenotype[3:4] <- NA;
-    pgs.test$decile[4:5] <- NA;
-    pgs.test$percentile[5:6] <- NA;
+# add missing genotpye counts
+pgs.test$n.missing.genotypes <- sample(1:10, nrow(pgs.test), replace = TRUE);
+# add some missing data
+pgs.test$continuous.phenotype[1:2] <- NA;
+pgs.test$binary.phenotype[2:3] <- NA;
+pgs.test$categorical.phenotype[3:4] <- NA;
+pgs.test$decile[4:5] <- NA;
+pgs.test$percentile[4:5] <- NA;
+
+test_that(
+    'plot.pgs.density correctly validates inputs', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        # check that input data is a data frame
+        expect_error(
+            plot.pgs.density(
+                pgs.data = list()
+                ),
+            'pgs.data must be a data.frame'
+            );
+
+        # check that the required columns are present
+        expect_error(
+            plot.pgs.density(
+                pgs.data = data.frame(not.recognized.PGS.colum = 1:10)
+                ),
+            'No recognized PGS columns found in pgs.data'
+            );
+
+        # check that phenotype.columns is a character vector
+        expect_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                phenotype.columns = c(1,2,3)
+                ),
+            'phenotype.columns must be a character vector'
+            );
+        # check that phenotype.columns are present in pgs.data
+        expect_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                phenotype.columns = c('missing.phenotype')
+                ),
+            'phenotype.columns must be a subset of the column names in pgs.data'
+            );
+        # check that output.dir is a real directory
+        expect_error(
+            plot.pgs.density(
+                pgs.data = pgs.test,
+                output.dir = 'not/a/real/directory'
+                ),
+            'not/a/real/directory does not exist'
+            );
+        }
+    );
 
 test_that(
     'plot.pgs.density runs with no error', {

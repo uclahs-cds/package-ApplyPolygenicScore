@@ -1,18 +1,18 @@
 # utility function for checking PGS plotting inputs
-plotting.input.checks <- function(pgs.data, phenotype.columns, filename.prefix = NULL) {
+pgs.distribution.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
     # Check that pgs.data is a data.frame
     if (!is.data.frame(pgs.data)) {
         stop("pgs.data must be a data.frame");
         }
 
-    # Check that phenotype.columns is a character vector
-    if (!is.null(phenotype.columns) && !is.character(phenotype.columns)) {
-        stop("phenotype.columns must be a character vector");
-        }
-
-    # Check that phenotype.columns are in pgs.data
-    if (!all(phenotype.columns %in% colnames(pgs.data))) {
-        stop("phenotype.columns must be in pgs.data");
+    # validate phenotype.columns
+    if (!is.null(phenotype.columns)) {
+        if (!is.character(phenotype.columns)) {
+            stop('phenotype.columns must be a character vector');
+            }
+        if (!all(phenotype.columns %in% colnames(pgs.data))) {
+            stop('phenotype.columns must be a subset of the column names in pgs.data');
+            }
         }
 
     # Identify possible PGS columns
@@ -20,6 +20,12 @@ plotting.input.checks <- function(pgs.data, phenotype.columns, filename.prefix =
     if (!any(recognized.pgs.colnames %in% colnames(pgs.data))) {
         stop("No recognized PGS columns found in pgs.data");
         }
+
+    # validate output.dir
+    if (!is.null(output.dir) && !dir.exists(output.dir)) {
+        stop(paste0(output.dir), ' does not exist');
+        }
+
     }
 
 # utility function that formats PGS data for plotting in density plots
@@ -55,8 +61,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @return multipanel plot object
 plot.pgs.density <- function(
     pgs.data,
-    phenotype.columns,
-    output.dir = getwd(),
+    phenotype.columns = NULL,
+    output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
     width = 10,
@@ -66,7 +72,7 @@ plot.pgs.density <- function(
     titles.cex = 1.5
     ) {
     # check input
-    plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns);    
+    pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);    
 
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
