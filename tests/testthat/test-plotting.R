@@ -125,7 +125,7 @@ test_that(
 
 test_that(
     'plot.pgs.density runs correctly with tidy titles enabled', {
-        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
@@ -146,7 +146,7 @@ test_that(
 
 test_that(
     'plot.pgs.density runs correctily with user provided phenotypes', {
-        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
