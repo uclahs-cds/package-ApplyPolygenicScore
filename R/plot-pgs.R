@@ -55,11 +55,12 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param file.extension character file extension for output plots
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
-#' @param xaxes.cex numeric cex for x-axis labels
-#' @param yaxes.cex numeric cex for y-axis labels
-#' @param titles.cex numeric cex for plot titles
+#' @param xaxes.cex numeric cex for x-axis labels in inches
+#' @param yaxes.cex numeric cex for y-axis labels in inches
+#' @param titles.cex numeric cex for plot titles in inches
 #' @param border.padding numeric padding for plot borders
 #' @return multipanel plot object
+#' @export
 plot.pgs.density <- function(
     pgs.data,
     phenotype.columns = NULL,
@@ -74,8 +75,9 @@ plot.pgs.density <- function(
     border.padding = 1
     ) {
     # check input
-    pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);    
+    pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
+    # identify PGS columns
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
 
@@ -89,6 +91,7 @@ plot.pgs.density <- function(
     # Plotting
     pgs.density.plots <- list();
     pgs.density.by.phenotype.plots <- list();
+    # iterate over PGS inputs
     for (pgs.column in pgs.columns) {
         ### Single Density Plots ###
         pgs.data.for.plotting <- data.frame(pgs.data[ , pgs.column]);
@@ -107,7 +110,7 @@ plot.pgs.density <- function(
         if (!is.null(phenotype.columns)) {
             pgs.by.phenotype <- split.pgs.by.phenotype(pgs = pgs.data[ , pgs.column], phenotype.data = phenotype.data.for.plotting);
 
-            # remove phenotype categories with fewer than 2 samples
+            # remove phenotype categories containing fewer than 2 samples
             pgs.by.phenotype <- lapply(
                 X = pgs.by.phenotype,
                 FUN = function(x) {
@@ -115,6 +118,7 @@ plot.pgs.density <- function(
                     }
                 );
 
+            # iterate over phenotype variables
             for (phenotype in names(pgs.by.phenotype)) {
                 pgs.data.for.plotting <- pgs.by.phenotype[[phenotype]];
 
