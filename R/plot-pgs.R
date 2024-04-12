@@ -266,6 +266,7 @@ plot.pgs.with.continuous.phenotype <- function(
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
+    tidy.titles = FALSE,
     compute.correlation = TRUE,
     corr.legend.corner = c(0,1),
     corr.legend.cex = 1.5,
@@ -298,6 +299,13 @@ plot.pgs.with.continuous.phenotype <- function(
 
         for (pgs.column in pgs.columns) {
 
+            # handle tidy titles
+            if (tidy.titles) {
+                pgs.column.label <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
+                } else {
+                    pgs.column.label <- pgs.column;
+                }
+
             # handle correlation key
             if (compute.correlation) {
                 correlation.legend <- list(
@@ -326,7 +334,7 @@ plot.pgs.with.continuous.phenotype <- function(
                 data = phenotype.data.for.plotting,
                 type = 'p',
                 cex = point.cex,
-                xlab.label = pgs.column,
+                xlab.label = pgs.column.label,
                 ylab.label = phenotype,
                 main = '',
                 main.cex = 0,

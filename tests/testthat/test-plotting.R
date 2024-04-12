@@ -306,7 +306,7 @@ test_that(
         # plot pgs with continuous phenotype
         expect_no_error(
             plot.pgs.with.continuous.phenotype(
-                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                pgs.data = pgs.test,
                 phenotype.columns = 'continuous.phenotype',
                 output.dir = temp.dir,
                 filename.prefix = 'TEST-no-correlation',
@@ -321,6 +321,26 @@ test_that(
             );
         expect_true(
             file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs correctly with tidy titles enabled', {
+        #skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-tidy-titles',
+                tidy.titles = TRUE
+                )
             );
 
         }
