@@ -249,11 +249,15 @@ plot.pgs.density <- function(
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
+#' @param compute.correlation logical whether to compute correlation between PGS and phenotype and display in plot
+#' @param corr.legend.corner numeric vector indicating the corner of the correlation legend e.g. c(0,1) for top left
+#' @param corr.legend.cex numeric cex for correlation legend
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
 #' @param xaxes.cex numeric cex for x-axis labels
 #' @param yaxes.cex numeric cex for y-axis labels
 #' @param titles.cex numeric cex for plot titles
+#' @param point.cex numeric cex for plot points
 #' @return multipanel plot object
 #' @export
 plot.pgs.with.continuous.phenotype <- function(
@@ -262,11 +266,15 @@ plot.pgs.with.continuous.phenotype <- function(
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
+    compute.correlation = TRUE,
+    corr.legend.corner = c(0,1),
+    corr.legend.cex = 1.5,
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
     yaxes.cex = 1.5,
     titles.cex = 1.5,
+    point.cex = 0.75,
     border.padding = 1
     ) {
     # check input
@@ -290,14 +298,40 @@ plot.pgs.with.continuous.phenotype <- function(
 
         for (pgs.column in pgs.columns) {
 
+            # handle correlation key
+            if (compute.correlation) {
+                correlation.legend <- list(
+                    inside = list(
+                        fun = lattice::draw.key,
+                        args = list(
+                            key = get.corr.key(
+                                x = pgs.data[ , pgs.column],
+                                y = phenotype.data.for.plotting[ , phenotype],
+                                label.items = c('spearman', 'spearman.p'),
+                                alpha.background = 0,
+                                key.cex = corr.legend.cex
+                                )
+                            ),
+                    #x = 0.04,
+                    #y = 0.97,
+                    corner = corr.legend.corncer c(1,1)
+                    )
+                );
+                } else {
+                    correlation.legend <- NULL;
+                }
+
             pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
                 formula = as.formula(paste0(phenotype, ' ~ pgs.data[, pgs.column]')),
                 data = phenotype.data.for.plotting,
                 type = 'p',
+                cex = point.cex,
                 xlab.label = pgs.column,
                 ylab.label = phenotype,
                 main = '',
                 main.cex = 0,
+                # Correlation Legend
+                legend = correlation.legend,
                 ylab.cex = titles.cex,
                 xlab.cex = titles.cex,
                 yaxis.cex = yaxes.cex,
