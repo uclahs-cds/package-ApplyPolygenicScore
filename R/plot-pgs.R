@@ -330,8 +330,8 @@ plot.pgs.with.continuous.phenotype <- function(
                 }
 
             pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
-                formula = as.formula(paste0(phenotype, ' ~ pgs.data[, pgs.column]')),
-                data = phenotype.data.for.plotting,
+                formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
+                data = pgs.data,
                 type = 'p',
                 cex = point.cex,
                 xlab.label = pgs.column.label,
@@ -385,4 +385,5 @@ plot.pgs.with.continuous.phenotype <- function(
         top.padding = border.padding
         );
 
+    return(scatterplot.multipanel);
     }

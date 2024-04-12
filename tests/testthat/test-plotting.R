@@ -1,5 +1,5 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- TRUE;
+SKIP.PLOTS <- FALSE;
 SKIP.COMPREHENSIVE.CASES <- FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     if (skip.plots) {
@@ -193,7 +193,7 @@ test_that(
 
 test_that(
     'plot.pgs.with.continuous.phenotype correctly validates inputs', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # check that input data is a data frame
         expect_error(
@@ -259,7 +259,7 @@ test_that(
 
 test_that(
     'plot.pgs.with.continuous.phenotype runs with no error with basic inputs', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
@@ -284,7 +284,7 @@ test_that(
 
         # check returned object
         test.plot.object <- plot.pgs.with.continuous.phenotype(
-            pgs.data = pgs.test,
+            pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
             phenotype.columns = 'continuous.phenotype',
             filename.prefix = 'TEST',
             output.dir = NULL
@@ -299,7 +299,7 @@ test_that(
 
 test_that(
     'plot.pgs.with.continuous.phenotype runs correctly with correlation disabled', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
@@ -328,7 +328,7 @@ test_that(
 
 test_that(
     'plot.pgs.with.continuous.phenotype runs correctly with tidy titles enabled', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
@@ -348,7 +348,7 @@ test_that(
 
 test_that(
     'plot.pgs.with.continuous.phenotype runs correctly with multiple phenotypes', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # add another continuous phenotype
         pgs.test$continuous.phenotype2 <- rnorm(nrow(pgs.test));
