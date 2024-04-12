@@ -268,7 +268,7 @@ test_that(
             plot.pgs.with.continuous.phenotype(
                 pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
                 phenotype.columns = 'continuous.phenotype',
-                output.dir = getwd(),#temp.dir,
+                output.dir = temp.dir,
                 filename.prefix = 'TEST'
                 )
             );
@@ -298,6 +298,35 @@ test_that(
     );
 
 test_that(
+    'plot.pgs.with.continuous.phenotype runs correctly with correlation disabled', {
+        #skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-no-correlation',
+                compute.correlation = FALSE
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-no-correlation',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
     'plot.pgs.with.continuous.phenotype runs correctly with multiple phenotypes', {
         #skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
@@ -311,7 +340,7 @@ test_that(
             plot.pgs.with.continuous.phenotype(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2'),
-                output.dir = getwd(),#temp.dir,
+                output.dir = temp.dir,
                 filename.prefix = 'TEST-two-continuous-phenotypes'
                 )
             );
