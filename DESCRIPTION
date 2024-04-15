@@ -16,6 +16,7 @@ Imports:
     vcfR,
     pROC,
     data.table,
+    reshape2,
     BoutrosLab.plotting.general
 Suggests: 
     testthat (>= 3.0.0)

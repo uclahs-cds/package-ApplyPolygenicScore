@@ -1,6 +1,10 @@
 exportPattern("^[[:alpha:]]+")
 
 import('vcfR');
-import('data.table');
+importFrom(
+    'data.table',
+    'tstrsplit'
+    );
+import('reshape2');
 import('BoutrosLab.plotting.general');
 import('pROC');
