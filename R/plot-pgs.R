@@ -323,8 +323,8 @@ plot.pgs.with.continuous.phenotype <- function(
                     #x = 0.04,
                     #y = 0.97,
                     corner = corr.legend.corner
-                    )
-                );
+                        )
+                    );
                 } else {
                     correlation.legend <- NULL;
                 }
