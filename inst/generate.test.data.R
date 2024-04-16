@@ -234,7 +234,7 @@ phenotype.test.data <- list(
         effect_allele = 'A',
         beta = rnorm(10) # random beta values
         ),
-    phenotype.data = data.frame(
+phenotype.data = data.frame(
         Indiv = paste0('sample', 1:n.samples),
         continuous.phenotype = rnorm(n.samples), # random phenotype values
         binary.phenotype = binary.phenotype,

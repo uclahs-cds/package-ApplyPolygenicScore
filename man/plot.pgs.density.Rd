@@ -6,15 +6,17 @@
 \usage{
 plot.pgs.density(
   pgs.data,
-  phenotype.columns,
-  output.dir = getwd(),
+  phenotype.columns = NULL,
+  output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
+  tidy.titles = FALSE,
   width = 10,
   height = 10,
   xaxes.cex = 1.5,
   yaxes.cex = 1.5,
-  titles.cex = 1.5
+  titles.cex = 1.5,
+  border.padding = 1
 )
 }
 \arguments{
@@ -28,19 +30,24 @@ plot.pgs.density(
 
 \item{file.extension}{character file extension for output plots}
 
+\item{tidy.titles}{logical whether to reformat PGS plot titles to remove periods}
+
 \item{width}{numeric width of output plot in inches}
 
 \item{height}{numeric height of output plot in inches}
 
-\item{xaxes.cex}{numeric cex for x-axis labels}
+\item{xaxes.cex}{numeric cex for all x-axis labels in inches}
 
-\item{yaxes.cex}{numeric cex for y-axis labels}
+\item{yaxes.cex}{numeric cex for all y-axis labels in inches}
 
-\item{titles.cex}{numeric cex for plot titles}
+\item{titles.cex}{numeric cex for all plot titles in inches}
+
+\item{border.padding}{numeric padding for plot borders}
 }
 \value{
-multipanel plot object
+if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
 }
 \description{
-Create density plots for PGS data
+Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
+If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 }
