@@ -83,6 +83,8 @@ plot.pgs.rank <- function(
     border.padding = 1
     ) {
 
+    FILL.COLOR <- 'grey';
+
     # check input
     rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
@@ -141,9 +143,9 @@ plot.pgs.rank <- function(
     if (length(user.defined.percentile.column.index) == 1) {
         # assign user-defined percentiles to shades of grey
         percentile.color.scheme <- c(
-            paste0('grey', round(seq(100,1, length.out = length(unique(pgs.data[ ,user.defined.percentile.column.index])))))
+            paste0('grey', round(seq(100,1, length.out = length(unique(na.omit(pgs.data[ ,user.defined.percentile.column.index]))))))
             );
-        names(percentile.color.scheme) <- as.character(sort(unique(pgs.data[ ,user.defined.percentile.column.index])));
+        names(percentile.color.scheme) <- as.character(sort(unique(na.omit(pgs.data[ ,user.defined.percentile.column.index]))));
         # assemble all percentiles color schemes and data
         percentile.color.scheme.list <- list(decile.color.scheme, quartile.color.scheme, percentile.color.scheme);
         names(percentile.color.scheme.list) <- c('decile', 'quartile', colnames(pgs.data)[user.defined.percentile.column.index]);
@@ -166,8 +168,12 @@ plot.pgs.rank <- function(
     # order by percentile
     percentile.covariate.df <- percentile.covariate.df[ , order(pgs.data$percentile)];
 
-    # Plot percentile covariate heatmap
+    # save NA coordinates for labeling
     percentile.cov.na.coords <- get.na.coordinates.for.heatmap(percentile.covariate.df);
+    # replace NA values with a color
+    percentile.covariate.df[is.na(percentile.covariate.df)] <- FILL.COLOR;
+
+    # Plot percentile covariate heatmap
     percentile.covariate.heatmap <- BoutrosLab.plotting.general::create.heatmap(
         x = percentile.covariate.df,
         input.colours = TRUE,
@@ -175,8 +181,7 @@ plot.pgs.rank <- function(
         same.as.matrix = TRUE,
         print.colour.key = FALSE,
         # missing value handling
-        fill.colour = 'grey',
-        cell.text = 'NA', #na.text.matrix,
+        cell.text = 'NA',
         col.pos = percentile.cov.na.coords$col,
         row.pos = percentile.cov.na.coords$row,
         text.col = 'white',
@@ -238,7 +243,7 @@ plot.pgs.rank <- function(
                 # extract the required number of color schemes for binary covariates from pre-generated list
                 binary.covariate.color.schemes <- binary.color.schemes[1:ncol(binary.phenotype.data)];
                 for (i in 1:length(binary.covariate.color.schemes)) {
-                    names(binary.covariate.color.schemes[[i]]) <- as.character(sort(unique(binary.phenotype.data[ , i])));
+                    names(binary.covariate.color.schemes[[i]]) <- as.character(sort(unique(na.omit(binary.phenotype.data[ , i]))));
                     }
 
                 names(binary.covariate.color.schemes) <- colnames(binary.phenotype.data);
@@ -278,7 +283,7 @@ plot.pgs.rank <- function(
                 number.of.categories <- lapply(
                     X = other.phenotype.data,
                     FUN = function(x) {
-                        length(unique(x))
+                        length(unique(na.omit(x)))
                         }
                     );
                 total.categories <- sum(unlist(number.of.categories));
@@ -286,7 +291,9 @@ plot.pgs.rank <- function(
                 # retrieve colors for qualitative data that can be divided up into color schemes
                 # only 12 distinct colors are available in the default color palette
                 max.colors <- 12;
-                all.qual.colors <- default.colours(number.of.colors <- max.colors, palette = 'qual');
+                suppressWarnings( #suppress grey scale incompatibility warnings
+                    all.qual.colors <- default.colours(number.of.colors <- max.colors, palette = 'qual')
+                    );
                 # if there are more categories than colors, extend the size of the color palette by repeating colors
                 if (total.categories > max.colors) {
                     all.qual.colors <- rep(all.qual.colors, ceiling(total.categories / max.colors));
@@ -301,7 +308,7 @@ plot.pgs.rank <- function(
                     }
 
                 for (i in 1:length(other.color.schemes)) {
-                    names(other.color.schemes[[i]]) <- as.character(sort(unique(other.phenotype.data[ , i])));
+                    names(other.color.schemes[[i]]) <- as.character(sort(unique(na.omit(other.phenotype.data[ , i]))));
                     }
 
                 names(other.color.schemes) <- colnames(other.phenotype.data);
@@ -336,15 +343,18 @@ plot.pgs.rank <- function(
             # combine binary and categorical phenotype covariates into one heatmap
             all.category.phenotype.df <- rbind(binary.phenotype.df, other.phenotype.df);
 
-            # plot binary and categorical phenotype covariate heatmap
+            # save NA coordinates for labeling
             cat.phen.na.coords <- get.na.coordinates.for.heatmap(all.category.phenotype.df);
+            # replace NA values with a color
+            all.category.phenotype.df[is.na(all.category.phenotype.df)] <- FILL.COLOR;
+
+            # plot binary and categorical phenotype covariate heatmap
             categorical.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
                 x = all.category.phenotype.df,
                 input.colours = TRUE,
                 clustering.method = 'none',
                 same.as.matrix = TRUE,
                 print.colour.key = FALSE,
-                fill.colour = 'grey',
                 cell.text = 'NA',
                 col.pos = cat.phen.na.coords$col,
                 row.pos = cat.phen.na.coords$row,
@@ -373,8 +383,8 @@ plot.pgs.rank <- function(
                 X = 1:length(continuous.phenotype.data),
                 FUN = function(x) {
                     phenotype.values <- continuous.phenotype.data[ , x];
-                    color.scheme <- colorRampPalette(continuous.color.schemes[[x]])(length(unique(phenotype.values)));
-                    names(color.scheme) <- as.character(sort(unique(phenotype.values)));
+                    color.scheme <- colorRampPalette(continuous.color.schemes[[x]])(length(unique(na.omit(phenotype.values))));
+                    names(color.scheme) <- as.character(sort(unique(na.omit(phenotype.values))));
                     color.vector <- create.feature.color.vector(
                         features = as.character(phenotype.values),
                         color.scheme = color.scheme
@@ -387,18 +397,19 @@ plot.pgs.rank <- function(
             # order by percentile
             continuous.phenotypes.df <- continuous.phenotypes.df[ , order(pgs.data$percentile)];
 
-            # continuous phenotype covariate heatmap
-            # test.continuous.phenotypes.df <- rbind(continuous.phenotypes.df, continuous.phenotypes.df);
-            # test.continuous.phenotypes.df$sample6 <- rep('#BFF2F3', 2)
-
+            # save NA coordinates for labeling
             cont.pheno.na.coords <- get.na.coordinates.for.heatmap(continuous.phenotypes.df);
+
+            # replace NA values with a color
+            continuous.phenotypes.df[is.na(continuous.phenotypes.df)] <- FILL.COLOR;
+
+
             continuous.phenotype.heatmap <- BoutrosLab.plotting.general::create.heatmap(
                 x = continuous.phenotypes.df,
                 input.colours = TRUE,
                 clustering.method = 'none',
                 same.as.matrix = TRUE,
                 print.colour.key = FALSE,
-                #fill.colour = 'red',
                 cell.text = 'NA',
                 col.pos = cont.pheno.na.coords$col,
                 row.pos = cont.pheno.na.coords$row,
@@ -419,7 +430,7 @@ plot.pgs.rank <- function(
                     list(
                         title = names(continuous.color.schemes)[x],
                         colours = continuous.color.schemes[[x]],
-                        labels = round(c(min(continuous.phenotype.data[ , x]), max(continuous.phenotype.data[ , x])), 1),
+                        labels = round(c(min(continuous.phenotype.data[ , x], na.rm = TRUE), max(continuous.phenotype.data[ , x], na.rm = TRUE)), 1),
                         continuous = TRUE
                         );
                     }
