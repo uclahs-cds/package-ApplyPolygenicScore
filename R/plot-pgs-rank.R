@@ -108,22 +108,26 @@ plot.pgs.rank <- function(
         );
 
     # Plot missing genotypes barplot
-    # handle plot limits in case where there are no missing genotypes
-    missing.genotype.count.ymax <- ifelse(max(pgs.data$n.missing.genotypes) == 0, 1, max(pgs.data$n.missing.genotypes));
-    missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
-        formula = n.missing.genotypes ~ Indiv,
-        data = pgs.data,
-        ylimits = c(0, missing.genotype.count.ymax * 1.05),
-        xlab.label = '',
-        ylab.label = 'Missing GT',
-        xaxis.lab = '',
-        yat = 'auto',
-        main = '',#'Missing Genotypes',
-        main.cex = 0,
-        ylab.cex = titles.cex,
-        xaxis.cex = 0,
-        yaxis.cex = yaxis.cex
-        );
+    missing.genotypes.barplot <- NULL;
+
+    if (any(pgs.data$n.missing.genotypes > 0)) {
+        # handle plot limits in case where there are no missing genotypes
+        missing.genotype.count.ymax <- ifelse(max(pgs.data$n.missing.genotypes) == 0, 1, max(pgs.data$n.missing.genotypes));
+        missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
+            formula = n.missing.genotypes ~ Indiv,
+            data = pgs.data,
+            ylimits = c(0, missing.genotype.count.ymax * 1.05),
+            xlab.label = '',
+            ylab.label = 'Missing GT',
+            xaxis.lab = '',
+            yat = 'auto',
+            main = '',#'Missing Genotypes',
+            main.cex = 0,
+            ylab.cex = titles.cex,
+            xaxis.cex = 0,
+            yaxis.cex = yaxis.cex
+            );
+        }
 
     ## Begin Percentile Covariate Heatmap Assembly ##
     # Assemble covariate heatmap for deciles, quartiles, and user-defined percentiles
@@ -480,10 +484,19 @@ plot.pgs.rank <- function(
         categorical.phenotype.heatmap,
         continuous.phenotype.heatmap
         );
+    # remove NULL plots
+    plot.list <- plot.list[!sapply(plot.list, is.null)];
 
     plot.heights <- rep(1, length(plot.list));
-    plot.heights[1] <- 2;
-    plot.heights[2] <- 5;
+
+    # is there a cleaner way of doing this?
+    if (!is.null(missing.genotypes.barplot)) {
+        plot.heights[1] <- 2; # missing genotypes barplot
+        plot.heights[2] <- 5; # rank barplot
+        } else {
+            plot.heights[1] <- 5; # rank barplot
+            }
+
 
     multipanel.plot <- BoutrosLab.plotting.general::create.multipanelplot(
         plot.objects = plot.list,
