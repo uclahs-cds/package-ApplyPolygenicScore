@@ -20,7 +20,7 @@ plot.pgs.density(
 )
 }
 \arguments{
-\item{pgs.data}{data.frame with PGS data}
+\item{pgs.data}{data.frame PGS data with columns outputted by apply.polygenic.score()}
 
 \item{phenotype.columns}{character vector of phenotype columns in pgs.data to plot (optional)}
 

@@ -24,7 +24,7 @@ plot.pgs.with.continuous.phenotype(
 )
 }
 \arguments{
-\item{pgs.data}{data.frame with PGS and phenotype data}
+\item{pgs.data}{data.frame PGS data with columns of continuous phenotype variables outputted by apply.polygenic.score()}
 
 \item{phenotype.columns}{character vector of continuous phenotype columns in pgs.data to plot}
 
