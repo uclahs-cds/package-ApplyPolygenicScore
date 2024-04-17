@@ -117,9 +117,6 @@ apply.polygenic.score <- function(
         } else {
         stop('missing.genotype.method must be either "mean.dosage", "normalize", or "none"');
         }
-    if ('none' %in% missing.genotype.method && length(missing.genotype.method) > 1) {
-        stop('If "none" is included in missing.genotype.method, it must be the only method included');
-        }
 
     # check that n.percentiles is a mathematical integer
     if (!is.null(n.percentiles) && (n.percentiles %% 1 != 0)) {
@@ -134,13 +131,9 @@ apply.polygenic.score <- function(
         if (!(analysis.source.pgs %in% missing.genotype.method)) {
             stop('analysis.source.pgs must be one of the chosen missing genotype methods');
             }
-        if (length(missing.genotype.method) == 1) {
-            # if only one PGS method will be applied, overwrite analysis.source.pgs to NULL
-            analysis.source.pgs <- NULL;
-            }
-        } else if (length(missing.genotype.method) > 1) {
-        # if more than one PGS method will be applied, set analysis.source.pgs to the mean.dosage source
-        analysis.source.pgs <- 'mean.dosage';
+        } else {
+        # if no source is provided, set analysis.source.pgs to the first chosen method.
+        analysis.source.pgs <- missing.genotype.method[1];
         }
 
     ### End Input Validation ###
@@ -265,35 +258,34 @@ apply.polygenic.score <- function(
         colnames(pgs.per.sample) <- c('Indiv', 'PGS');
         pgs.output.list$PGS <- pgs.per.sample;
 
-        } else {
-            if ('normalize' %in% missing.genotype.method) {
-                pgs.per.sample.with.normalized.missing <- aggregate(
-                    x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
-                    by = list(merged.vcf.with.pgs.data$Indiv),
-                    FUN = sum,
-                    na.rm = TRUE
-                    );
-                colnames(pgs.per.sample.with.normalized.missing) <- c('Indiv', 'PGS');
-                per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
-                ploidy <- 2; # hard-coded ploidy for human diploid genome
-                per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count
-                pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count.ploidy.adjusted;
-                # account for division by zero
-                pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
-                pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
-                }
+        }
 
-            if ('mean.dosage' %in% missing.genotype.method) {
-                pgs.per.sample <- aggregate(
-                    x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing,
-                    by = list(merged.vcf.with.pgs.data$Indiv),
-                    FUN = sum,
-                    na.rm = TRUE
-                    );
-                colnames(pgs.per.sample) <- c('Indiv', 'PGS');
-                pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
-                }
+    if ('normalize' %in% missing.genotype.method) {
+        pgs.per.sample.with.normalized.missing <- aggregate(
+            x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
+            by = list(merged.vcf.with.pgs.data$Indiv),
+            FUN = sum,
+            na.rm = TRUE
+            );
+        colnames(pgs.per.sample.with.normalized.missing) <- c('Indiv', 'PGS');
+        per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
+        ploidy <- 2; # hard-coded ploidy for human diploid genome
+        per.sample.non.missing.genotype.count.ploidy.adjusted <- ploidy * per.sample.non.missing.genotype.count
+        pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.genotype.count.ploidy.adjusted;
+        # account for division by zero
+        pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
+        pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
+        }
 
+    if ('mean.dosage' %in% missing.genotype.method) {
+        pgs.per.sample <- aggregate(
+            x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing,
+            by = list(merged.vcf.with.pgs.data$Indiv),
+            FUN = sum,
+            na.rm = TRUE
+            );
+        colnames(pgs.per.sample) <- c('Indiv', 'PGS');
+        pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
         }
 
     ### End PGS Application ###
@@ -308,11 +300,7 @@ apply.polygenic.score <- function(
     pgs.output <- cbind(Indiv, PGS.cols);
 
     # retrieve pgs for statisitical analyses
-    if (is.null(analysis.source.pgs)) {
-        pgs.for.stats <- pgs.output[ ,2] # first available score
-        } else {
-        pgs.for.stats <- pgs.output[ ,missing.method.to.colname.ref[analysis.source.pgs]];
-        }
+    pgs.for.stats <- pgs.output[ ,missing.method.to.colname.ref[analysis.source.pgs]];
 
     # calculate percentiles
     percentiles <- get.pgs.percentiles(pgs = pgs.for.stats, n.percentiles = n.percentiles);
