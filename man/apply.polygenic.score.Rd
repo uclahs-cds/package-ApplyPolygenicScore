@@ -31,7 +31,7 @@ apply.polygenic.score(
 \item{n.percentiles}{An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.}
 
 \item{analysis.source.pgs}{A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
-When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.}
+When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.}
 }
 \value{
 A list containing the PGS per sample and regression output if phenotype analysis columns are provided.

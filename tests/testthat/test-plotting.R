@@ -17,7 +17,7 @@ pgs.test <- apply.polygenic.score(
     vcf.data = phenotype.test.data$vcf.data,
     pgs.weight.data = phenotype.test.data$pgs.weight.data,
     phenotype.data = phenotype.test.data$phenotype.data,
-    missing.genotype.method = c('mean.dosage', 'normalize'),
+    missing.genotype.method = c('mean.dosage', 'normalize', 'none'),
     n.percentiles = 2
     )$pgs.output;
 # add missing genotpye counts
@@ -93,7 +93,7 @@ test_that(
         # plot pgs density
         expect_no_error(
             plot.pgs.density(
-                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
                 filename.prefix = 'TEST'
@@ -132,9 +132,9 @@ test_that(
         # plot pgs density
         expect_no_error(
             plot.pgs.density(
-                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = NULL,
-                output.dir = getwd(),#temp.dir,
+                output.dir = temp.dir,
                 filename.prefix = 'TEST-tidy-titles',
                 tidy.titles = TRUE
                 )
@@ -266,7 +266,7 @@ test_that(
         # plot pgs with continuous phenotype
         expect_no_error(
             plot.pgs.with.continuous.phenotype(
-                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = 'continuous.phenotype',
                 output.dir = temp.dir,
                 filename.prefix = 'TEST'
@@ -284,7 +284,7 @@ test_that(
 
         # check returned object
         test.plot.object <- plot.pgs.with.continuous.phenotype(
-            pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+            pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
             phenotype.columns = 'continuous.phenotype',
             filename.prefix = 'TEST',
             output.dir = NULL
