@@ -236,6 +236,8 @@ apply.polygenic.score <- function(
         );
     per.sample.missing.genotype.count <- colSums(is.na(biallelic.snp.by.sample.matrix));
 
+    per.sample.missing.genotype.percent <- round(per.sample.missing.genotype.count / nrow(biallelic.snp.by.sample.matrix), 2);
+
     ### End Missing SNP Count ###
 
     ### Start PGS Application ###
@@ -309,6 +311,7 @@ apply.polygenic.score <- function(
 
     # add missing genotype count
     pgs.output$n.missing.genotypes <- per.sample.missing.genotype.count;
+    pgs.output$percent.missing.genotypes <- per.sample.missing.genotype.percent;
 
     # initialize regression output
     regression.output <- NULL;

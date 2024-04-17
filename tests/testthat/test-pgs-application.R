@@ -250,7 +250,7 @@ test_that(
             );
         expect_equal(
             ncol(test.pgs.per.sample[[PGS.OUTPUT.INDEX]]),
-            6
+            7
             );
         }
     );
@@ -414,21 +414,22 @@ test_that(
 
         # check column names
         percentile.colnames <- c('percentile', 'decile', 'quartile');
+        extra.colnames <- c('n.missing.genotypes', 'percent.missing.genotypes');
         expect_equal(
             colnames(test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]),
-            c('Indiv', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS.with.replaced.missing', percentile.colnames, extra.colnames)
             );
         expect_equal(
             colnames(test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]),
-            c('Indiv', 'PGS.with.normalized.missing', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS.with.normalized.missing', percentile.colnames, extra.colnames)
             );
         expect_equal(
             colnames(test.missing.genotype.both[[PGS.OUTPUT.INDEX]]),
-            c('Indiv', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS.with.normalized.missing', 'PGS.with.replaced.missing', percentile.colnames, extra.colnames)
             );
         expect_equal(
             colnames(test.missing.genotype.none[[PGS.OUTPUT.INDEX]]),
-            c('Indiv', 'PGS', percentile.colnames, 'n.missing.genotypes')
+            c('Indiv', 'PGS', percentile.colnames, extra.colnames)
             );
 
         # check that PGS values are calculated correctly
