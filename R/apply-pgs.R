@@ -90,7 +90,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
-#' When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.
+#' When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
 #' @return A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
 #' @export
 apply.polygenic.score <- function(
