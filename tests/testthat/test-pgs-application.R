@@ -41,13 +41,12 @@ test_that(
             'missing.genotype.method must be either "mean.dosage", "normalize", or "none"'
             );
 
-        expect_error(
+        expect_no_error(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
-                missing.genotype.method = c('mean.dosage', 'none')
-                ),
-            'If "none" is included in missing.genotype.method, it must be the only method included'
+                missing.genotype.method = c('none', 'normalize', 'mean.dosage')
+                )
             );
 
         # check that analysis.source.pgs input is correct
