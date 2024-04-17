@@ -1,5 +1,5 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- TRUE;
+SKIP.PLOTS <- FALSE;
 SKIP.COMPREHENSIVE.CASES <- FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     if (skip.plots) {
@@ -87,7 +87,6 @@ test_that(
 test_that(
     'plot.pgs.density runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
-        skip();
 
         temp.dir <- tempdir();
 
@@ -424,7 +423,7 @@ test_that(
 
 test_that(
     'plot.pgs.rank runs with no error with basic inputs', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # check file writing
         temp.dir <- tempdir();
@@ -462,7 +461,7 @@ test_that(
 
 test_that(
     'plot.pgs.rank runs correctly with user provided phenotypes',{
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
@@ -489,7 +488,7 @@ test_that(
 
 test_that(
     'plot.pgs.rank runs correctly when no missing genotypes are present', {
-        #skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
