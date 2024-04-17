@@ -3,16 +3,16 @@
 # (named vector of colors with names being feature names)
 # return a vector of colors corresponding to each feature.
 create.feature.color.vector <- function(features, color.scheme) {
-  # Replace features with corresponding color
-  feature.colors <- sapply(
+    # Replace features with corresponding color
+    feature.colors <- sapply(
     X = features,
     FUN = function(feature) {
         color.scheme[feature]
         }
     );
-  names(feature.colors) <- features;
-  return(feature.colors);
-  }
+    names(feature.colors) <- features;
+    return(feature.colors);
+    }
 
 # utility function for assembling a data frame of colors for heatmap plotting
 # Given a data frame of covariate data and a list of color schemes with matching colnames/names
@@ -56,7 +56,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) 
         if (!all(phenotype.columns %in% colnames(pgs.data))) {
             stop('phenotype.columns must be a subset of the column names in pgs.data');
             }
-    }
+        }
 
     # check for required columns
     required.columns <- c('Indiv', 'percentile', 'decile', 'quartile', 'n.missing.genotypes');
@@ -215,14 +215,14 @@ plot.pgs.rank <- function(
         text.cex = 0.5,
         );
 
-        # assemble legend for percentile covariates
-        percentile.covariates.legend <- list(list(
-            title = 'Percentiles',
-            colours = c(decile.color.scheme[1], decile.color.scheme[10]),
-            labels = c('lowest', 'highest'),
-            continuous = TRUE
-            ));
-        names(percentile.covariates.legend) <- 'legend';
+    # assemble legend for percentile covariates
+    percentile.covariates.legend <- list(list(
+        title = 'Percentiles',
+        colours = c(decile.color.scheme[1], decile.color.scheme[10]),
+        labels = c('lowest', 'highest'),
+        continuous = TRUE
+        ));
+    names(percentile.covariates.legend) <- 'legend';
 
     ## End Percentile Covariate Heatmap Assembly ##
 
