@@ -1,6 +1,6 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- TRUE;
-SKIP.COMPREHENSIVE.CASES <- FALSE;
+SKIP.PLOTS <- FALSE;
+SKIP.COMPREHENSIVE.CASES <- TRUE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     if (skip.plots) {
         skip('Plotting tests disabled');
@@ -394,6 +394,22 @@ test_that(
                 ),
             'pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes'
             );
+        # check that missing genotype style is correct
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                missing.genotype.style = 'not.a.style'
+                ),
+            'missing.genotype.style must be either "count" or "percent"'
+            );
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                missing.genotype.style = c('count', 'percent')
+                ),
+            'missing.genotype.style must be either "count" or "percent"'
+            );
+
         # check that phenotype.columns is a character vector
         expect_error(
             plot.pgs.rank(
