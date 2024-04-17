@@ -314,7 +314,7 @@ plot.pgs.rank <- function(
                 # only 12 distinct colors are available in the default color palette
                 max.colors <- 12;
                 suppressWarnings( #suppress grey scale incompatibility warnings
-                    all.qual.colors <- default.colours(number.of.colors <- max.colors, palette = 'qual')
+                    all.qual.colors <- BoutrosLab.plotting.general::default.colours(number.of.colors <- max.colors, palette = 'qual')
                     );
                 # if there are more categories than colors, extend the size of the color palette by repeating colors
                 if (total.categories > max.colors) {
@@ -484,8 +484,10 @@ plot.pgs.rank <- function(
         continuous.covariates.legend
         );
 
-    cov.legend.grob <- BoutrosLab.plotting.general::legend.grob(
-        cov.legends
+    cov.legend.grob <- suppressWarnings( #legend.grob throws a weird meaningless warning
+            BoutrosLab.plotting.general::legend.grob(
+            cov.legends
+            )
         );
 
     plot.list <- list(
@@ -527,6 +529,6 @@ plot.pgs.rank <- function(
         top.padding = border.padding,
         bottom.padding = border.padding
         );
-
+    browser()
     return(multipanel.plot);
     }
