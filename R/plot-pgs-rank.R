@@ -32,6 +32,7 @@ assemble.heatmap.colors <- function(covariate.data, color.scheme.list) {
     }
 
 # utility function for formatting coordinates of missing values in a heatmap matrix
+# Given a data frame, list of row and column coordinates
 get.na.coordinates.for.heatmap <- function(data) {
     na.boolean <- is.na(data);
     rev.na.boolean <- na.boolean[nrow(na.boolean):1, , drop = FALSE];
@@ -40,6 +41,7 @@ get.na.coordinates.for.heatmap <- function(data) {
     return(list(col = na.col.coordinates[ ,'col'], row = na.row.coordinates[ ,'row']));
     }
 
+# utility function for validating inputs to plot.pgs.rank()
 rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
     # check pgs.data
     if (!is.data.frame(pgs.data)) {
@@ -83,6 +85,7 @@ plot.pgs.rank <- function(
     border.padding = 1
     ) {
 
+    # set default fill color for missing values
     FILL.COLOR <- 'grey';
 
     # check input
@@ -112,7 +115,7 @@ plot.pgs.rank <- function(
 
     if (any(pgs.data$n.missing.genotypes > 0)) {
         # handle plot limits in case where there are no missing genotypes
-        missing.genotype.count.ymax <- ifelse(max(pgs.data$n.missing.genotypes) == 0, 1, max(pgs.data$n.missing.genotypes));
+        missing.genotype.count.ymax <- max(pgs.data$n.missing.genotypes);
         missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
             formula = n.missing.genotypes ~ Indiv,
             data = pgs.data,
@@ -121,7 +124,7 @@ plot.pgs.rank <- function(
             ylab.label = 'Missing GT',
             xaxis.lab = '',
             yat = 'auto',
-            main = '',#'Missing Genotypes',
+            main = '',
             main.cex = 0,
             ylab.cex = titles.cex,
             xaxis.cex = 0,
@@ -130,6 +133,7 @@ plot.pgs.rank <- function(
         }
 
     ## Begin Percentile Covariate Heatmap Assembly ##
+
     # Assemble covariate heatmap for deciles, quartiles, and user-defined percentiles
 
     # assign percentiles to shades of grey
@@ -184,20 +188,18 @@ plot.pgs.rank <- function(
         clustering.method = 'none',
         same.as.matrix = TRUE,
         print.colour.key = FALSE,
+        yaxis.lab = rownames(percentile.covariate.df),
+        xaxis.cex = xaxis.cex,
+        yaxis.cex = yaxis.cex,
         # missing value handling
         cell.text = 'NA',
         col.pos = percentile.cov.na.coords$col,
         row.pos = percentile.cov.na.coords$row,
         text.col = 'white',
         text.cex = 0.5,
-        yaxis.lab = rownames(percentile.covariate.df),
-        #ylab.cex = title.cex,
-        # main.cex = titles.cex,
-        # ylab.cex = titles.cex,
-        xaxis.cex = xaxis.cex,
-        yaxis.cex = yaxis.cex
         );
 
+        # assemble legend for percentile covariates
         percentile.covariates.legend <- list(list(
             title = 'Percentiles',
             colours = c(decile.color.scheme[1], decile.color.scheme[10]),
@@ -329,7 +331,7 @@ plot.pgs.rank <- function(
                 # order by percentile
                 other.phenotype.df <- other.phenotype.df[ , order(pgs.data$percentile)];
 
-                # legend
+                # assemble legend
                 categorical.covariates.legend <- lapply(
                     X = 1:length(other.color.schemes),
                     FUN = function(x) {
@@ -359,17 +361,14 @@ plot.pgs.rank <- function(
                 clustering.method = 'none',
                 same.as.matrix = TRUE,
                 print.colour.key = FALSE,
+                yaxis.lab = NULL,
+                ylab.cex = 0,
+                # na handling
                 cell.text = 'NA',
                 col.pos = cat.phen.na.coords$col,
                 row.pos = cat.phen.na.coords$row,
                 text.col = 'white',
-                text.cex = 0.5,
-                yaxis.lab = NULL,
-                ylab.cex = 0
-                # main.cex = titles.cex,
-                # ylab.cex = titles.cex,
-                # xaxis.cex = xaxis.cex,
-                # yaxis.cex = yaxis.cex
+                text.cex = 0.5
                 );
 
             }
@@ -414,20 +413,17 @@ plot.pgs.rank <- function(
                 clustering.method = 'none',
                 same.as.matrix = TRUE,
                 print.colour.key = FALSE,
+                yaxis.lab = NULL,
+                ylab.cex = 0,
+                # na handling
                 cell.text = 'NA',
                 col.pos = cont.pheno.na.coords$col,
                 row.pos = cont.pheno.na.coords$row,
                 text.col = 'white',
-                text.cex = 0.5,
-                yaxis.lab = NULL,
-                ylab.cex = 1
-                # main.cex = titles.cex,
-                # ylab.cex = titles.cex,
-                # xaxis.cex = xaxis.cex,
-                # yaxis.cex = yaxis.cex
+                text.cex = 0.5
                 );
 
-            # legend
+            # assemble legend
             continuous.covariates.legend <- lapply(
                 X = 1:length(continuous.color.schemes),
                 FUN = function(x) {
@@ -451,7 +447,7 @@ plot.pgs.rank <- function(
         if (is.null(filename.prefix)) {
             filename.prefix <- 'ApplyPolygenicScore-Plot';
             }
-        # construct multipanel plot
+        # construct multipanel plot filename
         filename.for.rank.multiplot <- generate.filename(
             project.stem = filename.prefix,
             file.core = 'pgs-rank-plot',
@@ -460,12 +456,11 @@ plot.pgs.rank <- function(
 
         output.path <- file.path(output.dir, filename.for.rank.multiplot);
         } else {
+            # do not write plot to file
             output.path <- NULL;
         }
 
-    
-
-    # assemble plot legend
+    # combine all plot legends
     cov.legends <- c(
         percentile.covariates.legend,
         binary.covariates.legend,
@@ -497,7 +492,7 @@ plot.pgs.rank <- function(
             plot.heights[1] <- 5; # rank barplot
             }
 
-
+    # Final multipanel plot
     multipanel.plot <- BoutrosLab.plotting.general::create.multipanelplot(
         plot.objects = plot.list,
         filename = output.path,
