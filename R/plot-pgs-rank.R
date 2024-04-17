@@ -38,7 +38,7 @@ get.na.coordinates.for.heatmap <- function(data) {
     rev.na.boolean <- na.boolean[nrow(na.boolean):1, , drop = FALSE];
     na.col.coordinates <- which(na.boolean, arr.ind = TRUE);
     na.row.coordinates <- which(rev.na.boolean, arr.ind = TRUE);
-    return(list(col = na.col.coordinates[ ,'col'], row = na.row.coordinates[ ,'row']));
+    return(list(col = na.col.coordinates[ , 'col'], row = na.row.coordinates[ , 'row']));
     }
 
 # utility function for validating inputs to plot.pgs.rank()
@@ -154,7 +154,7 @@ plot.pgs.rank <- function(
 
     # assign percentiles to shades of grey
     decile.color.scheme <- c(
-        paste0('grey', seq(100,1, length.out = 10))
+        paste0('grey', seq(100, 1, length.out = 10))
         );
     names(decile.color.scheme) <- as.character(1:10);
 
@@ -167,7 +167,7 @@ plot.pgs.rank <- function(
     if (length(user.defined.percentile.column.index) == 1) {
         # assign user-defined percentiles to shades of grey
         percentile.color.scheme <- c(
-            paste0('grey', round(seq(100,1, length.out = length(unique(na.omit(pgs.data[ ,user.defined.percentile.column.index]))))))
+            paste0('grey', round(seq(100, 1, length.out = length(unique(na.omit(pgs.data[ ,user.defined.percentile.column.index]))))))
             );
         names(percentile.color.scheme) <- as.character(sort(unique(na.omit(pgs.data[ ,user.defined.percentile.column.index]))));
         # assemble all percentiles color schemes and data
@@ -491,24 +491,26 @@ plot.pgs.rank <- function(
         );
 
     plot.list <- list(
-        missing.genotypes.barplot,
-        rank.barplot,
-        percentile.covariate.heatmap,
-        categorical.phenotype.heatmap,
-        continuous.phenotype.heatmap
+        missing.genotypes.barplot = missing.genotypes.barplot,
+        rank.barplot = rank.barplot,
+        percentile.covariate.heatmap = percentile.covariate.heatmap,
+        categorical.phneotype.heatmap = categorical.phenotype.heatmap,
+        continuous.phenotype.heatmap = continuous.phenotype.heatmap
         );
+
+
     # remove NULL plots
     plot.list <- plot.list[!sapply(plot.list, is.null)];
 
     plot.heights <- rep(1, length(plot.list));
 
-    # is there a cleaner way of doing this?
-    if (!is.null(missing.genotypes.barplot)) {
-        plot.heights[1] <- 2; # missing genotypes barplot
-        plot.heights[2] <- 5; # rank barplot
-        } else {
-            plot.heights[1] <- 5; # rank barplot
-            }
+    # Set specific heights for certain plots if they are not NULL
+    if ('missing.genotypes.barplot' %in% names(plot.list)) {
+        plot.heights[which(names(plot.list) == 'missing.genotypes.barplot')] <- 2;
+        }
+    if ('rank.barplot' %in% names(plot.list)) {
+        plot.heights[which(names(plot.list) == 'rank.barplot')] <- 5;
+        }
 
     # Final multipanel plot
     multipanel.plot <- BoutrosLab.plotting.general::create.multipanelplot(
@@ -529,6 +531,6 @@ plot.pgs.rank <- function(
         top.padding = border.padding,
         bottom.padding = border.padding
         );
-    browser()
+
     return(multipanel.plot);
     }

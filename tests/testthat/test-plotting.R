@@ -470,7 +470,7 @@ test_that(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
                 filename.prefix = 'TEST-all-phenotypes',
-                output.dir = getwd()#temp.dir
+                output.dir = temp.dir
                 )
             );
 
