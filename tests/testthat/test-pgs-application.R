@@ -482,6 +482,24 @@ test_that(
             test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
             c(1, 1, 4, 2)
             );
+
+        # check missing genotype percentages
+        expect_equal(
+            test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
+            c(0.25, 0.25, 1, 0.5)
+            );
+        expect_equal(
+            test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
+            c(0.25, 0.25, 1, 0.5)
+            );
+        expect_equal(
+            test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
+            c(0.25, 0.25, 1, 0.5)
+            );
+        expect_equal(
+            test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
+            c(0.25, 0.25, 1, 0.5)
+            );
         }
     );
 
