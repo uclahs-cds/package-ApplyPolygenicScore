@@ -140,14 +140,26 @@ plot.pgs.rank <- function(
     missing.genotypes.barplot <- NULL;
 
     if (any(pgs.data$n.missing.genotypes > 0)) {
-        # handle plot limits in case where there are no missing genotypes
-        missing.genotype.count.ymax <- max(pgs.data$n.missing.genotypes);
+        # handle missing genotype style
+        if (missing.genotype.style == 'percent') {
+            # percent barplot formatting
+            missing.barplot.formula <- percent.missing.genotypes ~ Indiv;
+            missing.barplot.ylimits <- c(0, 1.05);
+            missing.barplot.ylabel <- 'Missing GT\n(%)';
+
+            } else {
+                # count barplot formatting
+                missing.barplot.formula <- n.missing.genotypes ~ Indiv;
+                missing.barplot.ylimits <- c(0, max(pgs.data$n.missing.genotypes) * 1.05);
+                missing.barplot.ylabel <- 'Missing GT\ncount';
+                }
+
         missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
-            formula = n.missing.genotypes ~ Indiv,
+            formula = missing.barplot.formula,
             data = pgs.data,
-            ylimits = c(0, missing.genotype.count.ymax * 1.05),
+            ylimits = missing.barplot.ylimits,
             xlab.label = '',
-            ylab.label = 'Missing GT',
+            ylab.label = missing.barplot.ylabel,
             xaxis.lab = '',
             yat = 'auto',
             main = '',
