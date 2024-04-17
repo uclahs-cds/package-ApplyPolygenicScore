@@ -54,7 +54,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @title Plot PGS Density
 #' @description Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
 #' If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
-#' @param pgs.data data.frame with PGS data
+#' @param pgs.data data.frame PGS data with columns outputted by apply.polygenic.score()
 #' @param phenotype.columns character vector of phenotype columns in pgs.data to plot (optional)
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
@@ -244,7 +244,7 @@ plot.pgs.density <- function(
 
 #' @title Plot PGS Scatterplots
 #' @description Create scatterplots for PGS data with continuous phenotype variables
-#' @param pgs.data data.frame with PGS and phenotype data
+#' @param pgs.data data.frame PGS data with columns of continuous phenotype variables outputted by apply.polygenic.score()
 #' @param phenotype.columns character vector of continuous phenotype columns in pgs.data to plot
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
