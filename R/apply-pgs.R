@@ -300,7 +300,7 @@ apply.polygenic.score <- function(
     pgs.output <- cbind(Indiv, PGS.cols);
 
     # retrieve pgs for statisitical analyses
-    pgs.for.stats <- pgs.output[ ,missing.method.to.colname.ref[analysis.source.pgs]];
+    pgs.for.stats <- pgs.output[ , missing.method.to.colname.ref[analysis.source.pgs]];
 
     # calculate percentiles
     percentiles <- get.pgs.percentiles(pgs = pgs.for.stats, n.percentiles = n.percentiles);
