@@ -46,5 +46,5 @@ This function is designed to work with the output of the function apply.polygeni
 lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
 }
 \description{
-Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, optionally plot phenotype covariates as color bars.
+Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
 }

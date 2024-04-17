@@ -72,7 +72,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) 
     }
 
 #' @title Plot PGS Rank
-#' @description Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, optionally plot phenotype covariates as color bars.
+#' @description Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
 #' @param pgs.data data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
 #' This function is designed to work with the output of the function apply.polygenic.score().
 #' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.
