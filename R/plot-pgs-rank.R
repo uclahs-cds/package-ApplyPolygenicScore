@@ -494,7 +494,7 @@ plot.pgs.rank <- function(
         missing.genotypes.barplot = missing.genotypes.barplot,
         rank.barplot = rank.barplot,
         percentile.covariate.heatmap = percentile.covariate.heatmap,
-        categorical.phneotype.heatmap = categorical.phenotype.heatmap,
+        categorical.phenotype.heatmap = categorical.phenotype.heatmap,
         continuous.phenotype.heatmap = continuous.phenotype.heatmap
         );
 
