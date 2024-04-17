@@ -7,6 +7,7 @@ skip.plotting.tests <- function(skip.plots = FALSE) {
         }
     }
 
+set.seed(123);
 
 # get test dataset
 load('data/phenotype.test.data.Rda');
@@ -18,7 +19,7 @@ pgs.test <- apply.polygenic.score(
     phenotype.data = phenotype.test.data$phenotype.data,
     missing.genotype.method = c('mean.dosage', 'normalize'),
     n.percentiles = 2
-    );
+    )$pgs.output;
 # add missing genotpye counts
 pgs.test$n.missing.genotypes <- sample(1:10, nrow(pgs.test), replace = TRUE);
 # add some missing data
@@ -185,6 +186,192 @@ test_that(
             );
         expect_true(
             file.exists(file.path(temp.dir, test.filename.continuous.phenotype))
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype correctly validates inputs', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        # check that input data is a data frame
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = list(),
+                phenotype.columns = 'continuous.phenotype'
+                ),
+            'pgs.data must be a data.frame'
+            );
+
+        # check that the required columns are present
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = data.frame(not.recognized.PGS.column = 1:10, continuous.phenotype = 1:10),
+                phenotype.columns = 'continuous.phenotype'
+                ),
+            'No recognized PGS columns found in pgs.data'
+            );
+
+        # check that phenotype.column is a character vector
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = c(1,2,3)
+                ),
+            'phenotype.columns must be a character vector'
+            );
+        # check that phenotype.column is present in pgs.data
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'missing.phenotype'
+                ),
+            'phenotype.columns must be a subset of the column names in pgs.data'
+            );
+        # check that phenotype.column does not contain recognized PGS columns
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'PGS.with.replaced.missing'
+                ),
+            'phenotype.columns cannot contain recognized PGS column names'
+            );
+        # check that at least one of the phenotype columns provided is a continuous variable
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'binary.phenotype'
+                ),
+            'No continuous phenotype variables detected'
+            );
+        # check that output.dir is a real directory
+        expect_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = 'not/a/real/directory'
+                ),
+            'not/a/real/directory does not exist'
+            );
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs with no error with basic inputs', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        # check returned object
+        test.plot.object <- plot.pgs.with.continuous.phenotype(
+            pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing)),
+            phenotype.columns = 'continuous.phenotype',
+            filename.prefix = 'TEST',
+            output.dir = NULL
+            );
+        expect_equal(
+            class(test.plot.object),
+            'multipanel'
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs correctly with correlation disabled', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-no-correlation',
+                compute.correlation = FALSE
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-no-correlation',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs correctly with tidy titles enabled', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-tidy-titles',
+                tidy.titles = TRUE
+                )
+            );
+
+        }
+    );
+
+test_that(
+    'plot.pgs.with.continuous.phenotype runs correctly with multiple phenotypes', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        # add another continuous phenotype
+        pgs.test$continuous.phenotype2 <- rnorm(nrow(pgs.test));
+
+        temp.dir <- tempdir();
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            plot.pgs.with.continuous.phenotype(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-two-continuous-phenotypes'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-two-continuous-phenotypes',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
             );
 
         }
