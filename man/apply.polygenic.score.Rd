@@ -12,7 +12,7 @@ apply.polygenic.score(
   missing.genotype.method = "mean.dosage",
   use.external.effect.allele.frequency = FALSE,
   n.percentiles = NULL,
-  percentile.source = NULL
+  analysis.source.pgs = NULL
 )
 }
 \arguments{
@@ -22,16 +22,19 @@ apply.polygenic.score(
 
 \item{phenotype.data}{A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.}
 
+\item{phenotype.analysis.columns}{A character vector of phenotype columns to analyze. Default is NULL.}
+
 \item{missing.genotype.method}{A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".}
 
 \item{use.external.effect.allele.frequency}{A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.}
 
 \item{n.percentiles}{An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.}
 
-\item{percentile.source}{A character string indicating the source PGS for percentile calculation. Options are "mean.dosage", "normalize", or "none". Default is NULL and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.}
+\item{analysis.source.pgs}{A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
+When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the mean.dosage source.}
 }
 \value{
-A data.frame containing the PGS per sample.
+A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
 }
 \description{
 Apply a polygenic score to VCF data.

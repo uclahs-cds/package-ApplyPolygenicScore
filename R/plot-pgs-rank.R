@@ -71,6 +71,22 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) 
 
     }
 
+#' @title Plot PGS Rank
+#' @description Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, optionally plot phenotype covariates as color bars.
+#' @param pgs.data data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
+#' This function is designed to work with the output of the function apply.polygenic.score().
+#' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.
+#' @param output.dir character directory path to write plot to file. Default is NULL in which case the plot is returned as lattice multipanel object.
+#' @param filename.prefix character prefix for plot filename.
+#' @param file.extension character file extension for plot file. Default is 'png'.
+#' @param width numeric width of plot in inches.
+#' @param height numeric height of plot in inches.
+#' @param xaxis.cex numeric size of x-axis labels.
+#' @param yaxis.cex numeric size of y-axis labels.
+#' @param titles.cex numeric size of plot titles.
+#' @param border.padding numeric padding around plot border.
+#' @return lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
+#' @export
 plot.pgs.rank <- function(
     pgs.data,
     phenotype.columns = NULL,
