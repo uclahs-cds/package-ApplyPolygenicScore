@@ -7,7 +7,25 @@ import('reshape2');
 import('BoutrosLab.plotting.general');
 import('pROC');
 
-
+importFrom(
+    'grDevices',
+    'colorRampPalette'
+    );
+importFrom(
+    'stats',
+    'aggregate',
+    'as.formula',
+    'binomial',
+    'glm',
+    'lm',
+    'na.omit',
+    'predict'
+    );
+importFrom(
+    'utils',
+    'read.table',
+    'write.table'
+    )
 
 export(
     apply.polygenic.score,
