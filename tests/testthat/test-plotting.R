@@ -22,6 +22,7 @@ pgs.test <- apply.polygenic.score(
     )$pgs.output;
 # add missing genotpye counts
 pgs.test$n.missing.genotypes <- sample(1:10, nrow(pgs.test), replace = TRUE);
+pgs.test$percent.missing.genotypes <- round(sample(1:100, nrow(pgs.test), replace = TRUE) / 100, 2);
 # add some missing data
 pgs.test$continuous.phenotype[1:2] <- NA;
 pgs.test$binary.phenotype[2:3] <- NA;
@@ -394,6 +395,22 @@ test_that(
                 ),
             'pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes'
             );
+        # check that missing genotype style is correct
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                missing.genotype.style = 'not.a.style'
+                ),
+            'missing.genotype.style must be either "count" or "percent"'
+            );
+        expect_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                missing.genotype.style = c('count', 'percent')
+                ),
+            'missing.genotype.style must be either "count" or "percent"'
+            );
+
         # check that phenotype.columns is a character vector
         expect_error(
             plot.pgs.rank(
@@ -456,6 +473,32 @@ test_that(
             'multipanel'
             );
 
+        }
+    );
+
+test_that(
+    'plot.pgs.rank correctly switches between missing genotype barplot styles', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        expect_no_error(
+            plot.pgs.rank(
+                pgs.data = pgs.test,
+                filename.prefix = 'TEST-missing-genotype-percent',
+                output.dir = temp.dir,
+                missing.genotype.style = 'percent' # default is count
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-missing-genotype-percent',
+            file.core = 'pgs-rank-plot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
         }
     );
 

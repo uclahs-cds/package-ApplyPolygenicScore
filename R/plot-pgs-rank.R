@@ -42,10 +42,18 @@ get.na.coordinates.for.heatmap <- function(data) {
     }
 
 # utility function for validating inputs to plot.pgs.rank()
-rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) {
+rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.genotype.style, output.dir) {
     # check pgs.data
     if (!is.data.frame(pgs.data)) {
         stop('pgs.data must be a data frame');
+        }
+
+    # check missing genotype style input
+    if (length(missing.genotype.style) != 1) {
+        stop('missing.genotype.style must be either "count" or "percent"');
+        }
+    if (!(missing.genotype.style %in% c('count', 'percent'))) {
+        stop('missing.genotype.style must be either "count" or "percent"');
         }
 
     # validate phenotype.columns
@@ -59,7 +67,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) 
         }
 
     # check for required columns
-    required.columns <- c('Indiv', 'percentile', 'decile', 'quartile', 'n.missing.genotypes');
+    required.columns <- c('Indiv', 'percentile', 'decile', 'quartile', 'n.missing.genotypes', 'percent.missing.genotypes');
     if (!all(required.columns %in% colnames(pgs.data))) {
         stop('pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes');
         }
@@ -76,6 +84,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) 
 #' @param pgs.data data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
 #' This function is designed to work with the output of the function apply.polygenic.score().
 #' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.
+#' @param missing.genotype.style character style of missing genotype barplot. Default is 'count'. Options are 'count' or 'percent'.
 #' @param output.dir character directory path to write plot to file. Default is NULL in which case the plot is returned as lattice multipanel object.
 #' @param filename.prefix character prefix for plot filename.
 #' @param file.extension character file extension for plot file. Default is 'png'.
@@ -90,6 +99,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, output.dir) 
 plot.pgs.rank <- function(
     pgs.data,
     phenotype.columns = NULL,
+    missing.genotype.style = 'count',
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -105,7 +115,7 @@ plot.pgs.rank <- function(
     FILL.COLOR <- 'grey';
 
     # check input
-    rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
+    rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, missing.genotype.style = missing.genotype.style, output.dir = output.dir);
 
     # factor Indiv by perentile rank
     pgs.data$Indiv <- factor(pgs.data$Indiv, levels = pgs.data$Indiv[order(pgs.data$percentile)]);
@@ -130,14 +140,26 @@ plot.pgs.rank <- function(
     missing.genotypes.barplot <- NULL;
 
     if (any(pgs.data$n.missing.genotypes > 0)) {
-        # handle plot limits in case where there are no missing genotypes
-        missing.genotype.count.ymax <- max(pgs.data$n.missing.genotypes);
+        # handle missing genotype style
+        if (missing.genotype.style == 'percent') {
+            # percent barplot formatting
+            missing.barplot.formula <- percent.missing.genotypes ~ Indiv;
+            missing.barplot.ylimits <- c(0, 1.05);
+            missing.barplot.ylabel <- 'Missing GT\n(%)';
+
+            } else {
+                # count barplot formatting
+                missing.barplot.formula <- n.missing.genotypes ~ Indiv;
+                missing.barplot.ylimits <- c(0, max(pgs.data$n.missing.genotypes) * 1.05);
+                missing.barplot.ylabel <- 'Missing GT\ncount';
+                }
+
         missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
-            formula = n.missing.genotypes ~ Indiv,
+            formula = missing.barplot.formula,
             data = pgs.data,
-            ylimits = c(0, missing.genotype.count.ymax * 1.05),
+            ylimits = missing.barplot.ylimits,
             xlab.label = '',
-            ylab.label = 'Missing GT',
+            ylab.label = missing.barplot.ylabel,
             xaxis.lab = '',
             yat = 'auto',
             main = '',
