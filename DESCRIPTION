@@ -3,7 +3,7 @@ Type: Package
 Title: Utilities for the Application of a Polygenic Score to a VCF
 Version: 0.1.0
 Author: Nicole Zeltser
-Maintainer: The package maintainer <nzeltser@mednet.ucla.edu>
+Maintainer: Nicole Zeltser <nzeltser@mednet.ucla.edu>
 Description: This tool is intended to simply and transparently parse
     genotype/dosage data from an input VCF, match genotype coordinates
     to the component SNPs of an existing polygenic score, and apply
@@ -17,7 +17,8 @@ Imports:
     pROC,
     data.table,
     reshape2,
-    BoutrosLab.plotting.general
+    BoutrosLab.plotting.general,
+    lattice
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
