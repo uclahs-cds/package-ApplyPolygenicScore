@@ -15,6 +15,6 @@ jobs:
       steps:
          - uses: actions/checkout@v2
            with:
-              path: BoutrosLabTemplate
-         - run: R CMD build --compact-vignettes="gs+qpdf" BoutrosLabTemplate
-         - run: R CMD check --as-cran --run-donttest BoutrosLabTemplate_*.tar.gz
+              path: ApplyPolygenicScore
+         - run: R CMD build --compact-vignettes="gs+qpdf" ApplyPolygenicScore
+         - run: R CMD check --as-cran --run-donttest ApplyPolygenicScore_*.tar.gz
