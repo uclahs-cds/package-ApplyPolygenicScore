@@ -102,5 +102,40 @@ test_that(
             read.in.pgs.regression,
             test.pgs.output$regression.output
             );
+
+        # check that when no regression data is present, regression file is not written
+        test.pgs.output <- list(
+            pgs.output = data.frame(
+                sample = c('sample1', 'sample2'),
+                PGS = c(1, 3)
+                ),
+            regression.output = NULL
+            );
+
+        write.apply.polygenic.score.output.to.file(
+            apply.polygenic.score.output = test.pgs.output,
+            output.dir = temp.dir,
+            file.prefix = 'TEST-no-regression'
+            );
+
+        test.no.regression.filename <- generate.filename(
+            project.stem = 'TEST-no-regression',
+            file.core = 'pgs-regression-output',
+            extension = 'txt'
+            );
+
+        test.no.regression.pgs.filename <- generate.filename(
+            project.stem = 'TEST-no-regression',
+            file.core = 'per-sample-pgs-summary',
+            extension = 'txt'
+            );
+
+        expect_false(
+            file.exists(file.path(temp.dir, test.no.regression.filename))
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.no.regression.pgs.filename))
+            );
+
         }
     );
