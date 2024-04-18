@@ -7,6 +7,7 @@
 plot.pgs.rank(
   pgs.data,
   phenotype.columns = NULL,
+  missing.genotype.style = "count",
   output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
@@ -23,6 +24,8 @@ plot.pgs.rank(
 This function is designed to work with the output of the function apply.polygenic.score().}
 
 \item{phenotype.columns}{character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.}
+
+\item{missing.genotype.style}{character style of missing genotype barplot. Default is 'count'. Options are 'count' or 'percent'.}
 
 \item{output.dir}{character directory path to write plot to file. Default is NULL in which case the plot is returned as lattice multipanel object.}
 
