@@ -52,7 +52,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
     if (length(missing.genotype.style) != 1) {
         stop('missing.genotype.style must be either "count" or "percent"');
         }
-    if (!(missing.genotype.style %in% c('count', 'percent'))){
+    if (!(missing.genotype.style %in% c('count', 'percent'))) {
         stop('missing.genotype.style must be either "count" or "percent"');
         }
 
