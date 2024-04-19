@@ -347,7 +347,7 @@ apply.polygenic.score <- function(
         pgs.output = pgs.output,
         regression.output = regression.output
         );
-    #browser()
+
     # If requested, write output to file
     if (!is.null(output.dir)) {
 
