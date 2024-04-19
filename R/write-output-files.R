@@ -13,16 +13,11 @@ generate.filename <- function(project.stem, file.core, extension, file.date = Sy
     return(file.name);
     }
 
-#' @title Write PGS per sample table to file
-#' @description Write PGS per sample summary data table to tab separated text file.
-#' @param per.sample.pgs.summary.data data.frame of PGS per sample data
-#' @param output.path character string of the path to write the PGS per sample table
-#' @param file.prefix character string of the file prefix to use for the PGS per sample table
-#' @export
-write.per.sample.pgs.table <- function(per.sample.pgs.summary.data, output.path, file.prefix = NULL) {
+# utility for validating inputs to file writing functions
+validate.file.write.inputs <- function(data, output.dir, file.prefix) {
     # check that input is a data.frame
-    if (!is.data.frame(per.sample.pgs.summary.data)) {
-        stop('pgs.data must be a data.frame');
+    if (!is.data.frame(data)) {
+        stop('input data must be a data.frame');
         }
 
     # check that file.prefix is a character string
@@ -30,10 +25,16 @@ write.per.sample.pgs.table <- function(per.sample.pgs.summary.data, output.path,
         stop('file.prefix must be a character string');
         }
 
-    # check that output.path is a directory
-    if (!file.exists(output.path)) {
-        stop(paste('output path', output.path, 'not found'));
+    # check that output.dir is a directory
+    if (!dir.exists(output.dir)) {
+        stop(paste('output path', output.dir, 'not found'));
         }
+    }
+
+# utility for writing pgs summary data to a file
+write.per.sample.pgs.table <- function(per.sample.pgs.summary.data, output.dir, file.prefix = NULL) {
+    # validate inputs
+    validate.file.write.inputs(per.sample.pgs.summary.data, output.dir, file.prefix);
 
     # generate filename
     filename.for.per.sample.pgs.summary.data <- generate.filename(
@@ -45,10 +46,65 @@ write.per.sample.pgs.table <- function(per.sample.pgs.summary.data, output.path,
     # write PGS per sample data to file
     write.table(
         x = per.sample.pgs.summary.data,
-        file = file.path(output.path, filename.for.per.sample.pgs.summary.data),
+        file = file.path(output.dir, filename.for.per.sample.pgs.summary.data),
         sep = '\t',
         row.names = FALSE,
         col.names = TRUE,
         quote = FALSE
         );
+    }
+
+# utility for writing pgs regression output to a file
+write.pgs.regression.table <- function(pgs.regression.output, output.dir, file.prefix = NULL) {
+    # validate inputs
+    validate.file.write.inputs(pgs.regression.output, output.dir, file.prefix);
+
+    # generate filename
+    filename.for.pgs.regression.output <- generate.filename(
+        project.stem = file.prefix,
+        file.core = 'pgs-regression-output',
+        extension = 'txt'
+        );
+
+    # write PGS regression output to file
+    write.table(
+        x = pgs.regression.output,
+        file = file.path(output.dir, filename.for.pgs.regression.output),
+        sep = '\t',
+        row.names = FALSE,
+        col.names = TRUE,
+        quote = FALSE
+        );
+    }
+
+# Utility function for writing apply.polygenic.score outputs to file
+#' @title Write apply.polygenic.score output to file
+#' @description A utility function that writes the two data frames outputted by apply.polygenic.score to two tab-delimited text files.
+#' @param apply.polygenic.score.output list of two data frames: pgs.output and regression.output
+#' @param output.dir character string of the path to write both output files
+#' @param file.prefix character string of the file prefix to use for both output files
+#' @export
+write.apply.polygenic.score.output.to.file <- function(apply.polygenic.score.output, output.dir, file.prefix = NULL) {
+    # validate data input
+    if (!is.list(apply.polygenic.score.output)) {
+        stop('apply.polygenic.score.output must be a list');
+        }
+    if (!all(c('pgs.output', 'regression.output') %in% names(apply.polygenic.score.output))) {
+        stop('apply.polygenic.score.output must contain pgs.output and regression.output');
+        }
+
+    write.per.sample.pgs.table(
+        per.sample.pgs.summary.data = apply.polygenic.score.output$pgs.output,
+        output.dir = output.dir,
+        file.prefix = file.prefix
+        );
+
+    if (!is.null(apply.polygenic.score.output$regression.output)) {
+        write.pgs.regression.table(
+            pgs.regression.output = apply.polygenic.score.output$regression.output,
+            output.dir = output.dir,
+            file.prefix = file.prefix
+            );
+        }
+
     }

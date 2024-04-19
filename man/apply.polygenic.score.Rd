@@ -9,6 +9,8 @@ apply.polygenic.score(
   pgs.weight.data,
   phenotype.data = NULL,
   phenotype.analysis.columns = NULL,
+  output.dir = NULL,
+  file.prefix = NULL,
   missing.genotype.method = "mean.dosage",
   use.external.effect.allele.frequency = FALSE,
   n.percentiles = NULL,
@@ -23,6 +25,11 @@ apply.polygenic.score(
 \item{phenotype.data}{A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.}
 
 \item{phenotype.analysis.columns}{A character vector of phenotype columns to analyze. Default is NULL.}
+
+\item{output.dir}{A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
+Files are tab-separate .txt files. Default is NULL in which case no files are written.}
+
+\item{file.prefix}{A character string to prepend to the output file names. Default is NULL.}
 
 \item{missing.genotype.method}{A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".}
 
