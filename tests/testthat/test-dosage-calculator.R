@@ -177,7 +177,7 @@ test_that(
 
 test_that(
     'convert.alleles.to.pgs.dosage works on real data', {
-        test.vcf <- ApplyPolygenicScore::import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
+        test.vcf <- ApplyPolygenicScore::import.vcf('data/HG001_GIAB.vcf.gz')
 
         expect_silent(
             convert.alleles.to.pgs.dosage(

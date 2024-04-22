@@ -3,14 +3,14 @@ test_that(
         # check that correct input is accepted
         expect_no_error(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+                vcf.path = 'data/HG001_GIAB.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 )
             );
         expect_no_warning(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+                vcf.path = 'data/HG001_GIAB.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 )
@@ -18,7 +18,7 @@ test_that(
         # turn off verbose output
         expect_silent(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+                vcf.path = 'data/HG001_GIAB.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL,
                 verbose = FALSE
@@ -30,7 +30,7 @@ test_that(
 test_that(
     'import.vcf outputs a vcfR tidy object', {
         test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
@@ -61,7 +61,7 @@ test_that(
 test_that(
     'import.vcf accurately imports VCF fields', {
         test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
@@ -116,13 +116,13 @@ test_that(
 test_that(
     'import.vcf accurately imports INFO fields', {
         all.info.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
 
         select.info.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = c('DPSum', 'platforms', 'arbitrated'),
             format.fields = NULL
             );
@@ -169,13 +169,13 @@ test_that(
 test_that(
     'import.vcf accurately imports FORMAT fields', {
         all.format.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
 
         select.format.test.vcf <- import.vcf(
-            vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = c('DP', 'GQ', 'GT')
             );
@@ -204,7 +204,7 @@ test_that(
 test_that(
     'check.for.no.info.fields utility correctly catches empty INFO bug', {
         test.vcf.yes.info <- vcfR::read.vcfR(
-            file = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz',
+            file = 'data/HG001_GIAB.vcf.gz',
             convertNA = TRUE,
             verbose = FALSE
             );
@@ -228,7 +228,7 @@ test_that(
         # check that split multiallelic sites are detected
         expect_error(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample_multiallelic-split.vcf.gz',
+                vcf.path = 'data/HG001_multiallelic-split_GIAB.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 ),
@@ -237,7 +237,7 @@ test_that(
         # check that merged multiallelic sites are allowed
         expect_no_error(
             import.vcf(
-                vcf.path = 'data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample_multiallelic-merged.vcf.gz',
+                vcf.path = 'data/HG001_multiallelic-merged_GIAB.vcf.gz',
                 info.fields = NULL,
                 format.fields = NULL
                 )
