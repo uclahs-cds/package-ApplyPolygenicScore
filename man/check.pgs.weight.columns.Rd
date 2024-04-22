@@ -18,6 +18,6 @@ A logical indicating whether the file contains the required columns.
 Check that a PGS weight file contains the required columns.
 }
 \examples{
-check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight'))
-check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
+check.pgs.weight.columns(c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'));
+check.pgs.weight.columns(c('chr_name', 'chr_position', 'effect_allele', 'effect_weight'), harmonized = FALSE);
 }

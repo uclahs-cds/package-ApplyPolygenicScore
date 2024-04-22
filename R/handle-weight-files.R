@@ -5,8 +5,8 @@
 #' @return A logical indicating whether the file contains the required columns.
 #' @export
 #' @examples
-#' check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight'))
-#' check.pgs.weight.columns(x = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
+#' check.pgs.weight.columns(c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'));
+#' check.pgs.weight.columns(c('chr_name', 'chr_position', 'effect_allele', 'effect_weight'), harmonized = FALSE);
 check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
     required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
     required.harmonized.columns <- c('hm_chr', 'hm_pos');
