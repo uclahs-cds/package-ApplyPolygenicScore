@@ -627,5 +627,35 @@ test_that(
                 )
             )
 
+        # check file writing
+        temp.dir <- tempdir();
+
+        apply.polygenic.score(
+            vcf.data = test.vcf.data$dat,
+            pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+            phenotype.data = test.phenotype.data,
+            phenotype.analysis.columns = c('continuous.phenotype'),
+            output.dir = temp.dir,
+            file.prefix = 'TEST-apply-pgs'
+            );
+
+        test.pgs.filename <- generate.filename(
+            project.stem = 'TEST-apply-pgs',
+            file.core = 'per-sample-pgs-summary',
+            extension = 'txt'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.pgs.filename))
+            );
+
+        test.regression.filename <- generate.filename(
+            project.stem = 'TEST-apply-pgs',
+            file.core = 'pgs-regression-output',
+            extension = 'txt'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.regression.filename))
+            );
+
         }
     );

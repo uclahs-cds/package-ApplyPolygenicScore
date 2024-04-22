@@ -86,6 +86,9 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param pgs.weight.data A data.frame containing PGS weight data.
 #' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
 #' @param phenotype.analysis.columns A character vector of phenotype columns to analyze. Default is NULL.
+#' @param output.dir A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
+#' Files are tab-separate .txt files. Default is NULL in which case no files are written.
+#' @param file.prefix A character string to prepend to the output file names. Default is NULL.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
@@ -98,6 +101,8 @@ apply.polygenic.score <- function(
     pgs.weight.data,
     phenotype.data = NULL,
     phenotype.analysis.columns = NULL,
+    output.dir = NULL,
+    file.prefix = NULL,
     missing.genotype.method = 'mean.dosage',
     use.external.effect.allele.frequency = FALSE,
     n.percentiles = NULL,
@@ -342,6 +347,20 @@ apply.polygenic.score <- function(
         pgs.output = pgs.output,
         regression.output = regression.output
         );
+
+    # If requested, write output to file
+    if (!is.null(output.dir)) {
+
+        if (is.null(file.prefix)) {
+            file.prefix <- 'ApplyPolygenicScore';
+            }
+
+        write.apply.polygenic.score.output.to.file(
+            apply.polygenic.score.output = final.output,
+            output.dir = output.dir,
+            file.prefix = file.prefix
+            );
+        }
 
     return(final.output);
     }
