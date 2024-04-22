@@ -1,3 +1,5 @@
+exportPattern('^[[:alpha:]]+')
+
 import('vcfR');
 importFrom(
     'data.table',

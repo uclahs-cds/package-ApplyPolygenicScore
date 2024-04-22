@@ -1,4 +1,4 @@
 library(testthat);
-library(BoutrosLabTemplate);
+library(ApplyPolygenicScore);
 
-test_check('BoutrosLabTemplate');
+test_check('ApplyPolygenicScore');

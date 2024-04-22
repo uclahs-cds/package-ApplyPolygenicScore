@@ -26,7 +26,7 @@ validate.file.write.inputs <- function(data, output.dir, file.prefix) {
         }
 
     # check that output.dir is a directory
-    if (!file.exists(output.dir)) {
+    if (!dir.exists(output.dir)) {
         stop(paste('output path', output.dir, 'not found'));
         }
     }
