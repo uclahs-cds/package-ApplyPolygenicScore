@@ -345,7 +345,7 @@ test_that(
 
 test_that(
     'merge.vcf.with.pgs works correctly with real data', {
-        test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
+        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz');
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
 
         expect_no_error(

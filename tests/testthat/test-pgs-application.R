@@ -2,7 +2,7 @@ PGS.OUTPUT.INDEX <- 1;
 REGRESSION.OUTPUT.INDEX <- 2;
 test_that(
     'apply.polygenic.score correctly checks inputs', {
-        test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
+        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
         test.phenotype.data <- data.frame(Indiv = c('HG001', '2:HG001'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1));
 
@@ -599,7 +599,7 @@ test_that(
 
 test_that(
     'apply.polygenic.score works correctly on real data', {
-        test.vcf.data <- import.vcf('data/HG001_GRCh38_1_22_v4.2.1_benchmark_in_PGS003378_hmPOS_GRCh38_slop10_duplicated-sample.vcf.gz')
+        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz')
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
         test.phenotype.data <- data.frame(Indiv = c('HG001', '2:HG001'), continuous.phenotype = c(1, 2), binary.phenotype = c(0, 1));
 
