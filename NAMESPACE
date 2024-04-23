@@ -1,5 +1,3 @@
-exportPattern('^[[:alpha:]]+')
-
 import('vcfR');
 importFrom(
     'data.table',
@@ -7,8 +5,16 @@ importFrom(
     );
 import('reshape2');
 import('BoutrosLab.plotting.general');
+importFrom(
+    'lattice',
+    'draw.key'
+    );
 import('pROC');
-importFrom('grDevices', 'colorRampPalette');
+
+importFrom(
+    'grDevices',
+    'colorRampPalette'
+    );
 importFrom(
     'stats',
     'aggregate',
@@ -19,4 +25,26 @@ importFrom(
     'na.omit',
     'predict'
     );
-importFrom('utils', 'read.table', 'write.table');
+importFrom(
+    'utils',
+    'read.table',
+    'write.table'
+    );
+
+export(
+    apply.polygenic.score,
+    convert.alleles.to.pgs.dosage,
+    convert.allele.frequency.to.dosage,
+    convert.pgs.to.bed,
+    format.chromosome.notation,
+    get.pgs.percentiles,
+    import.pgs.weight.file,
+    import.vcf,
+    merge.pgs.bed,
+    merge.vcf.with.pgs,
+    parse.pgs.input.header,
+    plot.pgs.density,
+    plot.pgs.rank,
+    plot.pgs.with.continuous.phenotype,
+    run.pgs.regression
+    );
