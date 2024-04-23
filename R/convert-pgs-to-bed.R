@@ -61,7 +61,7 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
         }
 
     # concat with the rest of the prs columns
-    pgs.bed <- cbind(pgs.bed, subset(pgs.weight.data, select = -c(CHROM, POS)));
+    pgs.bed <- cbind(pgs.bed, pgs.weight.data[, !(colnames(pgs.weight.data) %in% c('CHROM', 'POS'))]);
 
     return(pgs.bed);
     }
