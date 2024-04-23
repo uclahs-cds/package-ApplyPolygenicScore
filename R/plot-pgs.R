@@ -68,7 +68,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param border.padding numeric padding for plot borders
 #' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
 #' @export
-plot.pgs.density <- function(
+create.pgs.density.plot <- function(
     pgs.data,
     phenotype.columns = NULL,
     output.dir = NULL,
@@ -262,7 +262,7 @@ plot.pgs.density <- function(
 #' @param border.padding numeric padding for plot borders
 #' @return multipanel plot object
 #' @export
-plot.pgs.with.continuous.phenotype <- function(
+create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,
     phenotype.columns,
     output.dir = NULL,

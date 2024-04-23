@@ -43,8 +43,8 @@ export(
     merge.pgs.bed,
     merge.vcf.with.pgs,
     parse.pgs.input.header,
-    plot.pgs.density,
-    plot.pgs.rank,
-    plot.pgs.with.continuous.phenotype,
+    create.pgs.density.plot,
+    create.pgs.rank.plot,
+    create.pgs.with.continuous.phenotype.plot,
     run.pgs.regression
     );

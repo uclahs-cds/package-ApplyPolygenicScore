@@ -1,5 +1,5 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- TRUE;
+SKIP.PLOTS <- FALSE;
 SKIP.COMPREHENSIVE.CASES <- FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     if (skip.plots) {
@@ -31,12 +31,12 @@ pgs.test$decile[4:5] <- NA;
 pgs.test$percentile[4:5] <- NA;
 
 test_that(
-    'plot.pgs.density correctly validates inputs', {
+    'create.pgs.density.plot  correctly validates inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # check that input data is a data frame
         expect_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = list()
                 ),
             'pgs.data must be a data.frame'
@@ -44,7 +44,7 @@ test_that(
 
         # check that the required columns are present
         expect_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = data.frame(not.recognized.PGS.colum = 1:10)
                 ),
             'No recognized PGS columns found in pgs.data'
@@ -52,7 +52,7 @@ test_that(
 
         # check that phenotype.columns is a character vector
         expect_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = pgs.test,
                 phenotype.columns = c(1,2,3)
                 ),
@@ -60,7 +60,7 @@ test_that(
             );
         # check that phenotype.columns are present in pgs.data
         expect_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = pgs.test,
                 phenotype.columns = c('missing.phenotype')
                 ),
@@ -68,7 +68,7 @@ test_that(
             );
         # check that phenotype.columns do not contain recognized PGS columns
         expect_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = pgs.test,
                 phenotype.columns = c('PGS.with.replaced.missing')
                 ),
@@ -76,7 +76,7 @@ test_that(
             );
         # check that output.dir is a real directory
         expect_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = pgs.test,
                 output.dir = 'not/a/real/directory'
                 ),
@@ -86,14 +86,14 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.density runs with no error with basic inputs', {
+    'create.pgs.density.plot  runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # plot pgs density
         expect_no_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
@@ -111,7 +111,7 @@ test_that(
             );
 
         # check returned object
-        test.plot.object <- plot.pgs.density(
+        test.plot.object <- create.pgs.density.plot (
             pgs.data = pgs.test,
             filename.prefix = 'TEST',
             output.dir = NULL
@@ -125,14 +125,14 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.density runs correctly with tidy titles enabled', {
+    'create.pgs.density.plot  runs correctly with tidy titles enabled', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # plot pgs density
         expect_no_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
@@ -146,14 +146,14 @@ test_that(
 
 
 test_that(
-    'plot.pgs.density runs correctily with user provided phenotypes', {
+    'create.pgs.density.plot  runs correctily with user provided phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # check handling of many phenotypes
         expect_no_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
                 output.dir = temp.dir,
@@ -163,7 +163,7 @@ test_that(
 
         # check handling of only continuous phenotype (not supposed to be plotted, how can I test for multipanel dimensions over a multipanel object?)
         expect_no_error(
-            plot.pgs.density(
+            create.pgs.density.plot (
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype'),
                 output.dir = temp.dir,
@@ -193,12 +193,12 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.with.continuous.phenotype correctly validates inputs', {
+    'create.pgs.with.continuous.phenotype.plot correctly validates inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # check that input data is a data frame
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = list(),
                 phenotype.columns = 'continuous.phenotype'
                 ),
@@ -207,7 +207,7 @@ test_that(
 
         # check that the required columns are present
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = data.frame(not.recognized.PGS.column = 1:10, continuous.phenotype = 1:10),
                 phenotype.columns = 'continuous.phenotype'
                 ),
@@ -216,7 +216,7 @@ test_that(
 
         # check that phenotype.column is a character vector
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c(1,2,3)
                 ),
@@ -224,7 +224,7 @@ test_that(
             );
         # check that phenotype.column is present in pgs.data
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'missing.phenotype'
                 ),
@@ -232,7 +232,7 @@ test_that(
             );
         # check that phenotype.column does not contain recognized PGS columns
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'PGS.with.replaced.missing'
                 ),
@@ -240,7 +240,7 @@ test_that(
             );
         # check that at least one of the phenotype columns provided is a continuous variable
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'binary.phenotype'
                 ),
@@ -248,7 +248,7 @@ test_that(
             );
         # check that output.dir is a real directory
         expect_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'continuous.phenotype',
                 output.dir = 'not/a/real/directory'
@@ -259,14 +259,14 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.with.continuous.phenotype runs with no error with basic inputs', {
+    'create.pgs.with.continuous.phenotype.plot runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # plot pgs with continuous phenotype
         expect_no_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = 'continuous.phenotype',
                 output.dir = temp.dir,
@@ -284,7 +284,7 @@ test_that(
             );
 
         # check returned object
-        test.plot.object <- plot.pgs.with.continuous.phenotype(
+        test.plot.object <- create.pgs.with.continuous.phenotype.plot(
             pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
             phenotype.columns = 'continuous.phenotype',
             filename.prefix = 'TEST',
@@ -299,14 +299,14 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.with.continuous.phenotype runs correctly with correlation disabled', {
+    'create.pgs.with.continuous.phenotype.plot runs correctly with correlation disabled', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
         # plot pgs with continuous phenotype
         expect_no_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'continuous.phenotype',
                 output.dir = temp.dir,
@@ -328,14 +328,14 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.with.continuous.phenotype runs correctly with tidy titles enabled', {
+    'create.pgs.with.continuous.phenotype.plot runs correctly with tidy titles enabled', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
         # plot pgs with continuous phenotype
         expect_no_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'continuous.phenotype',
                 output.dir = temp.dir,
@@ -348,7 +348,7 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.with.continuous.phenotype runs correctly with multiple phenotypes', {
+    'create.pgs.with.continuous.phenotype.plot runs correctly with multiple phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # add another continuous phenotype
@@ -358,7 +358,7 @@ test_that(
 
         # plot pgs with continuous phenotype
         expect_no_error(
-            plot.pgs.with.continuous.phenotype(
+            create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2'),
                 output.dir = temp.dir,
@@ -379,10 +379,10 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.rank correctly validates inputs', {
+    'create.pgs.rank.plot correctly validates inputs', {
         # check that input data is a data frame
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = list()
                 ),
             'pgs.data must be a data frame'
@@ -390,21 +390,21 @@ test_that(
 
         # check that required columns are present
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = data.frame(sample = 1:10)
                 ),
             'pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes'
             );
         # check that missing genotype style is correct
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 missing.genotype.style = 'not.a.style'
                 ),
             'missing.genotype.style must be either "count" or "percent"'
             );
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 missing.genotype.style = c('count', 'percent')
                 ),
@@ -413,7 +413,7 @@ test_that(
 
         # check that phenotype.columns is a character vector
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c(4,5,6)
                 ),
@@ -421,7 +421,7 @@ test_that(
             );
         # check that phenotype.columns are present in data
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'missing.phenotype'
                 ),
@@ -429,7 +429,7 @@ test_that(
             );
         # check that output.dir is a directory
         expect_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 output.dir = 'not/a/directory'
                 ),
@@ -439,14 +439,14 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.rank runs with no error with basic inputs', {
+    'create.pgs.rank.plot runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # check file writing
         temp.dir <- tempdir();
 
         expect_no_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 filename.prefix = 'TEST',
                 output.dir = temp.dir
@@ -463,7 +463,7 @@ test_that(
             );
 
         # check returned object
-        test.plot.object <- plot.pgs.rank(
+        test.plot.object <- create.pgs.rank.plot(
             pgs.data = pgs.test,
             filename.prefix = 'TEST',
             output.dir = NULL
@@ -477,13 +477,13 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.rank correctly switches between missing genotype barplot styles', {
+    'create.pgs.rank.plot correctly switches between missing genotype barplot styles', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
         expect_no_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 filename.prefix = 'TEST-missing-genotype-percent',
                 output.dir = temp.dir,
@@ -503,13 +503,13 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.rank runs correctly with user provided phenotypes',{
+    'create.pgs.rank.plot runs correctly with user provided phenotypes',{
         skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
 
         expect_no_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
                 filename.prefix = 'TEST-all-phenotypes',
@@ -530,7 +530,7 @@ test_that(
     );
 
 test_that(
-    'plot.pgs.rank runs correctly when no missing genotypes are present', {
+    'create.pgs.rank.plot runs correctly when no missing genotypes are present', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
         temp.dir <- tempdir();
@@ -540,7 +540,7 @@ test_that(
         pgs.no.missing.test$n.missing.genotypes <- 0;
 
         expect_no_error(
-            plot.pgs.rank(
+            create.pgs.rank.plot(
                 pgs.data = pgs.no.missing.test,
                 filename.prefix = 'TEST-no-missing',
                 output.dir = temp.dir

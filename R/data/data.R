@@ -28,4 +28,4 @@
 #' }
 #' @source Genome in a Bottle Consortium. https://www.nist.gov/programs-projects/genome-bottle
 #' FTP: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/
-"GIAB_VCF"
+'GIAB_VCF'
