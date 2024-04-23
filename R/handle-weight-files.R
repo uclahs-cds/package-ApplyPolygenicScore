@@ -4,20 +4,6 @@
 #' @param harmonized A logical indicating whether the presence of harmonized columns should be checked.
 #' @return A logical indicating whether the file contains the required columns.
 #' @export
-#' @examples
-#' pgs.weight.colnames <- c(
-#'     'chr_name',
-#'     'chr_position',
-#'     'effect_allele',
-#'     'effect_weight'
-#'     );
-#'
-#' check.pgs.weight.columns(c(pgs.weight.colnames, 'hm_chr', 'hm_pos'));
-#'
-#' check.pgs.weight.columns(
-#'     pgs.weight.colnames,
-#'     harmonized = FALSE
-#'     );
 check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
     required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
     required.harmonized.columns <- c('hm_chr', 'hm_pos');
