@@ -34,6 +34,8 @@ plot.pgs.with.continuous.phenotype(
 
 \item{file.extension}{character file extension for output plots}
 
+\item{tidy.titles}{logical whether to reformat PGS plot titles to remove periods}
+
 \item{compute.correlation}{logical whether to compute correlation between PGS and phenotype and display in plot}
 
 \item{corr.legend.corner}{numeric vector indicating the corner of the correlation legend e.g. c(0,1) for top left}
@@ -51,6 +53,8 @@ plot.pgs.with.continuous.phenotype(
 \item{titles.cex}{numeric cex for plot titles}
 
 \item{point.cex}{numeric cex for plot points}
+
+\item{border.padding}{numeric padding for plot borders}
 }
 \value{
 multipanel plot object

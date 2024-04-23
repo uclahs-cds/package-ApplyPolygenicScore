@@ -249,6 +249,7 @@ plot.pgs.density <- function(
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
+#' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
 #' @param compute.correlation logical whether to compute correlation between PGS and phenotype and display in plot
 #' @param corr.legend.corner numeric vector indicating the corner of the correlation legend e.g. c(0,1) for top left
 #' @param corr.legend.cex numeric cex for correlation legend
@@ -258,6 +259,7 @@ plot.pgs.density <- function(
 #' @param yaxes.cex numeric cex for y-axis labels
 #' @param titles.cex numeric cex for plot titles
 #' @param point.cex numeric cex for plot points
+#' @param border.padding numeric padding for plot borders
 #' @return multipanel plot object
 #' @export
 plot.pgs.with.continuous.phenotype <- function(
