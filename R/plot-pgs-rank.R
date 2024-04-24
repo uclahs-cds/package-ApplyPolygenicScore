@@ -96,7 +96,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' @param border.padding numeric padding around plot border.
 #' @return lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
 #' @export
-plot.pgs.rank <- function(
+create.pgs.rank.plot <- function(
     pgs.data,
     phenotype.columns = NULL,
     missing.genotype.style = 'count',
