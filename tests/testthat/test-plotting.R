@@ -31,12 +31,12 @@ pgs.test$decile[4:5] <- NA;
 pgs.test$percentile[4:5] <- NA;
 
 test_that(
-    'create.pgs.density.plot  correctly validates inputs', {
+    'create.pgs.density.plot correctly validates inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         # check that input data is a data frame
         expect_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = list()
                 ),
             'pgs.data must be a data.frame'
@@ -44,7 +44,7 @@ test_that(
 
         # check that the required columns are present
         expect_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = data.frame(not.recognized.PGS.colum = 1:10)
                 ),
             'No recognized PGS columns found in pgs.data'
@@ -52,7 +52,7 @@ test_that(
 
         # check that phenotype.columns is a character vector
         expect_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c(1,2,3)
                 ),
@@ -60,7 +60,7 @@ test_that(
             );
         # check that phenotype.columns are present in pgs.data
         expect_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('missing.phenotype')
                 ),
@@ -68,7 +68,7 @@ test_that(
             );
         # check that phenotype.columns do not contain recognized PGS columns
         expect_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('PGS.with.replaced.missing')
                 ),
@@ -76,7 +76,7 @@ test_that(
             );
         # check that output.dir is a real directory
         expect_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = pgs.test,
                 output.dir = 'not/a/real/directory'
                 ),
@@ -86,14 +86,14 @@ test_that(
     );
 
 test_that(
-    'create.pgs.density.plot  runs with no error with basic inputs', {
+    'create.pgs.density.plot runs with no error with basic inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # plot pgs density
         expect_no_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
@@ -111,7 +111,7 @@ test_that(
             );
 
         # check returned object
-        test.plot.object <- create.pgs.density.plot (
+        test.plot.object <- create.pgs.density.plot(
             pgs.data = pgs.test,
             filename.prefix = 'TEST',
             output.dir = NULL
@@ -125,14 +125,14 @@ test_that(
     );
 
 test_that(
-    'create.pgs.density.plot  runs correctly with tidy titles enabled', {
+    'create.pgs.density.plot runs correctly with tidy titles enabled', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # plot pgs density
         expect_no_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
                 phenotype.columns = NULL,
                 output.dir = temp.dir,
@@ -146,14 +146,14 @@ test_that(
 
 
 test_that(
-    'create.pgs.density.plot  runs correctily with user provided phenotypes', {
+    'create.pgs.density.plot runs correctily with user provided phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
 
         # check handling of many phenotypes
         expect_no_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
                 output.dir = temp.dir,
@@ -163,7 +163,7 @@ test_that(
 
         # check handling of only continuous phenotype (not supposed to be plotted, how can I test for multipanel dimensions over a multipanel object?)
         expect_no_error(
-            create.pgs.density.plot (
+            create.pgs.density.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype'),
                 output.dir = temp.dir,
