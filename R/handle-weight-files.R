@@ -90,12 +90,12 @@ import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) 
     check.pgs.weight.columns(pgs.weight.colnames = colnames(pgs.weight.data), harmonized = use.harmonized.data);
 
     # check for duplicate variants
-    if (any(duplicated(paste0(pgs.weight.data$chr_name, pgs.weight.data$chr_position, pgs.weight.data$effect_allele)))) {
+    if (any(duplicated(paste(pgs.weight.data$chr_name, pgs.weight.data$chr_position, pgs.weight.data$effect_allele, sep = ':')))) {
         stop('Duplicate variants are present in the PGS weight file. Please remove duplicate variants.');
         }
 
     # check for multiallelic variants
-    if (any(duplicated(paste0(pgs.weight.data$chr_name, pgs.weight.data$chr_position)))) {
+    if (any(duplicated(paste(pgs.weight.data$chr_name, pgs.weight.data$chr_position, sep = ':')))) {
         warning('Duplicate variants with different effect alleles detected in the PGS weight file. Please ensure these are true multiallelic sites.');
         }
 
