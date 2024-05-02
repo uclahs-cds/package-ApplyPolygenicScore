@@ -206,6 +206,16 @@ test_that(
     );
 
 test_that(
+    'import.pgs.weight.file identifies multiallelic variants', {
+        # check that a warning is issued
+        expect_warning(
+            import.pgs.weight.file(pgs.weight.path = 'data/PGS003378_hmPOS_GRCh38_multiallelic-variants.txt', use.harmonized.data = FALSE),
+            'Duplicate variants with different effect alleles detected in the PGS weight file. Please ensure these are true multiallelic sites.'
+            );
+        }
+    );
+
+test_that(
     'import.pgs.weight.file recognizes unreported weight format', {
       # check that a warning is issued
         expect_warning(

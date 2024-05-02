@@ -14,7 +14,7 @@ validate.vcf.input <- function(vcf.data) {
 
     # check that all samples have variant data represented for all variants
     n.samples <- length(unique(vcf.data$Indiv));
-    n.variants <- length(unique(paste0(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT)));
+    n.variants <- length(unique(paste(vcf.data$CHROM, vcf.data$POS, vcf.data$REF, vcf.data$ALT, sep = ':')));
     if (nrow(vcf.data) != n.samples * n.variants) {
         stop('Number of vcf data rows is not equivalent to number of samples times number of variants. Please ensure that all samples have variant data represented for all variants.');
         }
@@ -40,12 +40,12 @@ validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.
         }
 
     # check for duplicate variants in PGS data
-    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele)))) {
+    if (any(duplicated(paste(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele, sep = ':')))) {
         stop('Duplicate variants detected in the PGS weight data. Please ensure only unique coordinate:effect allele combinations are present.');
         }
 
     # check for duplicate coordinates in PGS data
-    if (any(duplicated(paste0(pgs.weight.data$CHROM, pgs.weight.data$POS)))) {
+    if (any(duplicated(paste(pgs.weight.data$CHROM, pgs.weight.data$POS, sep = ':')))) {
         warning('Duplicate variants detected in the PGS weight data. These will be treated as multiallelic sites.');
         }
     }
