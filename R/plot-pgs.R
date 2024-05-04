@@ -144,6 +144,16 @@ create.pgs.density.plot <- function(
                 if (length(pgs.data.for.plotting) > max.categories) {
                     # Issue a warning that plot is being skipped
                     warning(paste0('Skipping plot for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
+                    # replace with empty plot
+                    pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
+                        x = pgs.data.for.plotting,
+                        ylab.label = NULL,
+                        main = pgs.column.main,
+                        main.cex = titles.cex,
+                        yaxis.cex = yaxes.cex,
+                        xaxis.cex = xaxes.cex,
+                        lwd = 0
+                        );
                     next;
                     }
 
