@@ -173,7 +173,7 @@ create.pgs.density.plot <- function(
                     all.line.lty <- rep(1:color.scheme.reps, each = max.colors);
                     plot.line.lty <- all.line.lty[1:length(pgs.data.for.plotting)];
                     } else {
-                        plot.colors <- BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting));
+                        plot.colors <- suppressWarnings(BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting)));
                         plot.line.lty <- 1;
                     }
 
