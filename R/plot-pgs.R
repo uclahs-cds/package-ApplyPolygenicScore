@@ -172,7 +172,7 @@ create.pgs.density.plot <- function(
                     plot.line.lty <- all.line.lty[1:length(pgs.data.for.plotting)];
                     } else {
                         plot.colors <- BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting));
-                        plot.line.lty <- rep(1:length(pgs.data.for.plotting));
+                        plot.line.lty <- 1;
                     }
 
                 pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
