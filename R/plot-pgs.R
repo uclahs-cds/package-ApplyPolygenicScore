@@ -41,7 +41,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
             split.data <- aggregate(
                 x = pgs,
                 by = list(phenotype.column),
-                FUN = c
+                FUN = c,
+                simplify = FALSE
                 );
             split.data.list <- split.data$x;
             names(split.data.list) <- split.data$Group.1;
@@ -137,6 +138,43 @@ create.pgs.density.plot <- function(
             for (phenotype in names(pgs.by.phenotype)) {
                 pgs.data.for.plotting <- pgs.by.phenotype[[phenotype]];
 
+                # color handling
+                max.colors <- 12;
+                max.lty <- 6;
+                max.categories <- max.colors * max.lty;
+                if (length(pgs.data.for.plotting) > max.categories) {
+                    # Issue a warning that plot is not bein color-coded
+                    warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
+                    # plot all lines in black
+                    pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
+                        x = pgs.data.for.plotting,
+                        ylab.label = NULL,
+                        xlab.label = phenotype,
+                        main = pgs.column.main,
+                        main.cex = titles.cex,
+                        xlab.cex = titles.cex,
+                        yaxis.cex = yaxes.cex,
+                        xaxis.cex = xaxes.cex,
+                        lwd = 2,
+                        col = 'black'
+                        );
+                    next;
+                    }
+
+                if (length(pgs.data.for.plotting) > max.colors) {
+                    all.colors <- suppressWarnings( #suppress grey scale incompatibility warnings
+                        BoutrosLab.plotting.general::default.colours(max.colors)
+                        );
+                    color.scheme.reps <- ceiling(length(pgs.data.for.plotting) / max.colors);
+                    all.colors <- rep(all.colors, color.scheme.reps);
+                    plot.colors <- all.colors[1:length(pgs.data.for.plotting)];
+                    all.line.lty <- rep(1:color.scheme.reps, each = max.colors);
+                    plot.line.lty <- all.line.lty[1:length(pgs.data.for.plotting)];
+                    } else {
+                        plot.colors <- BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting));
+                        plot.line.lty <- rep(1:length(pgs.data.for.plotting));
+                    }
+
                 pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
                     x = pgs.data.for.plotting,
                     xlab.label = phenotype,
@@ -147,7 +185,8 @@ create.pgs.density.plot <- function(
                     yaxis.cex = yaxes.cex,
                     xaxis.cex = xaxes.cex,
                     lwd = 2,
-                    col = BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting)),
+                    lty = plot.line.lty,
+                    col = plot.colors,
                     # Legend
                     legend = list(
                         inside = list(
@@ -155,8 +194,9 @@ create.pgs.density.plot <- function(
                             args = list(
                                 key = list(
                                     lines = list(
-                                        col = BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting)),
-                                        lwd = 2
+                                        col = plot.colors,
+                                        lwd = 2,
+                                        lty = plot.line.lty
                                         ),
                                     text = list(
                                         lab = names(pgs.data.for.plotting)
