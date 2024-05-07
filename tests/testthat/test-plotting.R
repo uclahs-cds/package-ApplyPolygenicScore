@@ -125,6 +125,40 @@ test_that(
     );
 
 test_that(
+    'create.pgs.densityplot runs correctly with large number of phenotype categories', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # extend test data data frame by repeating itself a bunch of times
+        very.categorical.pgs.test <- pgs.test[rep(1:nrow(pgs.test), 73 * 4), ];
+        # simulate a PGS column
+        very.categorical.pgs.test$PGS <- rnorm(nrow(very.categorical.pgs.test));
+        # add more categories to categorical phenotype
+        very.categorical.pgs.test$very.categorical.phenotype <- as.character(rep(1:73, each = nrow(pgs.test)));
+
+        expect_warning(
+            create.pgs.density.plot(
+                pgs.data = very.categorical.pgs.test,
+                phenotype.columns = 'very.categorical.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-many-categories'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-many-categories',
+            file.core = 'pgs-density',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
     'create.pgs.density.plot runs correctly with tidy titles enabled', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
