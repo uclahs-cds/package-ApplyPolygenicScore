@@ -16,6 +16,7 @@ create.pgs.density.plot(
   xaxes.cex = 1.5,
   yaxes.cex = 1.5,
   titles.cex = 1.5,
+  key.cex = 1,
   border.padding = 1
 )
 }
@@ -41,6 +42,8 @@ create.pgs.density.plot(
 \item{yaxes.cex}{numeric cex for all y-axis labels in inches}
 
 \item{titles.cex}{numeric cex for all plot titles in inches}
+
+\item{key.cex}{numeric size of color key legend}
 
 \item{border.padding}{numeric padding for plot borders}
 }

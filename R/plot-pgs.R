@@ -66,6 +66,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param xaxes.cex numeric cex for all x-axis labels in inches
 #' @param yaxes.cex numeric cex for all y-axis labels in inches
 #' @param titles.cex numeric cex for all plot titles in inches
+#' @param key.cex numeric size of color key legend
 #' @param border.padding numeric padding for plot borders
 #' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
 #' @export
@@ -81,6 +82,7 @@ create.pgs.density.plot <- function(
     xaxes.cex = 1.5,
     yaxes.cex = 1.5,
     titles.cex = 1.5,
+    key.cex = 1,
     border.padding = 1
     ) {
     # check input
@@ -202,7 +204,8 @@ create.pgs.density.plot <- function(
                                         lab = names(pgs.data.for.plotting)
                                         ),
                                     padding.text = c(0,5,0),
-                                    cex = 1
+                                    size = key.cex * 1.5,
+                                    cex = key.cex
                                     )
                                 ),
                             x = 0.65,
