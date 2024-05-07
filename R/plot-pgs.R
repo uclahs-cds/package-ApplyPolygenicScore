@@ -41,7 +41,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
             split.data <- aggregate(
                 x = pgs,
                 by = list(phenotype.column),
-                FUN = c
+                FUN = c,
+                simplify = FALSE
                 );
             split.data.list <- split.data$x;
             names(split.data.list) <- split.data$Group.1;
@@ -142,23 +143,28 @@ create.pgs.density.plot <- function(
                 max.lty <- 6;
                 max.categories <- max.colors * max.lty;
                 if (length(pgs.data.for.plotting) > max.categories) {
-                    # Issue a warning that plot is being skipped
-                    warning(paste0('Skipping plot for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
-                    # replace with empty plot
+                    # Issue a warning that plot is not bein color-coded
+                    warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
+                    # plot all lines in black
                     pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
                         x = pgs.data.for.plotting,
                         ylab.label = NULL,
+                        xlab.label = phenotype,
                         main = pgs.column.main,
                         main.cex = titles.cex,
+                        xlab.cex = titles.cex,
                         yaxis.cex = yaxes.cex,
                         xaxis.cex = xaxes.cex,
-                        lwd = 0
+                        lwd = 2,
+                        col = 'black'
                         );
                     next;
                     }
 
                 if (length(pgs.data.for.plotting) > max.colors) {
-                    all.colors <- BoutrosLab.plotting.general::default.colours(max.colors);
+                    all.colors <- suppressWarnings( #suppress grey scale incompatibility warnings
+                        BoutrosLab.plotting.general::default.colours(max.colors)
+                        );
                     color.scheme.reps <- ceiling(length(pgs.data.for.plotting) / max.colors);
                     all.colors <- rep(all.colors, color.scheme.reps);
                     plot.colors <- all.colors[1:length(pgs.data.for.plotting)];
