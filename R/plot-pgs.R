@@ -237,6 +237,14 @@ create.pgs.density.plot <- function(
 
     # assemble multipanel plot
     if (length(pgs.density.by.phenotype.plots) != 0) {
+        # phenotype plots are in column-wise order, but need to be in row-wise order to match multipanelplot layout
+        phenotype.grid.height <- length(pgs.by.phenotype);
+        phenotype.grid.width <- length(pgs.density.plots);
+        phenotype.plot.indices <- matrix(1:(phenotype.grid.height * phenotype.grid.width), nrow = phenotype.grid.width, byrow = TRUE);
+        phenotype.plot.indices <- as.vector(phenotype.plot.indices);
+
+        pgs.density.by.phenotype.plots <- pgs.density.by.phenotype.plots[phenotype.plot.indices];
+
         density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
             plot.objects = c(pgs.density.plots, pgs.density.by.phenotype.plots),
             filename = output.path,
