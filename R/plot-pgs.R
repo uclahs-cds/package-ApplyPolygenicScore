@@ -66,6 +66,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param xaxes.cex numeric cex for all x-axis labels in inches
 #' @param yaxes.cex numeric cex for all y-axis labels in inches
 #' @param titles.cex numeric cex for all plot titles in inches
+#' @param key.cex numeric size of color key legend
 #' @param border.padding numeric padding for plot borders
 #' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
 #' @export
@@ -81,6 +82,7 @@ create.pgs.density.plot <- function(
     xaxes.cex = 1.5,
     yaxes.cex = 1.5,
     titles.cex = 1.5,
+    key.cex = 1,
     border.padding = 1
     ) {
     # check input
@@ -171,8 +173,8 @@ create.pgs.density.plot <- function(
                     all.line.lty <- rep(1:color.scheme.reps, each = max.colors);
                     plot.line.lty <- all.line.lty[1:length(pgs.data.for.plotting)];
                     } else {
-                        plot.colors <- BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting));
-                        plot.line.lty <- rep(1:length(pgs.data.for.plotting));
+                        plot.colors <- suppressWarnings(BoutrosLab.plotting.general::default.colours(length(pgs.data.for.plotting)));
+                        plot.line.lty <- 1;
                     }
 
                 pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
@@ -202,7 +204,8 @@ create.pgs.density.plot <- function(
                                         lab = names(pgs.data.for.plotting)
                                         ),
                                     padding.text = c(0,5,0),
-                                    cex = 1
+                                    size = key.cex * 1.5,
+                                    cex = key.cex
                                     )
                                 ),
                             x = 0.65,
@@ -237,6 +240,14 @@ create.pgs.density.plot <- function(
 
     # assemble multipanel plot
     if (length(pgs.density.by.phenotype.plots) != 0) {
+        # phenotype plots are in column-wise order, but need to be in row-wise order to match multipanelplot layout
+        phenotype.grid.height <- length(pgs.by.phenotype);
+        phenotype.grid.width <- length(pgs.density.plots);
+        phenotype.plot.indices <- matrix(1:(phenotype.grid.height * phenotype.grid.width), nrow = phenotype.grid.width, byrow = TRUE);
+        phenotype.plot.indices <- as.vector(phenotype.plot.indices);
+
+        pgs.density.by.phenotype.plots <- pgs.density.by.phenotype.plots[phenotype.plot.indices];
+
         density.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
             plot.objects = c(pgs.density.plots, pgs.density.by.phenotype.plots),
             filename = output.path,
