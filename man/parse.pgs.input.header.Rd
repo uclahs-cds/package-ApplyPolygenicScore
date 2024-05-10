@@ -15,3 +15,8 @@ A data frame containing the metadata from the file header.
 \description{
 Parse metadata from a PGS input file header.
 }
+\examples{
+# Example pgs weight file
+pgs.weight.path <- system.file('extdata', 'PGS000662_hmPOS_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE);
+parse.pgs.input.header(pgs.weight.path);
+}

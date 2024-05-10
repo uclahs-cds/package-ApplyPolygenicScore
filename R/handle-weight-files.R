@@ -37,6 +37,10 @@ open.input.connection <- function(input) {
 #' @description Parse metadata from a PGS input file header.
 #' @param pgs.weight.path A character string indicating the path to the pgs weight file.
 #' @return A data frame containing the metadata from the file header.
+#' @examples
+#' # Example pgs weight file
+#' pgs.weight.path <- system.file('extdata', 'PGS000662_hmPOS_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE);
+#' parse.pgs.input.header(pgs.weight.path);
 #' @export
 parse.pgs.input.header <- function(pgs.weight.path) {
     # open file connection
@@ -68,6 +72,12 @@ parse.pgs.input.header <- function(pgs.weight.path) {
 #' @param pgs.weight.path A character string indicating the path to the pgs weight file.
 #' @param use.harmonized.data A logical indicating whether the file should be formatted to indicate harmonized data columns for use in future PGS application.
 #' @return A list containing the file metadata and the weight data.
+#' #' # Example pgs weight file
+#' pgs.weight.path <- system.file('extdata', 'PGS000662_hmPOS_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE);
+#' import.pgs.weight.file(pgs.weight.path);
+#' 
+#' # Note, harmonized data is used by default. To disable set `use.harmonized.data = FALSE`
+#' import.pgs.weight.file(pgs.weight.path, use.harmonized.data = FALSE);
 #' @export
 import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) {
 
