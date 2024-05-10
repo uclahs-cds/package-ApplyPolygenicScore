@@ -85,6 +85,21 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 #' @param annotation.column.index An integer indicating the index of the column in the data frames in pgs.bed.list that should be added to the annotation column.
 #' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
 #' @return A data.frame containing the merged PGS coordinates in BED format with an extra annotation column containing the name of the PGS and data from one additional column optionally selected by the user.
+#' @examples
+#' bed1 <- data.frame(
+#'  chr = c(1, 2, 3),
+#'  start = c(10, 20, 30),
+#'  end = c(20, 30, 40),
+#'  annotation = c('a', 'b', 'c')
+#'  );
+#' bed2 <- data.frame(
+#'  chr = c(1, 2, 3),
+#'  start = c(15, 25, 35),
+#'  end = c(25, 35, 45),
+#'  annotation = c('d', 'e', 'f')
+#'  );
+#' bed.input <- list(bed1 = bed1, bed2 = bed2)
+#' merge.pgs.bed(bed.input)
 #' @export
 merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
 

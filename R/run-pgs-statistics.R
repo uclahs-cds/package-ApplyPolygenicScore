@@ -3,6 +3,9 @@
 #' @param pgs numeric vector of polygenic scores
 #' @param n.percentiles integer number of percentiles to calculate (optional)
 #' @return data frame with columns for percentile, decile, quartile, and optional n.percentiles
+#' @examples
+#' x <- rnorm(100);
+#' get.pgs.percentiles(x, n.percentiles = 20);
 #' @export
 get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
 

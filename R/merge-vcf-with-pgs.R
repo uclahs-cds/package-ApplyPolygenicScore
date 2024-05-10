@@ -4,6 +4,29 @@
 #' @param vcf.data A data.frame containing VCF data.
 #' @param pgs.weight.data A data.frame containing PGS data.
 #' @return A list containing a data.frame of merged VCF and PGS data and a data.frame of PGS SNPs missing from the VCF.
+#' @examples
+#' # Example VCF
+#' vcf.path <- system.file(
+#'  'extdata',
+#'  'HG001_GIAB.vcf.gz',
+#'  package = 'ApplyPolygenicScore',
+#'  mustWork = TRUE
+#'  );
+#' vcf.import <- import.vcf(vcf.path);
+#' 
+#' Example pgs weight file
+#' pgs.weight.path <- system.file(
+#'  'extdata',
+#'  'PGS000662_hmPOS_GRCh38.txt.gz',
+#'  package = 'ApplyPolygenicScore',
+#'  mustWork = TRUE
+#'  );
+#' pgs.weight.import <- import.pgs.weight.file(pgs.weight.path);
+#' 
+#' merge.data <- merge.vcf.with.pgs(
+#'  vcf.data = vcf.import$dat,
+#'  pgs.weight.data = pgs.import$pgs.weight.data,
+#'  );
 #' @export
 merge.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 

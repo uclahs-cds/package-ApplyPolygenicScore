@@ -17,3 +17,7 @@ data frame with columns for percentile, decile, quartile, and optional n.percent
 \description{
 Calculate percentiles and report decile and quartile ranks for a vector of polygenic scores
 }
+\examples{
+x <- rnorm(100);
+get.pgs.percentiles(x, n.percentiles = 20);
+}

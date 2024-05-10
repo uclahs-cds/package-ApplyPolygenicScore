@@ -14,7 +14,12 @@ import.pgs.weight.file(pgs.weight.path, use.harmonized.data = TRUE)
 \value{
 A list containing the file metadata and the weight data.
 #' # Example pgs weight file
-pgs.weight.path <- system.file('extdata', 'PGS000662_hmPOS_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE);
+pgs.weight.path <- system.file(
+ 'extdata',
+ 'PGS000662_hmPOS_GRCh38.txt.gz',
+ package = 'ApplyPolygenicScore',
+ mustWork = TRUE
+ );
 import.pgs.weight.file(pgs.weight.path);
 
 # Note, harmonized data is used by default. To disable set `use.harmonized.data = FALSE`

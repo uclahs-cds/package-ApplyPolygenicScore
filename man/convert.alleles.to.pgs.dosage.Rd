@@ -17,3 +17,8 @@ A vector of dosages corresponding to each genotype in called.alleles.
 \description{
 Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages based on provided risk alleles from a PGS (0, 1, or 2).
 }
+\examples{
+called.alleles <- c('A/A', 'A/T', 'T/T');
+risk.alleles <- c('T', 'T', 'T');
+convert.alleles.to.pgs.dosage(called.alleles, risk.alleles)
+}

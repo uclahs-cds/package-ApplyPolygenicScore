@@ -18,3 +18,27 @@ A list containing a data.frame of merged VCF and PGS data and a data.frame of PG
 Match PGS SNPs to corresponding VCF information by genomic coordinates via merge.
 The merge is a left outer join, meaning that all PGS SNPs will be kept even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS will be dropped.
 }
+\examples{
+# Example VCF
+vcf.path <- system.file(
+ 'extdata',
+ 'HG001_GIAB.vcf.gz',
+ package = 'ApplyPolygenicScore',
+ mustWork = TRUE
+ );
+vcf.import <- import.vcf(vcf.path);
+
+Example pgs weight file
+pgs.weight.path <- system.file(
+ 'extdata',
+ 'PGS000662_hmPOS_GRCh38.txt.gz',
+ package = 'ApplyPolygenicScore',
+ mustWork = TRUE
+ );
+pgs.weight.import <- import.pgs.weight.file(pgs.weight.path);
+
+merge.data <- merge.vcf.with.pgs(
+ vcf.data = vcf.import$dat,
+ pgs.weight.data = pgs.import$pgs.weight.data,
+ );
+}

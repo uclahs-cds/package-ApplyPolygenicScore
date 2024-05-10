@@ -15,3 +15,7 @@ A numeric vector of mean dosages for the allele frequencies.
 \description{
 Convert a population allele frequency to a mean dosage for that allele.
 }
+\examples{
+allele.frequency <- seq(0.1, 0.9, 0.1);
+convert.allele.frequency.to.dosage(allele.frequency);
+}
