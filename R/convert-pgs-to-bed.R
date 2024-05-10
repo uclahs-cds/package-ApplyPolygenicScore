@@ -19,6 +19,18 @@ add.slop <- function(bed, slop) {
 #' @param numeric.sex.chr A logical indicating whether the sex chromosomes should be formatted numerically, as opposed to alphabetically.
 #' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
 #' @return A data.frame containing the PGS component SNP coordinate data in BED format and any other columns provided in pgs.weight.data.
+#' @examples
+#' pgs.weight.data <- data.frame(
+#'  CHROM = c('chr1', 'chrX'),
+#'  POS = c(10, 20)
+#'  );
+#' convert.pgs.to.bed(pgs.weight.data);
+#' 
+#' # Switch between different chromosome notations
+#' convert.pgs.to.bed(pgs.weight.data, chr.prefix = FALSE, numeric.sex.chr = TRUE);
+#' 
+#' # Add slop to BED intervals
+#' convert.pgs.to.bed(pgs.weight.data, slop = 10);
 #' @export
 convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.chr = FALSE, slop = 0) {
     # check that data is a data.frame

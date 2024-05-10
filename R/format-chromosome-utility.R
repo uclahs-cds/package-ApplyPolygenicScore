@@ -4,6 +4,11 @@
 #' @param chr.prefix A logical indicating whether the 'chr' prefix should be used when formatting chromosome name.
 #' @param numeric.sex.chr A logical indicating whether the sex chromosomes should be formatted numerically, as opposed to alphabetically.
 #' @return A character vector of chromosome names formatted according to user specifications.
+#' @examples
+#' numeric.chr <- c(1,2,23,24);
+#' chr.with.prefix <- c('chr1', 'chr2', 'chrX', 'chrY');
+#' format.chromosome.notation(numeric.chr, chr.prefix = TRUE, numeric.sex.chr = FALSE);
+#' format.chromosome.notation(chr.with.prefix, chr.prefix = FALSE, numeri.sex.chr = TRUE);
 #' @export
 format.chromosome.notation <- function(chromosome, chr.prefix, numeric.sex.chr) {
     chromosome <- as.character(chromosome);

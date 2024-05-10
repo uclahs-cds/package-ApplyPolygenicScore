@@ -3,6 +3,10 @@
 #' @param called.alleles A vector of genotypes in allelic notation separated by a slash or pipe.
 #' @param risk.alleles A vector of risk alleles from a polygenic score corresponding to each genotype (by locus) in called.alleles.
 #' @return A vector of dosages corresponding to each genotype in called.alleles.
+#' @examples
+#' called.alleles <- c('A/A', 'A/T', 'T/T');
+#' risk.alleles <- c('T', 'T', 'T');
+#' convert.alleles.to.pgs.dosage(called.alleles, risk.alleles)
 #' @export
 convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
     # check that risk.alleles is the same length as called.alleles
@@ -77,6 +81,9 @@ calculate.missing.genotype.dosage <- function(dosage.matrix) {
 #' @description Convert a population allele frequency to a mean dosage for that allele.
 #' @param allele.frequency A numeric vector of allele frequencies.
 #' @return A numeric vector of mean dosages for the allele frequencies.
+#' @examples
+#' allele.frequency <- seq(0.1, 0.9, 0.1);
+#' convert.allele.frequency.to.dosage(allele.frequency);
 #' @export
 convert.allele.frequency.to.dosage <- function(allele.frequency) {
     # check that allele.frequency is a numeric vector
