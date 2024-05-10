@@ -32,7 +32,12 @@ check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
 #' @return A list containing a tibble of VCF meta data and a tibble data.frame containing the parsed VCF data in long form.
 #' @examples
 #' # Example VCF
-#' vcf <- system.file('extdata', 'HG001_GIAB.vcf.gz', package = 'ApplyPolygenicScore', mustWork = TRUE);
+#' vcf <- system.file(
+#'  'extdata',
+#'  'HG001_GIAB.vcf.gz',
+#'  package = 'ApplyPolygenicScore',
+#'  mustWork = TRUE
+#'  );
 #' vcf.data <- import.vcf(vcf.path = vcf);
 #' @export
 import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE) {

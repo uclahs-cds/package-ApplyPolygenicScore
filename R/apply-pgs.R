@@ -91,10 +91,58 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param file.prefix A character string to prepend to the output file names. Default is NULL.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
 #' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
+#' Provide allele frequency as a column is `pgs.weight.data` named `allelefrequency_effect`.
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
 #' When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
 #' @return A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
+#' @examples
+#' #' # Example VCF
+#' vcf.path <- system.file(
+#'  'extdata',
+#'  'HG001_GIAB.vcf.gz',
+#'  package = 'ApplyPolygenicScore',
+#'  mustWork = TRUE
+#'  );
+#' vcf.import <- import.vcf(vcf.path);
+#' 
+#' Example pgs weight file
+#' pgs.weight.path <- system.file(
+#'  'extdata',
+#'  'PGS000662_hmPOS_GRCh38.txt.gz',
+#'  package = 'ApplyPolygenicScore',
+#'  mustWork = TRUE
+#'  );
+#' pgs.weight.import <- import.pgs.weight.file(pgs.weight.path);
+#' 
+#' pgs.data <- apply.polygenic.score(
+#'  vcf.data = vcf.import$dat,
+#'  pgs.weight.data = pgs.import$pgs.weight.data,
+#'  missing.genotype.method = 'none'
+#'  );
+#' 
+#' # Specify different methods for handling missing genotypes
+#' pgs.import$pgs.weight.data$allelefrequency_effect <- rep(0.5, nrow(pgs.import$pgs.weight.data));
+#' pgs.data <- apply.polygenic.score(
+#'  vcf.data = vcf.import$dat,
+#'  pgs.weight.data = pgs.import$pgs.weight.data,
+#'  missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+#'  use.external.allele.frequency = TRUE
+#'  );
+#' 
+#'  # Provide phenotype data for basic correlation analysis
+#' phenotype.data <- data.frame(
+#'  Indiv = unique(vcf.import$dat$Indiv),
+#'  continuous.phenotype <- rnorm(nrow(pgs.import$pgs.weight.data)),
+#'  binary.phenotype <- sample(c('a', 'b'), nrow(pgs.import$pgs.weight.data), replace = TRUE)
+#'  );
+#' 
+#' pgs.data <- apply.polygenic.score(
+#'  vcf.data = vcf.import$dat,
+#'  pgs.weight.data = pgs.import$pgs.weight.data,
+#'  phenotype.data = phenotype.data
+#'  );
+#' 
 #' @export
 apply.polygenic.score <- function(
     vcf.data,
