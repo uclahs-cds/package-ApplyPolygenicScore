@@ -25,10 +25,10 @@ add.slop <- function(bed, slop) {
 #'  POS = c(10, 20)
 #'  );
 #' convert.pgs.to.bed(pgs.weight.data);
-#' 
+#'
 #' # Switch between different chromosome notations
 #' convert.pgs.to.bed(pgs.weight.data, chr.prefix = FALSE, numeric.sex.chr = TRUE);
-#' 
+#'
 #' # Add slop to BED intervals
 #' convert.pgs.to.bed(pgs.weight.data, slop = 10);
 #' @export

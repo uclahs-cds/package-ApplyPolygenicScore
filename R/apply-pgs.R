@@ -105,7 +105,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'  mustWork = TRUE
 #'  );
 #' vcf.import <- import.vcf(vcf.path);
-#' 
+#'
 #' Example pgs weight file
 #' pgs.weight.path <- system.file(
 #'  'extdata',
@@ -114,13 +114,13 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'  mustWork = TRUE
 #'  );
 #' pgs.weight.import <- import.pgs.weight.file(pgs.weight.path);
-#' 
+#'
 #' pgs.data <- apply.polygenic.score(
 #'  vcf.data = vcf.import$dat,
 #'  pgs.weight.data = pgs.import$pgs.weight.data,
 #'  missing.genotype.method = 'none'
 #'  );
-#' 
+#'
 #' # Specify different methods for handling missing genotypes
 #' pgs.import$pgs.weight.data$allelefrequency_effect <- rep(0.5, nrow(pgs.import$pgs.weight.data));
 #' pgs.data <- apply.polygenic.score(
@@ -129,20 +129,20 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'  missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
 #'  use.external.allele.frequency = TRUE
 #'  );
-#' 
+#'
 #'  # Provide phenotype data for basic correlation analysis
 #' phenotype.data <- data.frame(
 #'  Indiv = unique(vcf.import$dat$Indiv),
 #'  continuous.phenotype <- rnorm(nrow(pgs.import$pgs.weight.data)),
 #'  binary.phenotype <- sample(c('a', 'b'), nrow(pgs.import$pgs.weight.data), replace = TRUE)
 #'  );
-#' 
+#'
 #' pgs.data <- apply.polygenic.score(
 #'  vcf.data = vcf.import$dat,
 #'  pgs.weight.data = pgs.import$pgs.weight.data,
 #'  phenotype.data = phenotype.data
 #'  );
-#' 
+#'
 #' @export
 apply.polygenic.score <- function(
     vcf.data,

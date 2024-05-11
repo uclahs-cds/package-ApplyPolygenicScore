@@ -75,14 +75,14 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #'  PGS = rnorm(200, 0, 1)
 #'  )
 #'  temp.dir <- tempdir();
-#' 
+#'
 #' # Basic Plot
 #' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'basic-plot');
-#' 
+#'
 #' # Plot multiple PGS outputs
 #' pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
 #' create.pgs.density.plot(pgs.data, output.dir = temp.dir);
-#' 
+#'
 #' # Plot phenotype categories
 #' pgs.data$sex <- sample(c('male', 'female', 200, replacement = TRUE));
 #' create.pgs.density.plot(
