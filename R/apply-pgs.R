@@ -113,7 +113,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'  package = 'ApplyPolygenicScore',
 #'  mustWork = TRUE
 #'  );
-#' pgs.weight.import <- import.pgs.weight.file(pgs.weight.path);
+#' pgs.import <- import.pgs.weight.file(pgs.weight.path);
 #'
 #' pgs.data <- apply.polygenic.score(
 #'  vcf.data = vcf.import$dat,
