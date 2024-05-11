@@ -85,11 +85,19 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' 
 #' # Plot phenotype categories
 #' pgs.data$sex <- sample(c('male', 'female', 200, replacement = TRUE));
-#' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'multiple-pgs', phenotype.columns = 'sex');
-#' 
+#' create.pgs.density.plot(
+#'  pgs.data, output.dir = temp.dir,
+#'  filename.prefix = 'multiple-pgs',
+#'  phenotype.columns = 'sex'
+#'  );
+#'
 #' # Plot multiple phenotypes
 #' pgs.data$letters <- sample(letters[1:5], 200, replacement = TRUE);
-#' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'multiple-phenotypes', phenotype.columns = c('sex', 'letters');
+#' create.pgs.density.plot(
+#'  pgs.data, output.dir = temp.dir,
+#'  filename.prefix = 'multiple-phenotypes',
+#'  phenotype.columns = c('sex', 'letters')
+#'  );
 #' @export
 create.pgs.density.plot <- function(
     pgs.data,

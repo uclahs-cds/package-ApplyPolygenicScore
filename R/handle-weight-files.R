@@ -39,7 +39,12 @@ open.input.connection <- function(input) {
 #' @return A data frame containing the metadata from the file header.
 #' @examples
 #' # Example pgs weight file
-#' pgs.weight.path <- system.file('extdata', 'PGS000662_hmPOS_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE);
+#' pgs.weight.path <- system.file(
+#'  'extdata',
+#'  'PGS000662_hmPOS_GRCh38.txt.gz',
+#'  package = 'ApplyPolygenicScore',
+#'  mustWork = TRUE
+#'  );
 #' parse.pgs.input.header(pgs.weight.path);
 #' @export
 parse.pgs.input.header <- function(pgs.weight.path) {
