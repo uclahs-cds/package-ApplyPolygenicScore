@@ -82,6 +82,14 @@ classify.variable.type <- function(data, continuous.threshold = 4) {
 #' @param pgs numeric vector of polygenic scores
 #' @param phenotype.data data.frame of phenotypes
 #' @return data frame with columns for phenotype, model, beta, se, p.value, r.squared, and AUC
+#' @examples
+#' set.seed(200);
+#' pgs <- rnorm(200, 0, 1);
+#' phenotype.data <- data.frame(
+#'  continuous.pheno = rnorm(200, 1, 1),
+#'  binary.pheno = sample(c(0, 1), 200, replace = TRUE)
+#'  );
+#' run.pgs.regression(pgs, phenotype.data);
 #' @export
 run.pgs.regression <- function(pgs, phenotype.data) {
 
