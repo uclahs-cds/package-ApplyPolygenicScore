@@ -69,6 +69,27 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param key.cex numeric size of color key legend
 #' @param border.padding numeric padding for plot borders
 #' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
+#' @examples
+#' set.seed(200);
+#' pgs.data <- data.frame(
+#'  PGS = rnorm(200, 0, 1)
+#'  )
+#'  temp.dir <- tempdir();
+#' 
+#' # Basic Plot
+#' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'basic-plot');
+#' 
+#' # Plot multiple PGS outputs
+#' pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
+#' create.pgs.density.plot(pgs.data, output.dir = temp.dir);
+#' 
+#' # Plot phenotype categories
+#' pgs.data$sex <- sample(c('male', 'female', 200, replacement = TRUE));
+#' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'multiple-pgs', phenotype.columns = 'sex');
+#' 
+#' # Plot multiple phenotypes
+#' pgs.data$letters <- sample(letters[1:5], 200, replacement = TRUE);
+#' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'multiple-phenotypes', phenotype.columns = c('sex', 'letters');
 #' @export
 create.pgs.density.plot <- function(
     pgs.data,
@@ -312,6 +333,40 @@ create.pgs.density.plot <- function(
 #' @param point.cex numeric cex for plot points
 #' @param border.padding numeric padding for plot borders
 #' @return multipanel plot object
+#' @examples
+#' set.seed(200);
+#'
+#' pgs.data <- data.frame(
+#'  PGS = rnorm(200, 0, 1),
+#'  continuous.phenotype = rnorm(200, 2, 1)
+#'  )
+#'  temp.dir <- tempdir();
+#'
+#' # Basic Plot
+#' create.pgs.with.continuous.phenotype.plot(
+#'  pgs.data,
+#'  output.dir = temp.dir,
+#'  filename.prefix = 'basic-plot',
+#'  phenotype.columns = 'continuous.phenotype'
+#'  );
+#'
+#' # Plot multiple PGS outputs
+#' pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
+#' create.pgs.with.continuous.phenotype.plot(
+#'  pgs.data,
+#'  output.dir = temp.dir,
+#'  filename.prefix = 'multiple-pgs',
+#'  phenotype.columns = 'continuous.phenotype'
+#'  );
+#'
+#' # Plot multiple phenotypes
+#' pgs.data$continuous.phenotype2 <- rnorm(200, 10, 1);
+#' create.pgs.with.continuous.phenotype.plot(
+#'  pgs.data,
+#'  output.dir = temp.dir,
+#'  filename.prefix = 'multiple-phenotypes',
+#'  phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
+#'  );
 #' @export
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,

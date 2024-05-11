@@ -54,3 +54,25 @@ if no output.dir is provided, a multipanel lattice plot object is returned, othe
 Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
 If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 }
+\examples{
+set.seed(200);
+pgs.data <- data.frame(
+ PGS = rnorm(200, 0, 1)
+ )
+ temp.dir <- tempdir();
+
+# Basic Plot
+create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'basic-plot');
+
+# Plot multiple PGS outputs
+pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
+create.pgs.density.plot(pgs.data, output.dir = temp.dir);
+
+# Plot phenotype categories
+pgs.data$sex <- sample(c('male', 'female', 200, replacement = TRUE));
+create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'multiple-pgs', phenotype.columns = 'sex');
+
+# Plot multiple phenotypes
+pgs.data$letters <- sample(letters[1:5], 200, replacement = TRUE);
+create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'multiple-phenotypes', phenotype.columns = c('sex', 'letters');
+}

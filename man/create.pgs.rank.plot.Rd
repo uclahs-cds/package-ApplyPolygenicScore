@@ -51,3 +51,27 @@ lattice multipanel object if output.dir is NULL, otherwise a file is written to 
 \description{
 Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
 }
+\examples{
+set.seed(200);
+percentiles <- get.pgs.percentile(rnorm(200, 0, 1))
+pgs.data <- data.frame(
+ Indiv = paste0('sample', 1:200),
+ percentile = percentiles$percentile,
+ decile = percentiles$decile,
+ quartile = percentiles$quartile,
+ n.missing.genotypes <- sample(1:10, 200, replacement = TRUE),
+ continuous.pheno <- rnorm(200, 1, 1),
+ categorical.pheno <- sample(letters[1:5], 200, replacement = TRUE),
+ binary.pheno <- sample(c(0,1), 200, replacement = TRUE)
+ );
+
+temp.dir <- tempdir();
+
+create.pgs.rank.plot(
+ pgs.data,
+ phenotype.columns = c('continuous.phen', 'categorical.pheno', 'binary.pheno'),
+ missing.genotype.style = 'percent',
+ output.dir = temp.dir,
+ filename.prefix = 'example-rank-plot'
+ )
+}
