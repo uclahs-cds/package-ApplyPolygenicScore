@@ -127,14 +127,14 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'  vcf.data = vcf.import$dat,
 #'  pgs.weight.data = pgs.import$pgs.weight.data,
 #'  missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
-#'  use.external.allele.frequency = TRUE
+#'  use.external.effect.allele.frequency = TRUE
 #'  );
 #'
-#'  # Provide phenotype data for basic correlation analysis
+#' # Provide phenotype data for basic correlation analysis
 #' phenotype.data <- data.frame(
 #'  Indiv = unique(vcf.import$dat$Indiv),
-#'  continuous.phenotype <- rnorm(nrow(pgs.import$pgs.weight.data)),
-#'  binary.phenotype <- sample(c('a', 'b'), nrow(pgs.import$pgs.weight.data), replace = TRUE)
+#'  continuous.phenotype <- rnorm(length(unique(vcf.import$dat$Indiv))),
+#'  binary.phenotype <- sample(c('a', 'b'), length(unique(vcf.import$dat$Indiv)), replace = TRUE)
 #'  );
 #'
 #' pgs.data <- apply.polygenic.score(

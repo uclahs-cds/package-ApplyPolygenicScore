@@ -35,10 +35,10 @@ pgs.weight.path <- system.file(
  package = 'ApplyPolygenicScore',
  mustWork = TRUE
  );
-pgs.weight.import <- import.pgs.weight.file(pgs.weight.path);
+pgs.import <- import.pgs.weight.file(pgs.weight.path);
 
 merge.data <- merge.vcf.with.pgs(
  vcf.data = vcf.import$dat,
- pgs.weight.data = pgs.import$pgs.weight.data,
+ pgs.weight.data = pgs.import$pgs.weight.data
  );
 }

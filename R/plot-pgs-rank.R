@@ -69,7 +69,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
     # check for required columns
     required.columns <- c('Indiv', 'percentile', 'decile', 'quartile', 'n.missing.genotypes', 'percent.missing.genotypes');
     if (!all(required.columns %in% colnames(pgs.data))) {
-        stop('pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes');
+        stop('pgs.data must contain columns for Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes');
         }
 
     # validate output.dir
@@ -81,7 +81,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 
 #' @title Plot PGS Rank
 #' @description Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
-#' @param pgs.data data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
+#' @param pgs.data data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
 #' This function is designed to work with the output of the function apply.polygenic.score().
 #' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.
 #' @param missing.genotype.style character style of missing genotype barplot. Default is 'count'. Options are 'count' or 'percent'.
@@ -97,23 +97,24 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' @return lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
 #' @examples
 #' set.seed(200);
-#' percentiles <- get.pgs.percentile(rnorm(200, 0, 1))
+#' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1))
 #' pgs.data <- data.frame(
 #'  Indiv = paste0('sample', 1:200),
 #'  percentile = percentiles$percentile,
 #'  decile = percentiles$decile,
 #'  quartile = percentiles$quartile,
-#'  n.missing.genotypes <- sample(1:10, 200, replacement = TRUE),
-#'  continuous.pheno <- rnorm(200, 1, 1),
-#'  categorical.pheno <- sample(letters[1:5], 200, replacement = TRUE),
-#'  binary.pheno <- sample(c(0,1), 200, replacement = TRUE)
+#'  n.missing.genotypes = sample(1:10, 200, replace = TRUE),
+#'  percent.missing.genotypes = sample(1:10, 200, replace = TRUE) / 100,
+#'  continuous.pheno = rnorm(200, 1, 1),
+#'  categorical.pheno = sample(letters[1:5], 200, replace = TRUE),
+#'  binary.pheno = sample(c(0,1), 200, replace = TRUE)
 #'  );
 #'
 #' temp.dir <- tempdir();
 #'
 #' create.pgs.rank.plot(
 #'  pgs.data,
-#'  phenotype.columns = c('continuous.phen', 'categorical.pheno', 'binary.pheno'),
+#'  phenotype.columns = c('continuous.pheno', 'categorical.pheno', 'binary.pheno'),
 #'  missing.genotype.style = 'percent',
 #'  output.dir = temp.dir,
 #'  filename.prefix = 'example-rank-plot'

@@ -29,14 +29,14 @@ Merge overlapping PGS coordinates in multiple BED files.
 \examples{
 bed1 <- data.frame(
  chr = c(1, 2, 3),
- start = c(10, 20, 30),
- end = c(20, 30, 40),
+ start = c(1, 2, 3),
+ end = c(2, 3, 4),
  annotation = c('a', 'b', 'c')
  );
 bed2 <- data.frame(
  chr = c(1, 2, 3),
- start = c(15, 25, 35),
- end = c(25, 35, 45),
+ start = c(1, 20, 30),
+ end = c(2, 21, 31),
  annotation = c('d', 'e', 'f')
  );
 bed.input <- list(bed1 = bed1, bed2 = bed2)

@@ -23,5 +23,5 @@ Format chromosome names according to user specifications.
 numeric.chr <- c(1,2,23,24);
 chr.with.prefix <- c('chr1', 'chr2', 'chrX', 'chrY');
 format.chromosome.notation(numeric.chr, chr.prefix = TRUE, numeric.sex.chr = FALSE);
-format.chromosome.notation(chr.with.prefix, chr.prefix = FALSE, numeri.sex.chr = TRUE);
+format.chromosome.notation(chr.with.prefix, chr.prefix = FALSE, numeric.sex.chr = TRUE);
 }
