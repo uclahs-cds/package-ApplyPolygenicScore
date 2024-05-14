@@ -97,7 +97,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' @return lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
 #' @examples
 #' set.seed(200);
-#' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1))
+#' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1));
 #' pgs.data <- data.frame(
 #'  Indiv = paste0('sample', 1:200),
 #'  percentile = percentiles$percentile,
@@ -118,7 +118,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #'  missing.genotype.style = 'percent',
 #'  output.dir = temp.dir,
 #'  filename.prefix = 'example-rank-plot'
-#'  )
+#'  );
 #' @export
 create.pgs.rank.plot <- function(
     pgs.data,

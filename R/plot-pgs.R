@@ -73,7 +73,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' set.seed(200);
 #' pgs.data <- data.frame(
 #'  PGS = rnorm(200, 0, 1)
-#'  )
+#'  );
 #'  temp.dir <- tempdir();
 #'
 #' # Basic Plot
@@ -347,7 +347,7 @@ create.pgs.density.plot <- function(
 #' pgs.data <- data.frame(
 #'  PGS = rnorm(200, 0, 1),
 #'  continuous.phenotype = rnorm(200, 2, 1)
-#'  )
+#'  );
 #'  temp.dir <- tempdir();
 #'
 #' # Basic Plot

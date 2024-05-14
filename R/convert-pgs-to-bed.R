@@ -98,8 +98,8 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 #'  end = c(2, 21, 31),
 #'  annotation = c('d', 'e', 'f')
 #'  );
-#' bed.input <- list(bed1 = bed1, bed2 = bed2)
-#' merge.pgs.bed(bed.input)
+#' bed.input <- list(bed1 = bed1, bed2 = bed2);
+#' merge.pgs.bed(bed.input);
 #' @export
 merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
 

@@ -6,7 +6,7 @@
 #' @examples
 #' called.alleles <- c('A/A', 'A/T', 'T/T');
 #' risk.alleles <- c('T', 'T', 'T');
-#' convert.alleles.to.pgs.dosage(called.alleles, risk.alleles)
+#' convert.alleles.to.pgs.dosage(called.alleles, risk.alleles);
 #' @export
 convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
     # check that risk.alleles is the same length as called.alleles
