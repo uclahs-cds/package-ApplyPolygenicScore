@@ -48,6 +48,12 @@ open.input.connection <- function(input) {
 #' parse.pgs.input.header(pgs.weight.path);
 #' @export
 parse.pgs.input.header <- function(pgs.weight.path) {
+
+    # check that pgs.weight.path exists
+    if (!file.exists(pgs.weight.path)) {
+        stop(paste0(pgs.weight.path, ' does not exist.'));
+        }
+
     # open file connection
     input.connection <- open.input.connection(input = pgs.weight.path);
 
@@ -90,6 +96,11 @@ parse.pgs.input.header <- function(pgs.weight.path) {
 #' import.pgs.weight.file(pgs.weight.path, use.harmonized.data = FALSE);
 #' @export
 import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) {
+
+    # check that pgs.weight.path exists
+    if (!file.exists(pgs.weight.path)) {
+        stop(paste0(pgs.weight.path, ' does not exist.'));
+        }
 
     # parse file header
     file.metadata <- parse.pgs.input.header(pgs.weight.path = pgs.weight.path);

@@ -1,4 +1,14 @@
 test_that(
+    'import.vcf catches missing file', {
+        # check that an error is thrown
+        expect_error(
+            import.vcf(vcf.path = 'data/missing.file.vcf.gz'),
+            'data/missing.file.vcf.gz does not exist.'
+            );
+        }
+    );
+
+test_that(
     'import.vcf successfully imports VCF', {
         # check that correct input is accepted
         expect_no_error(
