@@ -64,6 +64,16 @@ test_that(
     );
 
 test_that(
+    'parse.pgs.input.header catches missing file', {
+        # check that an error is thrown
+        expect_error(
+            parse.pgs.input.header(pgs.weight.path = 'data/missing.file.txt'),
+            'data/missing.file.txt does not exist.'
+            );
+        }
+    );
+
+test_that(
     'parse.pgs.input.header works correctly on unzipped input', {
         load('data/import.test.data.Rda');
         expect_equal(
@@ -123,6 +133,16 @@ test_that(
             expected.colnames
             );
 
+        }
+    );
+
+test_that(
+    'import.pgs.weight.file catches missing file', {
+        # check that an error is thrown
+        expect_error(
+            import.pgs.weight.file(pgs.weight.path = 'data/missing.file.txt', use.harmonized.data = TRUE),
+            'data/missing.file.txt does not exist.'
+            );
         }
     );
 

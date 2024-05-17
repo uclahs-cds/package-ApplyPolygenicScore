@@ -39,6 +39,12 @@ open.input.connection <- function(input) {
 #' @return A data frame containing the metadata from the file header.
 #' @export
 parse.pgs.input.header <- function(pgs.weight.path) {
+
+    # check that pgs.weight.path exists
+    if (!file.exists(pgs.weight.path)) {
+        stop(paste0(pgs.weight.path, ' does not exist.'));
+        }
+
     # open file connection
     input.connection <- open.input.connection(input = pgs.weight.path);
 
@@ -70,6 +76,11 @@ parse.pgs.input.header <- function(pgs.weight.path) {
 #' @return A list containing the file metadata and the weight data.
 #' @export
 import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) {
+
+    # check that pgs.weight.path exists
+    if (!file.exists(pgs.weight.path)) {
+        stop(paste0(pgs.weight.path, ' does not exist.'));
+        }
 
     # parse file header
     file.metadata <- parse.pgs.input.header(pgs.weight.path = pgs.weight.path);

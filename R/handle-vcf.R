@@ -32,6 +32,12 @@ check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
 #' @return A list containing a tibble of VCF meta data and a tibble data.frame containing the parsed VCF data in long form.
 #' @export
 import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE) {
+
+    # check that vcf.path exists
+    if (!file.exists(vcf.path)) {
+        stop(paste0(vcf.path, ' does not exist.'));
+        }
+
     # import VCF file with vcfR
     vcf.vcfR <- vcfR::read.vcfR(file = vcf.path, convertNA = TRUE, verbose = verbose);
 
