@@ -82,20 +82,56 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 
 #' @title Apply polygenic score to VCF data
 #' @description Apply a polygenic score to VCF data.
-#' @param vcf.data A data.frame containing VCF genotype data as formatted by import.vcf().
-#' @param pgs.weight.data A data.frame containing PGS weight data as formatted by import.pgs.weight.file().
-#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
-#' @param phenotype.analysis.columns A character vector of phenotype columns from phenotype.data to analyze. Default is NULL.
+#' @param vcf.data A data.frame containing VCF genotype data as formatted by \code{import.vcf()}.
+#' @param pgs.weight.data A data.frame containing PGS weight data as formatted by \code{import.pgs.weight.file()}.
+#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is \code{NULL}.
+#' @param phenotype.analysis.columns A character vector of phenotype columns from phenotype.data to analyze. Default is \code{NULL}.
 #' @param output.dir A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
 #' Files are tab-separate .txt files. Default is NULL in which case no files are written.
-#' @param file.prefix A character string to prepend to the output file names. Default is NULL.
+#' @param file.prefix A character string to prepend to the output file names. Default is \code{NULL}.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
-#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
-#' Provide allele frequency as a column is `pgs.weight.data` named `allelefrequency_effect`.
-#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
+#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is \code{FALSE}.
+#' Provide allele frequency as a column is \code{pgs.weight.data} named \code{allelefrequency_effect}.
+#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is \code{NULL}.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
 #' When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
 #' @return A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
+#' 
+#' \strong{Output Structure}
+#' 
+#' The outputed list contains the following elements:
+#' \itemize{
+#' \item pgs.output: A data.frame containing the PGS per sample and optional phenotype data.
+#' \item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided.
+#' }
+#' 
+#' pgs.output columns:
+#' \itemize{
+#' \item Indiv: A character string indicating the sample ID.
+#' \item PGS: A numeric vector indicating the PGS per sample. (only if missing.genotype.method includes "none")
+#' \item PGS.with.normalized.missing: A numeric vector indicating the PGS per sample with missing genotypes normalized. (only if missing.genotype.method includes "normalize")
+#' \item PGS.with.replaced.missing: A numeric vector indicating the PGS per sample with missing genotypes replaced by mean dosage. (only if missing.genotype.method includes "mean.dosage")
+#' \item percentile: A numeric vector indicating the percentile rank of the PGS.
+#' \item decile: A numeric vector indicating the decile rank of the PGS.
+#' \item quartile: A numeric vector indicating the quartile rank of the PGS.
+#' \item percentile.X: A numeric vector indicating the user-specified percentile rank of the PGS. (only if n.percentiles is specified)
+#' \item n.missing.genotypes: A numeric vector indicating the number of missing genotypes per sample.
+#' \item percent.missing.genotypes: A numeric vector indicating the percentage of missing genotypes per sample.
+#' }
+#' 
+#' regression.output columns:
+#' \itemize{
+#' \item phenotype.analysis.columns: A character vector of phenotype columns analyzed.
+#' \item beta: A numeric vector indicating the beta coefficient of the regression analysis.
+#' \item se: A numeric vector indicating the standard error of the beta coefficient.
+#' \item p.value: A numeric vector indicating the p-value of the beta coefficient.
+#' \item r.squared: A numeric vector indicating the r-squared value of the regression analysis. NA for logistic regression.
+#' \item AUC: A numeric vector indicating the area under the curve of the regression analysis. NA for linear regression.
+#' }
+#' 
+#' \strong{PGS Calculation}
+#' 
+#' PGS for each individual is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
 #' @examples
 #' # Example VCF
 #' vcf.path <- system.file(
