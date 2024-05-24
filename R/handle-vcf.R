@@ -33,11 +33,11 @@ check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
 #' @examples
 #' # Example VCF
 #' vcf <- system.file(
-#'  'extdata',
-#'  'HG001_GIAB.vcf.gz',
-#'  package = 'ApplyPolygenicScore',
-#'  mustWork = TRUE
-#'  );
+#'     'extdata',
+#'     'HG001_GIAB.vcf.gz',
+#'     package = 'ApplyPolygenicScore',
+#'     mustWork = TRUE
+#'     );
 #' vcf.data <- import.vcf(vcf.path = vcf);
 #' @export
 import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE) {

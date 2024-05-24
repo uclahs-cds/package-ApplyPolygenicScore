@@ -66,34 +66,34 @@ Create scatterplots for PGS data with continuous phenotype variables
 set.seed(200);
 
 pgs.data <- data.frame(
- PGS = rnorm(200, 0, 1),
- continuous.phenotype = rnorm(200, 2, 1)
- )
+    PGS = rnorm(200, 0, 1),
+    continuous.phenotype = rnorm(200, 2, 1)
+    );
  temp.dir <- tempdir();
 
 # Basic Plot
 create.pgs.with.continuous.phenotype.plot(
- pgs.data,
- output.dir = temp.dir,
- filename.prefix = 'basic-plot',
- phenotype.columns = 'continuous.phenotype'
- );
+    pgs.data,
+    output.dir = temp.dir,
+    filename.prefix = 'basic-plot',
+    phenotype.columns = 'continuous.phenotype'
+    );
 
 # Plot multiple PGS outputs
 pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
 create.pgs.with.continuous.phenotype.plot(
- pgs.data,
- output.dir = temp.dir,
- filename.prefix = 'multiple-pgs',
- phenotype.columns = 'continuous.phenotype'
- );
+    pgs.data,
+    output.dir = temp.dir,
+    filename.prefix = 'multiple-pgs',
+    phenotype.columns = 'continuous.phenotype'
+    );
 
 # Plot multiple phenotypes
 pgs.data$continuous.phenotype2 <- rnorm(200, 10, 1);
 create.pgs.with.continuous.phenotype.plot(
- pgs.data,
- output.dir = temp.dir,
- filename.prefix = 'multiple-phenotypes',
- phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
- );
+    pgs.data,
+    output.dir = temp.dir,
+    filename.prefix = 'multiple-phenotypes',
+    phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
+    );
 }

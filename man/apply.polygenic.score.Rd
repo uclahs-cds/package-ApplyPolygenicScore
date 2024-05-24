@@ -48,50 +48,50 @@ A list containing the PGS per sample and regression output if phenotype analysis
 Apply a polygenic score to VCF data.
 }
 \examples{
-#' # Example VCF
+# Example VCF
 vcf.path <- system.file(
- 'extdata',
- 'HG001_GIAB.vcf.gz',
- package = 'ApplyPolygenicScore',
- mustWork = TRUE
- );
+    'extdata',
+    'HG001_GIAB.vcf.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    );
 vcf.import <- import.vcf(vcf.path);
 
 # Example pgs weight file
 pgs.weight.path <- system.file(
- 'extdata',
- 'PGS000662_hmPOS_GRCh38.txt.gz',
- package = 'ApplyPolygenicScore',
- mustWork = TRUE
- );
+    'extdata',
+    'PGS000662_hmPOS_GRCh38.txt.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    );
 pgs.import <- import.pgs.weight.file(pgs.weight.path);
 
 pgs.data <- apply.polygenic.score(
- vcf.data = vcf.import$dat,
- pgs.weight.data = pgs.import$pgs.weight.data,
- missing.genotype.method = 'none'
- );
+    vcf.data = vcf.import$dat,
+    pgs.weight.data = pgs.import$pgs.weight.data,
+    missing.genotype.method = 'none'
+    );
 
 # Specify different methods for handling missing genotypes
 pgs.import$pgs.weight.data$allelefrequency_effect <- rep(0.5, nrow(pgs.import$pgs.weight.data));
 pgs.data <- apply.polygenic.score(
- vcf.data = vcf.import$dat,
- pgs.weight.data = pgs.import$pgs.weight.data,
- missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
- use.external.effect.allele.frequency = TRUE
- );
+    vcf.data = vcf.import$dat,
+    pgs.weight.data = pgs.import$pgs.weight.data,
+    missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+    use.external.effect.allele.frequency = TRUE
+    );
 
 # Provide phenotype data for basic correlation analysis
 phenotype.data <- data.frame(
- Indiv = unique(vcf.import$dat$Indiv),
- continuous.phenotype <- rnorm(length(unique(vcf.import$dat$Indiv))),
- binary.phenotype <- sample(c('a', 'b'), length(unique(vcf.import$dat$Indiv)), replace = TRUE)
- );
+    Indiv = unique(vcf.import$dat$Indiv),
+    continuous.phenotype <- rnorm(length(unique(vcf.import$dat$Indiv))),
+    binary.phenotype <- sample(c('a', 'b'), length(unique(vcf.import$dat$Indiv)), replace = TRUE)
+    );
 
 pgs.data <- apply.polygenic.score(
- vcf.data = vcf.import$dat,
- pgs.weight.data = pgs.import$pgs.weight.data,
- phenotype.data = phenotype.data
- );
+    vcf.data = vcf.import$dat,
+    pgs.weight.data = pgs.import$pgs.weight.data,
+    phenotype.data = phenotype.data
+    );
 
 }

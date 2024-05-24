@@ -22,8 +22,8 @@ If a binary variable is not formatted as a factor, it will be converted to a fac
 set.seed(200);
 pgs <- rnorm(200, 0, 1);
 phenotype.data <- data.frame(
- continuous.pheno = rnorm(200, 1, 1),
- binary.pheno = sample(c(0, 1), 200, replace = TRUE)
- );
+    continuous.pheno = rnorm(200, 1, 1),
+    binary.pheno = sample(c(0, 1), 200, replace = TRUE)
+    );
 run.pgs.regression(pgs, phenotype.data);
 }

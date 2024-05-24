@@ -28,9 +28,9 @@ Convert imported and formatted PGS compnent SNP coordinate data to BED format.
 }
 \examples{
 pgs.weight.data <- data.frame(
- CHROM = c('chr1', 'chrX'),
- POS = c(10, 20)
- );
+    CHROM = c('chr1', 'chrX'),
+    POS = c(10, 20)
+    );
 convert.pgs.to.bed(pgs.weight.data);
 
 # Switch between different chromosome notations

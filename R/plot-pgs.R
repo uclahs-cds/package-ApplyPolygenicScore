@@ -72,8 +72,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @examples
 #' set.seed(200);
 #' pgs.data <- data.frame(
-#'  PGS = rnorm(200, 0, 1)
-#'  );
+#'     PGS = rnorm(200, 0, 1)
+#'     );
 #'  temp.dir <- tempdir();
 #'
 #' # Basic Plot
@@ -86,10 +86,10 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' # Plot phenotype categories
 #' pgs.data$sex <- sample(c('male', 'female', 200, replace = TRUE));
 #' create.pgs.density.plot(
-#'  pgs.data, output.dir = temp.dir,
-#'  filename.prefix = 'multiple-pgs',
-#'  phenotype.columns = 'sex'
-#'  );
+#'     pgs.data, output.dir = temp.dir,
+#'     filename.prefix = 'multiple-pgs',
+#'     phenotype.columns = 'sex'
+#'     );
 #'
 #' # Plot multiple phenotypes
 #' pgs.data$letters <- sample(letters[1:5], 200, replace = TRUE);
@@ -345,36 +345,36 @@ create.pgs.density.plot <- function(
 #' set.seed(200);
 #'
 #' pgs.data <- data.frame(
-#'  PGS = rnorm(200, 0, 1),
-#'  continuous.phenotype = rnorm(200, 2, 1)
-#'  );
+#'     PGS = rnorm(200, 0, 1),
+#'     continuous.phenotype = rnorm(200, 2, 1)
+#'     );
 #'  temp.dir <- tempdir();
 #'
 #' # Basic Plot
 #' create.pgs.with.continuous.phenotype.plot(
-#'  pgs.data,
-#'  output.dir = temp.dir,
-#'  filename.prefix = 'basic-plot',
-#'  phenotype.columns = 'continuous.phenotype'
-#'  );
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'basic-plot',
+#'     phenotype.columns = 'continuous.phenotype'
+#'     );
 #'
 #' # Plot multiple PGS outputs
 #' pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
 #' create.pgs.with.continuous.phenotype.plot(
-#'  pgs.data,
-#'  output.dir = temp.dir,
-#'  filename.prefix = 'multiple-pgs',
-#'  phenotype.columns = 'continuous.phenotype'
-#'  );
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'multiple-pgs',
+#'     phenotype.columns = 'continuous.phenotype'
+#'     );
 #'
 #' # Plot multiple phenotypes
 #' pgs.data$continuous.phenotype2 <- rnorm(200, 10, 1);
 #' create.pgs.with.continuous.phenotype.plot(
-#'  pgs.data,
-#'  output.dir = temp.dir,
-#'  filename.prefix = 'multiple-phenotypes',
-#'  phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
-#'  );
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'multiple-phenotypes',
+#'     phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
+#'     );
 #' @export
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,

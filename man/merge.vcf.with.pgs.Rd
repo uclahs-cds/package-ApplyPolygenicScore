@@ -21,24 +21,24 @@ The merge is a left outer join, meaning that all PGS SNPs will be kept even if t
 \examples{
 # Example VCF
 vcf.path <- system.file(
- 'extdata',
- 'HG001_GIAB.vcf.gz',
- package = 'ApplyPolygenicScore',
- mustWork = TRUE
- );
+    'extdata',
+    'HG001_GIAB.vcf.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    );
 vcf.import <- import.vcf(vcf.path);
 
 # Example pgs weight file
 pgs.weight.path <- system.file(
- 'extdata',
- 'PGS000662_hmPOS_GRCh38.txt.gz',
- package = 'ApplyPolygenicScore',
- mustWork = TRUE
- );
+    'extdata',
+    'PGS000662_hmPOS_GRCh38.txt.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    );
 pgs.import <- import.pgs.weight.file(pgs.weight.path);
 
 merge.data <- merge.vcf.with.pgs(
- vcf.data = vcf.import$dat,
- pgs.weight.data = pgs.import$pgs.weight.data
- );
+    vcf.data = vcf.import$dat,
+    pgs.weight.data = pgs.import$pgs.weight.data
+    );
 }

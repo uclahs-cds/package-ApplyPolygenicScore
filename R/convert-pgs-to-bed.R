@@ -21,9 +21,9 @@ add.slop <- function(bed, slop) {
 #' @return A data.frame containing the PGS component SNP coordinate data in BED format and any other columns provided in pgs.weight.data.
 #' @examples
 #' pgs.weight.data <- data.frame(
-#'  CHROM = c('chr1', 'chrX'),
-#'  POS = c(10, 20)
-#'  );
+#'     CHROM = c('chr1', 'chrX'),
+#'     POS = c(10, 20)
+#'     );
 #' convert.pgs.to.bed(pgs.weight.data);
 #'
 #' # Switch between different chromosome notations
@@ -87,17 +87,17 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 #' @return A data.frame containing the merged PGS coordinates in BED format with an extra annotation column containing the name of the PGS and data from one additional column optionally selected by the user.
 #' @examples
 #' bed1 <- data.frame(
-#'  chr = c(1, 2, 3),
-#'  start = c(1, 2, 3),
-#'  end = c(2, 3, 4),
-#'  annotation = c('a', 'b', 'c')
-#'  );
+#'     chr = c(1, 2, 3),
+#'     start = c(1, 2, 3),
+#'     end = c(2, 3, 4),
+#'     annotation = c('a', 'b', 'c')
+#'     );
 #' bed2 <- data.frame(
-#'  chr = c(1, 2, 3),
-#'  start = c(1, 20, 30),
-#'  end = c(2, 21, 31),
-#'  annotation = c('d', 'e', 'f')
-#'  );
+#'     chr = c(1, 2, 3),
+#'     start = c(1, 20, 30),
+#'     end = c(2, 21, 31),
+#'     annotation = c('d', 'e', 'f')
+#'     );
 #' bed.input <- list(bed1 = bed1, bed2 = bed2);
 #' merge.pgs.bed(bed.input);
 #' @export

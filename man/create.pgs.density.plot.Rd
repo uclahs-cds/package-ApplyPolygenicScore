@@ -57,8 +57,8 @@ If phenotype columns are provided, multiple density curves are plotted for autom
 \examples{
 set.seed(200);
 pgs.data <- data.frame(
- PGS = rnorm(200, 0, 1)
- )
+    PGS = rnorm(200, 0, 1)
+    );
  temp.dir <- tempdir();
 
 # Basic Plot
@@ -71,10 +71,10 @@ create.pgs.density.plot(pgs.data, output.dir = temp.dir);
 # Plot phenotype categories
 pgs.data$sex <- sample(c('male', 'female', 200, replace = TRUE));
 create.pgs.density.plot(
- pgs.data, output.dir = temp.dir,
- filename.prefix = 'multiple-pgs',
- phenotype.columns = 'sex'
- );
+    pgs.data, output.dir = temp.dir,
+    filename.prefix = 'multiple-pgs',
+    phenotype.columns = 'sex'
+    );
 
 # Plot multiple phenotypes
 pgs.data$letters <- sample(letters[1:5], 200, replace = TRUE);

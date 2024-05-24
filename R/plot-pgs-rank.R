@@ -99,26 +99,26 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' set.seed(200);
 #' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1));
 #' pgs.data <- data.frame(
-#'  Indiv = paste0('sample', 1:200),
-#'  percentile = percentiles$percentile,
-#'  decile = percentiles$decile,
-#'  quartile = percentiles$quartile,
-#'  n.missing.genotypes = sample(1:10, 200, replace = TRUE),
-#'  percent.missing.genotypes = sample(1:10, 200, replace = TRUE) / 100,
-#'  continuous.pheno = rnorm(200, 1, 1),
-#'  categorical.pheno = sample(letters[1:5], 200, replace = TRUE),
-#'  binary.pheno = sample(c(0,1), 200, replace = TRUE)
-#'  );
+#'     Indiv = paste0('sample', 1:200),
+#'     percentile = percentiles$percentile,
+#'     decile = percentiles$decile,
+#'     quartile = percentiles$quartile,
+#'     n.missing.genotypes = sample(1:10, 200, replace = TRUE),
+#'     percent.missing.genotypes = sample(1:10, 200, replace = TRUE) / 100,
+#'     continuous.pheno = rnorm(200, 1, 1),
+#'     categorical.pheno = sample(letters[1:5], 200, replace = TRUE),
+#'     binary.pheno = sample(c(0,1), 200, replace = TRUE)
+#'     );
 #'
 #' temp.dir <- tempdir();
 #'
 #' create.pgs.rank.plot(
-#'  pgs.data,
-#'  phenotype.columns = c('continuous.pheno', 'categorical.pheno', 'binary.pheno'),
-#'  missing.genotype.style = 'percent',
-#'  output.dir = temp.dir,
-#'  filename.prefix = 'example-rank-plot'
-#'  );
+#'     pgs.data,
+#'     phenotype.columns = c('continuous.pheno', 'categorical.pheno', 'binary.pheno'),
+#'     missing.genotype.style = 'percent',
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'example-rank-plot'
+#'     );
 #' @export
 create.pgs.rank.plot <- function(
     pgs.data,

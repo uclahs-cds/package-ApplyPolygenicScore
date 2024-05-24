@@ -20,5 +20,5 @@ Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages
 \examples{
 called.alleles <- c('A/A', 'A/T', 'T/T');
 risk.alleles <- c('T', 'T', 'T');
-convert.alleles.to.pgs.dosage(called.alleles, risk.alleles)
+convert.alleles.to.pgs.dosage(called.alleles, risk.alleles);
 }
