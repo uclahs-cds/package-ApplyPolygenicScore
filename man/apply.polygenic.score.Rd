@@ -18,13 +18,13 @@ apply.polygenic.score(
 )
 }
 \arguments{
-\item{vcf.data}{A data.frame containing VCF genotype data.}
+\item{vcf.data}{A data.frame containing VCF genotype data as formatted by `import.vcf()`.}
 
-\item{pgs.weight.data}{A data.frame containing PGS weight data.}
+\item{pgs.weight.data}{A data.frame containing PGS weight data as formatted by import.pgs.weight.file().}
 
 \item{phenotype.data}{A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.}
 
-\item{phenotype.analysis.columns}{A character vector of phenotype columns to analyze. Default is NULL.}
+\item{phenotype.analysis.columns}{A character vector of phenotype columns from phenotype.data to analyze. Default is NULL.}
 
 \item{output.dir}{A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
 Files are tab-separate .txt files. Default is NULL in which case no files are written.}

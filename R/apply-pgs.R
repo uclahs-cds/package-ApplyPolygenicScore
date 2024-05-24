@@ -82,10 +82,10 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 
 #' @title Apply polygenic score to VCF data
 #' @description Apply a polygenic score to VCF data.
-#' @param vcf.data A data.frame containing VCF genotype data.
-#' @param pgs.weight.data A data.frame containing PGS weight data.
+#' @param vcf.data A data.frame containing VCF genotype data as formatted by import.vcf().
+#' @param pgs.weight.data A data.frame containing PGS weight data as formatted by import.pgs.weight.file().
 #' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
-#' @param phenotype.analysis.columns A character vector of phenotype columns to analyze. Default is NULL.
+#' @param phenotype.analysis.columns A character vector of phenotype columns from phenotype.data to analyze. Default is NULL.
 #' @param output.dir A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
 #' Files are tab-separate .txt files. Default is NULL in which case no files are written.
 #' @param file.prefix A character string to prepend to the output file names. Default is NULL.
