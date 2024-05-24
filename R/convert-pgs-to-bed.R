@@ -19,6 +19,18 @@ add.slop <- function(bed, slop) {
 #' @param numeric.sex.chr A logical indicating whether the sex chromosomes should be formatted numerically, as opposed to alphabetically.
 #' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
 #' @return A data.frame containing the PGS component SNP coordinate data in BED format and any other columns provided in pgs.weight.data.
+#' @examples
+#' pgs.weight.data <- data.frame(
+#'     CHROM = c('chr1', 'chrX'),
+#'     POS = c(10, 20)
+#'     );
+#' convert.pgs.to.bed(pgs.weight.data);
+#'
+#' # Switch between different chromosome notations
+#' convert.pgs.to.bed(pgs.weight.data, chr.prefix = FALSE, numeric.sex.chr = TRUE);
+#'
+#' # Add slop to BED intervals
+#' convert.pgs.to.bed(pgs.weight.data, slop = 10);
 #' @export
 convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.chr = FALSE, slop = 0) {
     # check that data is a data.frame
@@ -73,6 +85,21 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 #' @param annotation.column.index An integer indicating the index of the column in the data frames in pgs.bed.list that should be added to the annotation column.
 #' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
 #' @return A data.frame containing the merged PGS coordinates in BED format with an extra annotation column containing the name of the PGS and data from one additional column optionally selected by the user.
+#' @examples
+#' bed1 <- data.frame(
+#'     chr = c(1, 2, 3),
+#'     start = c(1, 2, 3),
+#'     end = c(2, 3, 4),
+#'     annotation = c('a', 'b', 'c')
+#'     );
+#' bed2 <- data.frame(
+#'     chr = c(1, 2, 3),
+#'     start = c(1, 20, 30),
+#'     end = c(2, 21, 31),
+#'     annotation = c('d', 'e', 'f')
+#'     );
+#' bed.input <- list(bed1 = bed1, bed2 = bed2);
+#' merge.pgs.bed(bed.input);
 #' @export
 merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
 

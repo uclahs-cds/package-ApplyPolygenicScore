@@ -18,3 +18,12 @@ data frame with columns for phenotype, model, beta, se, p.value, r.squared, and 
 Phenotype data variables are automatically classified as continuous or binary and a simple linear regression or logistic regression, respectively, is run between the polygenic score and each phenotype.
 If a binary variable is not formatted as a factor, it will be converted to a factor using as.factor() defaults. For logistic regression, the first level is classified as "failure" and the second "success" by glm defaults.
 }
+\examples{
+set.seed(200);
+pgs <- rnorm(200, 0, 1);
+phenotype.data <- data.frame(
+    continuous.pheno = rnorm(200, 1, 1),
+    binary.pheno = sample(c(0, 1), 200, replace = TRUE)
+    );
+run.pgs.regression(pgs, phenotype.data);
+}

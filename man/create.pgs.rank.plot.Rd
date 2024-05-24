@@ -20,7 +20,7 @@ create.pgs.rank.plot(
 )
 }
 \arguments{
-\item{pgs.data}{data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
+\item{pgs.data}{data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
 This function is designed to work with the output of the function apply.polygenic.score().}
 
 \item{phenotype.columns}{character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.}
@@ -50,4 +50,29 @@ lattice multipanel object if output.dir is NULL, otherwise a file is written to 
 }
 \description{
 Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
+}
+\examples{
+set.seed(200);
+percentiles <- get.pgs.percentiles(rnorm(200, 0, 1));
+pgs.data <- data.frame(
+    Indiv = paste0('sample', 1:200),
+    percentile = percentiles$percentile,
+    decile = percentiles$decile,
+    quartile = percentiles$quartile,
+    n.missing.genotypes = sample(1:10, 200, replace = TRUE),
+    percent.missing.genotypes = sample(1:10, 200, replace = TRUE) / 100,
+    continuous.pheno = rnorm(200, 1, 1),
+    categorical.pheno = sample(letters[1:5], 200, replace = TRUE),
+    binary.pheno = sample(c(0,1), 200, replace = TRUE)
+    );
+
+temp.dir <- tempdir();
+
+create.pgs.rank.plot(
+    pgs.data,
+    phenotype.columns = c('continuous.pheno', 'categorical.pheno', 'binary.pheno'),
+    missing.genotype.style = 'percent',
+    output.dir = temp.dir,
+    filename.prefix = 'example-rank-plot'
+    );
 }

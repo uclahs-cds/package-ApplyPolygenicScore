@@ -21,3 +21,13 @@ A list containing a tibble of VCF meta data and a tibble data.frame containing t
 \description{
 Import a VCF file into a long form data.frame using vcfR package.
 }
+\examples{
+# Example VCF
+vcf <- system.file(
+    'extdata',
+    'HG001_GIAB.vcf.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    );
+vcf.data <- import.vcf(vcf.path = vcf);
+}

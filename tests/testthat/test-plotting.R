@@ -427,7 +427,7 @@ test_that(
             create.pgs.rank.plot(
                 pgs.data = data.frame(sample = 1:10)
                 ),
-            'pgs.data must contain columns for Indiv, percentile, decile, quartile, and n.missing.genotypes'
+            'pgs.data must contain columns for Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes'
             );
         # check that missing genotype style is correct
         expect_error(
