@@ -49,31 +49,33 @@ A list containing the PGS per sample and regression output if phenotype analysis
 The outputed list contains the following elements:
 \itemize{
 \item pgs.output: A data.frame containing the PGS per sample and optional phenotype data.
-\item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided.
+\item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided, otherwise \code{NULL}.
 }
 
 pgs.output columns:
 \itemize{
-\item Indiv: A character string indicating the sample ID.
-\item PGS: A numeric vector indicating the PGS per sample. (only if missing.genotype.method includes "none")
-\item PGS.with.normalized.missing: A numeric vector indicating the PGS per sample with missing genotypes normalized. (only if missing.genotype.method includes "normalize")
-\item PGS.with.replaced.missing: A numeric vector indicating the PGS per sample with missing genotypes replaced by mean dosage. (only if missing.genotype.method includes "mean.dosage")
-\item percentile: A numeric vector indicating the percentile rank of the PGS.
-\item decile: A numeric vector indicating the decile rank of the PGS.
-\item quartile: A numeric vector indicating the quartile rank of the PGS.
-\item percentile.X: A numeric vector indicating the user-specified percentile rank of the PGS. (only if n.percentiles is specified)
-\item n.missing.genotypes: A numeric vector indicating the number of missing genotypes per sample.
-\item percent.missing.genotypes: A numeric vector indicating the percentage of missing genotypes per sample.
+\item \code{Indiv}: A character string indicating the sample ID.
+\item \code{PGS}: A numeric vector indicating the PGS per sample. (only if missing.genotype.method includes "none")
+\item \code{PGS.with.normalized.missing}: A numeric vector indicating the PGS per sample with missing genotypes normalized. (only if missing.genotype.method includes "normalize")
+\item \code{PGS.with.replaced.missing}: A numeric vector indicating the PGS per sample with missing genotypes replaced by mean dosage. (only if missing.genotype.method includes "mean.dosage")
+\item \code{percentile}: A numeric vector indicating the percentile rank of the PGS.
+\item \code{decile}: A numeric vector indicating the decile rank of the PGS.
+\item \code{quartile}: A numeric vector indicating the quartile rank of the PGS.
+\item \code{percentile.X:} A numeric vector indicating the user-specified percentile rank of the PGS where "X" is substituted by \code{n.percentiles}. (only if \code{n.percentiles} is specified)
+\item \code{n.missing.genotypes}: A numeric vector indicating the number of missing genotypes per sample.
+\item \code{percent.missing.genotypes}: A numeric vector indicating the percentage of missing genotypes per sample.
+\item All columns in \code{phenotype.data} if provided.
 }
 
 regression.output columns:
 \itemize{
-\item phenotype.analysis.columns: A character vector of phenotype columns analyzed.
-\item beta: A numeric vector indicating the beta coefficient of the regression analysis.
-\item se: A numeric vector indicating the standard error of the beta coefficient.
-\item p.value: A numeric vector indicating the p-value of the beta coefficient.
-\item r.squared: A numeric vector indicating the r-squared value of the regression analysis. NA for logistic regression.
-\item AUC: A numeric vector indicating the area under the curve of the regression analysis. NA for linear regression.
+\item phenotype: A character vector of phenotype names.
+\item \code{model}: A character vector indicating the regression model used. One of "logistic.regression" or "linear.regression".
+\item \code{beta}: A numeric vector indicating the beta coefficient of the regression analysis.
+\item \code{se}: A numeric vector indicating the standard error of the beta coefficient.
+\item \code{p.value}: A numeric vector indicating the p-value of the beta coefficient.
+\item \code{r.squared}: A numeric vector indicating the r-squared value of linear regression analysis. NA for logistic regression.
+\item \code{AUC}: A numeric vector indicating the area under the curve of logistic regression analysis. NA for linear regression.
 }
 
 \strong{PGS Calculation}
@@ -81,6 +83,24 @@ regression.output columns:
 PGS for each individual \emph{i} is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
 \deqn{PGS_i = \sum_{m=1}^{M} \left( \beta_m \times dosage_{im} \right)}
 Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
+
+\strong{Missing Genotype Handling}
+
+Missing genotypes are handled by three methods:
+
+\code{none}: Missing genotype dosages are excluded from the PGS calculation.
+This is equivalent to assuming that all missing genotypes are homozygous for the non-effect allele, resulting in a dosage of 0.
+
+\code{normalize}: Missing genotypes are excluded from score calculation but the final score is normalized by the number of non-missing alleles.
+The calculation assumes a diploid genome:
+\deqn{PGS_i = \dfrac{\sum \left( \beta_m \times dosage_{im} \right)}{P_i * M_{non-missing}}}
+
+\code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency and the ploidy of a diploid genome:
+\deqn{dosage_{im-missing} = EAF_m * P_i}
+Where \emph{EAF} is the effect allele frequency and \emph{P} is the ploidy and has the value \code{2}.
+By default, the effect allele frequency is calculated from the provided VCF data. For variants that are missing in all individuals, it is not possible to derive an effect allele frequency
+and dosage is assumed to be zero (homozygous non-reference) for all individuals.
+An external allele frequency can be provided in the \code{pgs.weight.data} as a column named \code{allelefrequency_effect} and by setting \code{use.external.effect.allele.frequency} to \code{TRUE}.
 }
 \description{
 Apply a polygenic score to VCF data.
