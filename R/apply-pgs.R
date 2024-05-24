@@ -102,7 +102,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' The outputed list contains the following elements:
 #' \itemize{
 #' \item pgs.output: A data.frame containing the PGS per sample and optional phenotype data.
-#' \item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided.
+#' \item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided, otherwise \code{NULL}.
 #' }
 #' 
 #' pgs.output columns:
@@ -114,7 +114,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' \item percentile: A numeric vector indicating the percentile rank of the PGS.
 #' \item decile: A numeric vector indicating the decile rank of the PGS.
 #' \item quartile: A numeric vector indicating the quartile rank of the PGS.
-#' \item percentile.X: A numeric vector indicating the user-specified percentile rank of the PGS. (only if n.percentiles is specified)
+#' \item percentile.X: A numeric vector indicating the user-specified percentile rank of the PGS where "X" is substituted by \code{n.percentiles}. (only if \code{n.percentiles} is specified)
 #' \item n.missing.genotypes: A numeric vector indicating the number of missing genotypes per sample.
 #' \item percent.missing.genotypes: A numeric vector indicating the percentage of missing genotypes per sample.
 #' }

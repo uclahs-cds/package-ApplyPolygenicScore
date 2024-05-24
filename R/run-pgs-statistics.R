@@ -19,34 +19,40 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
         stop('n.percentiles must be an integer');
         }
 
-    sorted.pgs <- sort(pgs, decreasing = TRUE)
-    pgs.percentiles <- sapply(
-        X = sorted.pgs,
+    # save the original order of the PGS
+    pgs.percentile.data <- data.frame(pgs = pgs, order = 1:length(pgs));
+
+    # calculate percentiles
+    pgs.percentile.data$percentile <- sapply(
+        X = pgs,
         FUN = function(x) {
-            sum(pgs >= x, na.rm = TRUE) / length(pgs);
+            sum(x >= pgs, na.rm = TRUE) / length(pgs);
             }
         );
 
-    # convert to data frame
-    pgs.percentile.data <- data.frame(
-        percentile = pgs.percentiles
-        );
+    # sort pgs percentiles in descending order to facilitate decile and quartile calculations
+    pgs.percentile.data <- pgs.percentile.data[order(pgs.percentile.data$percentile, decreasing = TRUE),];
 
     # compute which decile each PGS belongs to
-    pgs.percentile.data$decile <- cut(pgs.percentiles, breaks = seq(0, 1, 0.1), labels = FALSE);
+    pgs.percentile.data$decile <- cut(pgs.percentile.data$percentile, breaks = seq(0, 1, 0.1), labels = FALSE);
 
     # compute which quartile each pgs belongs to
-    pgs.percentile.data$quartile <- cut(pgs.percentiles, breaks = seq(0, 1, 0.25), labels = FALSE);
+    pgs.percentile.data$quartile <- cut(pgs.percentile.data$percentile, breaks = seq(0, 1, 0.25), labels = FALSE);
 
     if (!is.null(n.percentiles)) {
         # calculate user-specified percentiles
-        pgs.percentile.data$percentile.X <- cut(pgs.percentiles, breaks = seq(0, 1, 1 / n.percentiles), labels = FALSE);
+        pgs.percentile.data$percentile.X <- cut(pgs.percentile.data$percentile, breaks = seq(0, 1, 1 / n.percentiles), labels = FALSE);
         # replace column name with the number of percentiles
         colnames(pgs.percentile.data) <- gsub('percentile.X', paste0('percentile.', n.percentiles), colnames(pgs.percentile.data));
         }
 
     # go back to the original order
-    pgs.percentile.data <- pgs.percentile.data[order(pgs),];
+    pgs.percentile.data <- pgs.percentile.data[order(pgs.percentile.data$order),];
+
+    # remove extra columns
+    pgs.percentile.data$order <- NULL;
+    pgs.percentile.data$pgs <- NULL;
+
     return(pgs.percentile.data);
     }
 
