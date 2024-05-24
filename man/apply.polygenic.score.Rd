@@ -45,6 +45,7 @@ When not specified, defaults to missing.genotype.method choice and if more than 
 A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
 
 \strong{Output Structure}
+
 The outputed list contains the following elements:
 \itemize{
 \item pgs.output: A data.frame containing the PGS per sample and optional phenotype data.
@@ -75,8 +76,11 @@ regression.output columns:
 \item AUC: A numeric vector indicating the area under the curve of the regression analysis. NA for linear regression.
 }
 
-\strong(PGS Calculation)
-PGS for each individual is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
+\strong{PGS Calculation}
+
+PGS for each individual \emph{i} is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
+\deqn{PGS_i = \sum_{m=1}^{M} \left( \beta_m \times dosage_{im} \right)}
+Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
 }
 \description{
 Apply a polygenic score to VCF data.

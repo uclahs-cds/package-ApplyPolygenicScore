@@ -131,7 +131,10 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' 
 #' \strong{PGS Calculation}
 #' 
-#' PGS for each individual is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
+#' PGS for each individual \emph{i} is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
+#' \deqn{PGS_i = \sum_{m=1}^{M} \left( \beta_m \times dosage_{im} \right)}
+#' Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
+#' 
 #' @examples
 #' # Example VCF
 #' vcf.path <- system.file(
