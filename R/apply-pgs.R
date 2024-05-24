@@ -196,11 +196,13 @@ apply.polygenic.score <- function(
     ### End Input Validation ###
 
     # merge VCF and PGS data
-    merged.vcf.with.pgs <- merge.vcf.with.pgs(
+    merged.vcf.with.pgs.data <- merge.vcf.with.pgs(
         vcf.data = vcf.data,
         pgs.weight.data = pgs.weight.data
-        );
-    merged.vcf.with.pgs.data <- merged.vcf.with.pgs$merged.vcf.with.pgs.data;
+        )$merged.vcf.with.pgs.data;
+
+    # free up some memory
+    rm(vcf.data);
 
     # calculate dosage
     merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
@@ -209,13 +211,6 @@ apply.polygenic.score <- function(
         );
 
     ### Start Missing Genotype Handling ###
-    # create sample by variant dosage matrix
-    variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
-    dosage.matrix <- get.variant.by.sample.matrix(
-        long.data = merged.vcf.with.pgs.data,
-        variant.id = variant.id,
-        value.var = 'dosage'
-        );
 
     if ('mean.dosage' %in% missing.genotype.method) {
         # calculate dosage to replace missing genotypes
@@ -223,7 +218,16 @@ apply.polygenic.score <- function(
             missing.genotype.dosage <- convert.allele.frequency.to.dosage(allele.frequency = pgs.weight.data$allelefrequency_effect);
             names(missing.genotype.dosage) <- paste(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele, sep = ':');
             } else {
+            # create sample by variant dosage matrix
+            variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
+            dosage.matrix <- get.variant.by.sample.matrix(
+                long.data = merged.vcf.with.pgs.data,
+                variant.id = variant.id,
+                value.var = 'dosage'
+                );
             missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
+            # free up some memory
+            rm(dosage.matrix);
             }
 
         # identify missing genotypes
@@ -316,7 +320,8 @@ apply.polygenic.score <- function(
             );
         colnames(pgs.per.sample) <- c('Indiv', 'PGS');
         pgs.output.list$PGS <- pgs.per.sample;
-
+        # free up some memory
+        rm(pgs.per.sample);
         }
 
     if ('normalize' %in% missing.genotype.method) {
@@ -334,6 +339,8 @@ apply.polygenic.score <- function(
         # account for division by zero
         pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
         pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
+        # free up some memory
+        rm(pgs.per.sample.with.normalized.missing);
         }
 
     if ('mean.dosage' %in% missing.genotype.method) {
@@ -345,6 +352,8 @@ apply.polygenic.score <- function(
             );
         colnames(pgs.per.sample) <- c('Indiv', 'PGS');
         pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
+        # free up some memory
+        rm(pgs.per.sample);
         }
 
     ### End PGS Application ###
