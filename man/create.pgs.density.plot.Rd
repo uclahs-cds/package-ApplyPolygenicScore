@@ -79,8 +79,8 @@ create.pgs.density.plot(
 # Plot multiple phenotypes
 pgs.data$letters <- sample(letters[1:5], 200, replace = TRUE);
 create.pgs.density.plot(
- pgs.data, output.dir = temp.dir,
- filename.prefix = 'multiple-phenotypes',
- phenotype.columns = c('sex', 'letters')
- );
+    pgs.data, output.dir = temp.dir,
+    filename.prefix = 'multiple-phenotypes',
+    phenotype.columns = c('sex', 'letters')
+    );
 }

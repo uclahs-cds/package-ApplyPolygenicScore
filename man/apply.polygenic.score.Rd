@@ -84,8 +84,12 @@ pgs.data <- apply.polygenic.score(
 # Provide phenotype data for basic correlation analysis
 phenotype.data <- data.frame(
     Indiv = unique(vcf.import$dat$Indiv),
-    continuous.phenotype <- rnorm(length(unique(vcf.import$dat$Indiv))),
-    binary.phenotype <- sample(c('a', 'b'), length(unique(vcf.import$dat$Indiv)), replace = TRUE)
+    continuous.phenotype = rnorm(length(unique(vcf.import$dat$Indiv))),
+    binary.phenotype = sample(
+        c('a', 'b'),
+        length(unique(vcf.import$dat$Indiv)),
+        replace = TRUE
+        )
     );
 
 pgs.data <- apply.polygenic.score(
