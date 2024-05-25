@@ -24,7 +24,7 @@ check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
     }
 
 #' @title Import VCF file
-#' @description Import a VCF file into a long form data.frame using vcfR package.
+#' @description A wrapper for the VCF import function in the vcfR package that formats VCF data for PGS application with \code{apply.polygenic.score()}.
 #' @param vcf.path A character string indicating the path to the VCF file to be imported.
 #' @param info.fields A character vector indicating the INFO fields to be imported.
 #' @param format.fields A character vector indicating the FORMAT fields to be imported.

@@ -80,7 +80,7 @@ write.pgs.regression.table <- function(pgs.regression.output, output.dir, file.p
 # Utility function for writing apply.polygenic.score outputs to file
 #' @title Write apply.polygenic.score output to file
 #' @description A utility function that writes the two data frames outputted by apply.polygenic.score to two tab-delimited text files.
-#' @param apply.polygenic.score.output list of two data frames: pgs.output and regression.output
+#' @param apply.polygenic.score.output list of two data frames: \code{pgs.output} and \code{regression.output}
 #' @param output.dir character string of the path to write both output files
 #' @param file.prefix character string of the file prefix to use for both output files
 #' @export

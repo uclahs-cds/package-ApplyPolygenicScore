@@ -15,5 +15,5 @@ check.pgs.weight.columns(pgs.weight.colnames, harmonized = TRUE)
 A logical indicating whether the file contains the required columns.
 }
 \description{
-Check that a PGS weight file contains the required columns.
+Check that a PGS weight file contains the required columns for PGS application with \code{apply.polygenic.score}.
 }

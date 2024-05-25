@@ -80,21 +80,21 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
     }
 
 #' @title Plot PGS Rank
-#' @description Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
-#' @param pgs.data data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
+#' @description Plot PGS percentile rank of each sample outputted by \code{apply.polygenic.score()} as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
+#' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()} Required columns: \code{Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes,} and optionally user-defined percentiles and phenotype covariates.
 #' This function is designed to work with the output of the function apply.polygenic.score().
-#' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.
-#' @param missing.genotype.style character style of missing genotype barplot. Default is 'count'. Options are 'count' or 'percent'.
-#' @param output.dir character directory path to write plot to file. Default is NULL in which case the plot is returned as lattice multipanel object.
+#' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is \code{NULL}.
+#' @param missing.genotype.style character style of missing genotype barplot. Default is "count". Options are "count" or "percent".
+#' @param output.dir character directory path to write plot to file. Default is \code{NULL} in which case the plot is returned as lattice multipanel object.
 #' @param filename.prefix character prefix for plot filename.
-#' @param file.extension character file extension for plot file. Default is 'png'.
+#' @param file.extension character file extension for plot file. Default is "png".
 #' @param width numeric width of plot in inches.
 #' @param height numeric height of plot in inches.
 #' @param xaxis.cex numeric size of x-axis labels.
 #' @param yaxis.cex numeric size of y-axis labels.
 #' @param titles.cex numeric size of plot titles.
 #' @param border.padding numeric padding around plot border.
-#' @return lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
+#' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 #' @examples
 #' set.seed(200);
 #' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1));

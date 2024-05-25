@@ -16,7 +16,8 @@ data frame with columns for phenotype, model, beta, se, p.value, r.squared, and 
 }
 \description{
 Phenotype data variables are automatically classified as continuous or binary and a simple linear regression or logistic regression, respectively, is run between the polygenic score and each phenotype.
-If a binary variable is not formatted as a factor, it will be converted to a factor using as.factor() defaults. For logistic regression, the first level is classified as "failure" and the second "success" by glm defaults.
+Categorical phenotypes with more than two category are ignored.
+If a binary variable is not formatted as a factor, it is converted to a factor using \code{as.factor()} defaults. For logistic regression, the first level is classified as "failure" and the second "success" by \code{glm()} defaults.
 }
 \examples{
 set.seed(200);

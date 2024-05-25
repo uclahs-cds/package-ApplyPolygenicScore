@@ -21,9 +21,10 @@ create.pgs.density.plot(
 )
 }
 \arguments{
-\item{pgs.data}{data.frame PGS data with columns outputted by apply.polygenic.score()}
+\item{pgs.data}{data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
+This function is designed to work with the output of \code{apply.polygenic.score()}.}
 
-\item{phenotype.columns}{character vector of phenotype columns in pgs.data to plot (optional)}
+\item{phenotype.columns}{character vector of phenotype columns in \code{pgs.data} to plot (optional)}
 
 \item{output.dir}{character directory to save output plots}
 
@@ -37,21 +38,21 @@ create.pgs.density.plot(
 
 \item{height}{numeric height of output plot in inches}
 
-\item{xaxes.cex}{numeric cex for all x-axis labels in inches}
+\item{xaxes.cex}{numeric size for all x-axis labels}
 
-\item{yaxes.cex}{numeric cex for all y-axis labels in inches}
+\item{yaxes.cex}{numeric size for all y-axis labels}
 
-\item{titles.cex}{numeric cex for all plot titles in inches}
+\item{titles.cex}{numeric size for all plot titles}
 
 \item{key.cex}{numeric size of color key legend}
 
 \item{border.padding}{numeric padding for plot borders}
 }
 \value{
-if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
+If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 }
 \description{
-Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
+Plot density curves of PGS data outputted by \code{apply.polygenic.score}.
 If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 }
 \examples{

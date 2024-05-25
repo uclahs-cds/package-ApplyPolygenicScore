@@ -20,18 +20,18 @@ create.pgs.rank.plot(
 )
 }
 \arguments{
-\item{pgs.data}{data.frame PGS data containing the following columns: Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes, and optionally user-defined percentiles and phenotype covariates.
+\item{pgs.data}{data.frame PGS data as formatted by \code{apply.polygenic.score()} Required columns: \code{Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes,} and optionally user-defined percentiles and phenotype covariates.
 This function is designed to work with the output of the function apply.polygenic.score().}
 
-\item{phenotype.columns}{character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is NULL.}
+\item{phenotype.columns}{character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is \code{NULL}.}
 
-\item{missing.genotype.style}{character style of missing genotype barplot. Default is 'count'. Options are 'count' or 'percent'.}
+\item{missing.genotype.style}{character style of missing genotype barplot. Default is "count". Options are "count" or "percent".}
 
-\item{output.dir}{character directory path to write plot to file. Default is NULL in which case the plot is returned as lattice multipanel object.}
+\item{output.dir}{character directory path to write plot to file. Default is \code{NULL} in which case the plot is returned as lattice multipanel object.}
 
 \item{filename.prefix}{character prefix for plot filename.}
 
-\item{file.extension}{character file extension for plot file. Default is 'png'.}
+\item{file.extension}{character file extension for plot file. Default is "png".}
 
 \item{width}{numeric width of plot in inches.}
 
@@ -46,10 +46,10 @@ This function is designed to work with the output of the function apply.polygeni
 \item{border.padding}{numeric padding around plot border.}
 }
 \value{
-lattice multipanel object if output.dir is NULL, otherwise a file is written to output.dir.
+If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 }
 \description{
-Plot PGS percentile rank of each sample as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
+Plot PGS percentile rank of each sample outputted by \code{apply.polygenic.score()} as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
 }
 \examples{
 set.seed(200);

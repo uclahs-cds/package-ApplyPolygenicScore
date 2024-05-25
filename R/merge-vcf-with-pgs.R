@@ -1,9 +1,11 @@
 #' @title Merge VCF with PGS
-#' @description Match PGS SNPs to corresponding VCF information by genomic coordinates via merge.
-#' The merge is a left outer join, meaning that all PGS SNPs will be kept even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS will be dropped.
-#' @param vcf.data A data.frame containing VCF data.
-#' @param pgs.weight.data A data.frame containing PGS data.
+#' @description Match PGS SNPs to corresponding VCF information by genomic coordinates using a merge operation.
+#' @param vcf.data A data.frame containing VCF data. Required columns: \code{CHROM, POS}.
+#' @param pgs.weight.data A data.frame containing PGS data. Required columns: \code{CHROM, POS}.
 #' @return A list containing a data.frame of merged VCF and PGS data and a data.frame of PGS SNPs missing from the VCF.
+#' 
+#' Merge is performed on chromosome and base pair coordinates.
+#' The merge is a left outer join: all PGS SNPs are kept as rows even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS are dropped.
 #' @examples
 #' # Example VCF
 #' vcf.path <- system.file(

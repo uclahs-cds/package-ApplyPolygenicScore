@@ -53,22 +53,23 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
     }
 
 #' @title Plot PGS Density
-#' @description Plot density curves of PGS data from automatically detected PGS columns outputted by apply.polygenic.score (PGS, PGS.with.replaced.missing, PGS.with.normalized.missing).
+#' @description Plot density curves of PGS data outputted by \code{apply.polygenic.score}.
 #' If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
-#' @param pgs.data data.frame PGS data with columns outputted by apply.polygenic.score()
-#' @param phenotype.columns character vector of phenotype columns in pgs.data to plot (optional)
+#' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
+#' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param phenotype.columns character vector of phenotype columns in \code{pgs.data} to plot (optional)
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
 #' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
-#' @param xaxes.cex numeric cex for all x-axis labels in inches
-#' @param yaxes.cex numeric cex for all y-axis labels in inches
-#' @param titles.cex numeric cex for all plot titles in inches
+#' @param xaxes.cex numeric size for all x-axis labels
+#' @param yaxes.cex numeric size for all y-axis labels
+#' @param titles.cex numeric size for all plot titles
 #' @param key.cex numeric size of color key legend
 #' @param border.padding numeric padding for plot borders
-#' @return if no output.dir is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and NULL is returned.
+#' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 #' @examples
 #' set.seed(200);
 #' pgs.data <- data.frame(
@@ -323,24 +324,25 @@ create.pgs.density.plot <- function(
     }
 
 #' @title Plot PGS Scatterplots
-#' @description Create scatterplots for PGS data with continuous phenotype variables
-#' @param pgs.data data.frame PGS data with columns of continuous phenotype variables outputted by apply.polygenic.score()
-#' @param phenotype.columns character vector of continuous phenotype columns in pgs.data to plot
+#' @description Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
+#' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
+#' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param phenotype.columns character vector of continuous phenotype column names in pgs.data to plot
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
 #' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
 #' @param compute.correlation logical whether to compute correlation between PGS and phenotype and display in plot
-#' @param corr.legend.corner numeric vector indicating the corner of the correlation legend e.g. c(0,1) for top left
+#' @param corr.legend.corner numeric vector indicating the corner of the correlation legend e.g. \code{c(0,1)} for top left
 #' @param corr.legend.cex numeric cex for correlation legend
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
-#' @param xaxes.cex numeric cex for x-axis labels
-#' @param yaxes.cex numeric cex for y-axis labels
-#' @param titles.cex numeric cex for plot titles
-#' @param point.cex numeric cex for plot points
+#' @param xaxes.cex numeric size for x-axis labels
+#' @param yaxes.cex numeric size for y-axis labels
+#' @param titles.cex numeric size for plot titles
+#' @param point.cex numeric size for plot points
 #' @param border.padding numeric padding for plot borders
-#' @return multipanel plot object
+#' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 #' @examples
 #' set.seed(200);
 #'
