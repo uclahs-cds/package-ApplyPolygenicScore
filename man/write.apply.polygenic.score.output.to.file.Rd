@@ -11,7 +11,7 @@ write.apply.polygenic.score.output.to.file(
 )
 }
 \arguments{
-\item{apply.polygenic.score.output}{list of two data frames: pgs.output and regression.output}
+\item{apply.polygenic.score.output}{list of two data frames: \code{pgs.output} and \code{regression.output}}
 
 \item{output.dir}{character string of the path to write both output files}
 

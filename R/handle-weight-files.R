@@ -1,5 +1,5 @@
 #' @title Check PGS weight file columns
-#' @description Check that a PGS weight file contains the required columns.
+#' @description Check that a PGS weight file contains the required columns for PGS application with \code{apply.polygenic.score}.
 #' @param pgs.weight.colnames A character vector of column names.
 #' @param harmonized A logical indicating whether the presence of harmonized columns should be checked.
 #' @return A logical indicating whether the file contains the required columns.
@@ -79,10 +79,11 @@ parse.pgs.input.header <- function(pgs.weight.path) {
 
 # function for importing a PGS weight file formatted according to PGS catalog guidelines
 #' @title Import PGS weight file
-#' @description Import a PGS weight file formatted according to PGS catalog guidelines, and prepare for PGS application.
+#' @description Import a PGS weight file formatted according to PGS catalog guidelines, and prepare for PGS application with \code{apply.polygenic.score()}.
 #' @param pgs.weight.path A character string indicating the path to the pgs weight file.
 #' @param use.harmonized.data A logical indicating whether the file should be formatted to indicate harmonized data columns for use in future PGS application.
 #' @return A list containing the file metadata and the weight data.
+#' @examples
 #' # Example pgs weight file
 #' pgs.weight.path <- system.file(
 #'     'extdata',

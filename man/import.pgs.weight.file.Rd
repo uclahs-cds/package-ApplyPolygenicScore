@@ -13,6 +13,11 @@ import.pgs.weight.file(pgs.weight.path, use.harmonized.data = TRUE)
 }
 \value{
 A list containing the file metadata and the weight data.
+}
+\description{
+Import a PGS weight file formatted according to PGS catalog guidelines, and prepare for PGS application with \code{apply.polygenic.score()}.
+}
+\examples{
 # Example pgs weight file
 pgs.weight.path <- system.file(
     'extdata',
@@ -24,7 +29,4 @@ import.pgs.weight.file(pgs.weight.path);
 
 # Note, harmonized data is used by default. To disable set `use.harmonized.data = FALSE`
 import.pgs.weight.file(pgs.weight.path, use.harmonized.data = FALSE);
-}
-\description{
-Import a PGS weight file formatted according to PGS catalog guidelines, and prepare for PGS application.
 }

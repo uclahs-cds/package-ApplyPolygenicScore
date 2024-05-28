@@ -82,7 +82,7 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 #' @description Merge overlapping PGS coordinates in multiple BED files.
 #' @param pgs.bed.list A named list of data.frames containing PGS coordinates in BED format.
 #' @param add.annotation.data A logical indicating whether an additional annotation data column should be added to the annotation column.
-#' @param annotation.column.index An integer indicating the index of the column in the data frames in pgs.bed.list that should be added to the annotation column.
+#' @param annotation.column.index An integer indicating the index of the column in the data frames in \code{pgs.bed.list} that should be added to the annotation column.
 #' @param slop An integer indicating the number of base pairs to add to the BED interval on either side.
 #' @return A data.frame containing the merged PGS coordinates in BED format with an extra annotation column containing the name of the PGS and data from one additional column optionally selected by the user.
 #' @examples

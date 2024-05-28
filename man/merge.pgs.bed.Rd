@@ -16,7 +16,7 @@
 
 \item{add.annotation.data}{A logical indicating whether an additional annotation data column should be added to the annotation column.}
 
-\item{annotation.column.index}{An integer indicating the index of the column in the data frames in pgs.bed.list that should be added to the annotation column.}
+\item{annotation.column.index}{An integer indicating the index of the column in the data frames in \code{pgs.bed.list} that should be added to the annotation column.}
 
 \item{slop}{An integer indicating the number of base pairs to add to the BED interval on either side.}
 }

@@ -19,7 +19,7 @@ import.vcf(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE)
 A list containing a tibble of VCF meta data and a tibble data.frame containing the parsed VCF data in long form.
 }
 \description{
-Import a VCF file into a long form data.frame using vcfR package.
+A wrapper for the VCF import function in the vcfR package that formats VCF data for PGS application with \code{apply.polygenic.score()}.
 }
 \examples{
 # Example VCF

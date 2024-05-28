@@ -82,20 +82,89 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 
 #' @title Apply polygenic score to VCF data
 #' @description Apply a polygenic score to VCF data.
-#' @param vcf.data A data.frame containing VCF genotype data as formatted by import.vcf().
-#' @param pgs.weight.data A data.frame containing PGS weight data as formatted by import.pgs.weight.file().
-#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is NULL.
-#' @param phenotype.analysis.columns A character vector of phenotype columns from phenotype.data to analyze. Default is NULL.
+#' @param vcf.data A data.frame containing VCF genotype data as formatted by \code{import.vcf()}.
+#' @param pgs.weight.data A data.frame containing PGS weight data as formatted by \code{import.pgs.weight.file()}.
+#' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is \code{NULL}.
+#' @param phenotype.analysis.columns A character vector of phenotype columns from phenotype.data to analyze in a regression analsyis. Default is \code{NULL}.
+#' Phenotype variables are automatically classified as continuous, binary, or neither based on data type and number of unique values. The calculated PGS is associated
+#' with each phenotype variable using linear or logistic regression for continuous or binary phenotypes, respectively. See \code{run.pgs.regression} for more details.
+#' If no phenotype.analysis.columns are provided, no regression analysis is performed.
 #' @param output.dir A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
 #' Files are tab-separate .txt files. Default is NULL in which case no files are written.
-#' @param file.prefix A character string to prepend to the output file names. Default is NULL.
+#' @param file.prefix A character string to prepend to the output file names. Default is \code{NULL}.
 #' @param missing.genotype.method A character string indicating the method to handle missing genotypes. Options are "mean.dosage", "normalize", or "none". Default is "mean.dosage".
-#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is FALSE.
-#' Provide allele frequency as a column is `pgs.weight.data` named `allelefrequency_effect`.
-#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is NULL.
+#' @param use.external.effect.allele.frequency A logical indicating whether to use an external effect allele frequency for calculating mean dosage when handling missing genotypes. Default is \code{FALSE}.
+#' Provide allele frequency as a column is \code{pgs.weight.data} named \code{allelefrequency_effect}.
+#' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is \code{NULL}.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
-#' When not specified, defaults to missing.genotype.method choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
-#' @return A list containing the PGS per sample and regression output if phenotype analysis columns are provided.
+#' When not specified, defaults to \code{missing.genotype.method} choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
+#' @return A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
+#'
+#' \strong{Output Structure}
+#'
+#' The outputed list contains the following elements:
+#' \itemize{
+#' \item pgs.output: A data.frame containing the PGS per sample and optional phenotype data.
+#' \item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided, otherwise \code{NULL}.
+#' }
+#'
+#' pgs.output columns:
+#' \itemize{
+#' \item \code{Indiv}: A character string indicating the sample ID.
+#' \item \code{PGS}: A numeric vector indicating the PGS per sample. (only if missing.genotype.method includes "none")
+#' \item \code{PGS.with.normalized.missing}: A numeric vector indicating the PGS per sample with missing genotypes normalized. (only if missing.genotype.method includes "normalize")
+#' \item \code{PGS.with.replaced.missing}: A numeric vector indicating the PGS per sample with missing genotypes replaced by mean dosage. (only if missing.genotype.method includes "mean.dosage")
+#' \item \code{percentile}: A numeric vector indicating the percentile rank of the PGS.
+#' \item \code{decile}: A numeric vector indicating the decile rank of the PGS.
+#' \item \code{quartile}: A numeric vector indicating the quartile rank of the PGS.
+#' \item \code{percentile.X:} A numeric vector indicating the user-specified percentile rank of the PGS where "X" is substituted by \code{n.percentiles}. (only if \code{n.percentiles} is specified)
+#' \item \code{n.missing.genotypes}: A numeric vector indicating the number of missing genotypes per sample.
+#' \item \code{percent.missing.genotypes}: A numeric vector indicating the percentage of missing genotypes per sample.
+#' \item All columns in \code{phenotype.data} if provided.
+#' }
+#'
+#' regression.output columns:
+#' \itemize{
+#' \item phenotype: A character vector of phenotype names.
+#' \item \code{model}: A character vector indicating the regression model used. One of "logistic.regression" or "linear.regression".
+#' \item \code{beta}: A numeric vector indicating the beta coefficient of the regression analysis.
+#' \item \code{se}: A numeric vector indicating the standard error of the beta coefficient.
+#' \item \code{p.value}: A numeric vector indicating the p-value of the beta coefficient.
+#' \item \code{r.squared}: A numeric vector indicating the r-squared value of linear regression analysis. NA for logistic regression.
+#' \item \code{AUC}: A numeric vector indicating the area under the curve of logistic regression analysis. NA for linear regression.
+#' }
+#'
+#' \strong{PGS Calculation}
+#'
+#' PGS for each individual \emph{i} is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
+#' \deqn{PGS_i = \sum_{m=1}^{M} \left( \beta_m \times dosage_{im} \right)}
+#' Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
+#'
+#' \strong{Missing Genotype Handling}
+#'
+#' Missing genotypes are handled by three methods:
+#'
+#' \code{none}: Missing genotype dosages are excluded from the PGS calculation.
+#' This is equivalent to assuming that all missing genotypes are homozygous for the non-effect allele, resulting in a dosage of 0.
+#'
+#' \code{normalize}: Missing genotypes are excluded from score calculation but the final score is normalized by the number of non-missing alleles.
+#' The calculation assumes a diploid genome:
+#' \deqn{PGS_i = \dfrac{\sum \left( \beta_m \times dosage_{im} \right)}{P_i * M_{non-missing}}}
+#' Where \emph{P} is the ploidy and has the value \code{2} and \emph{M_{non-missing}} is the number of non-missing genotypes.
+#'
+#' \code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency and the ploidy of a diploid genome:
+#' \deqn{dosage_{im-missing} = EAF_m * P_i}
+#' Where \emph{EAF} is the effect allele frequency and \emph{P} is the ploidy and has the value \code{2}.
+#' By default, the effect allele frequency is calculated from the provided VCF data. For variants that are missing in all individuals, it is not possible to derive an effect allele frequency
+#' and dosage is assumed to be zero (homozygous non-reference) for all individuals.
+#' An external allele frequency can be provided in the \code{pgs.weight.data} as a column named \code{allelefrequency_effect} and by setting \code{use.external.effect.allele.frequency} to \code{TRUE}.
+#'
+#' \strong{Multiallelic Site Handling}
+#'
+#' VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a PGS weight file provides weights for multiple effect alleles, the appropriate dosage is calculated for the
+#' alleles that each individual carries. It is assumed that multiallelic variants are encoded in the same row in the VCF data. This is known as "merged" format. Split multiallelic sites are not accepted.
+#' VCF data can be formatted to merged format using external tools for VCF file manipulation.
+#'
 #' @examples
 #' # Example VCF
 #' vcf.path <- system.file(
@@ -217,6 +286,9 @@ apply.polygenic.score <- function(
         if (use.external.effect.allele.frequency) {
             missing.genotype.dosage <- convert.allele.frequency.to.dosage(allele.frequency = pgs.weight.data$allelefrequency_effect);
             names(missing.genotype.dosage) <- paste(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele, sep = ':');
+            # identify missing genotypes
+            # this method includes variants that are missing in all Indivs, these are all replaced with the same mean dosage
+            missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage));
             } else {
             # create sample by variant dosage matrix
             variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
@@ -228,10 +300,12 @@ apply.polygenic.score <- function(
             missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
             # free up some memory
             rm(dosage.matrix);
+            # identify missing genotypes
+            # this method excludes variants that are missing in all Indivs, these remain as NA
+            missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage) & !is.na(merged.vcf.with.pgs.data$Indiv));
             }
 
-        # identify missing genotypes
-        missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage) & !is.na(merged.vcf.with.pgs.data$Indiv));
+
         # start a column for replaced missing dosages
         merged.vcf.with.pgs.data$dosage.with.replaced.missing <- merged.vcf.with.pgs.data$dosage;
         # assign mean dosage to missing genotypes

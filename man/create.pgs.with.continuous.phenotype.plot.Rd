@@ -24,9 +24,10 @@ create.pgs.with.continuous.phenotype.plot(
 )
 }
 \arguments{
-\item{pgs.data}{data.frame PGS data with columns of continuous phenotype variables outputted by apply.polygenic.score()}
+\item{pgs.data}{data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
+This function is designed to work with the output of \code{apply.polygenic.score()}.}
 
-\item{phenotype.columns}{character vector of continuous phenotype columns in pgs.data to plot}
+\item{phenotype.columns}{character vector of continuous phenotype column names in pgs.data to plot}
 
 \item{output.dir}{character directory to save output plots}
 
@@ -38,7 +39,7 @@ create.pgs.with.continuous.phenotype.plot(
 
 \item{compute.correlation}{logical whether to compute correlation between PGS and phenotype and display in plot}
 
-\item{corr.legend.corner}{numeric vector indicating the corner of the correlation legend e.g. c(0,1) for top left}
+\item{corr.legend.corner}{numeric vector indicating the corner of the correlation legend e.g. \code{c(0,1)} for top left}
 
 \item{corr.legend.cex}{numeric cex for correlation legend}
 
@@ -46,21 +47,21 @@ create.pgs.with.continuous.phenotype.plot(
 
 \item{height}{numeric height of output plot in inches}
 
-\item{xaxes.cex}{numeric cex for x-axis labels}
+\item{xaxes.cex}{numeric size for x-axis labels}
 
-\item{yaxes.cex}{numeric cex for y-axis labels}
+\item{yaxes.cex}{numeric size for y-axis labels}
 
-\item{titles.cex}{numeric cex for plot titles}
+\item{titles.cex}{numeric size for plot titles}
 
-\item{point.cex}{numeric cex for plot points}
+\item{point.cex}{numeric size for plot points}
 
 \item{border.padding}{numeric padding for plot borders}
 }
 \value{
-multipanel plot object
+If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 }
 \description{
-Create scatterplots for PGS data with continuous phenotype variables
+Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
 }
 \examples{
 set.seed(200);
