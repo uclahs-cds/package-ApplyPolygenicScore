@@ -75,7 +75,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
     # validate color palettes
     are.colors <- function(x) {
         sapply(x, function(X) {
-            tryCatch(is.matrix(col2rgb(X)), 
+            tryCatch(is.matrix(col2rgb(X)),
                     error = function(e) FALSE)
                 }
             )
@@ -122,16 +122,16 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' @param titles.cex numeric size of plot titles.
 #' @param border.padding numeric padding around plot border.
 #' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
-#' 
+#'
 #' For clarity, certain plot aspects change when sample size exceeds 50:
 #' \itemize{
 #' \item x-axis labels are no longer displayed
 #' \item missing (NA) values are not labeled with text in heatmaps but are color-coded with a legend
 #' }
-#' 
+#'
 #' Colors for continuous and binary phenotypes are chosen from the binary color palettes in \code{BoutrosLab.plotting.general::default.colours()}.
 #' Colors for categorical phenotypes are chosen by default from the qualitative color palette in \code{BoutrosLab.plotting.general::default.colours()}.
-#' 
+#'
 #' @examples
 #' set.seed(200);
 #' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1));
