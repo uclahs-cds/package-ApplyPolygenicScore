@@ -16,6 +16,7 @@ A list containing a data.frame of merged VCF and PGS data and a data.frame of PG
 
 Merge is performed on chromosome and base pair coordinates.
 The merge is a left outer join: all PGS SNPs are kept as rows even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS are dropped.
+If no PGS SNPs are present in the VCF, the function will terminate with an error.
 }
 \description{
 Match PGS SNPs to corresponding VCF information by genomic coordinates using a merge operation.

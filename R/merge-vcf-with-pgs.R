@@ -6,6 +6,7 @@
 #'
 #' Merge is performed on chromosome and base pair coordinates.
 #' The merge is a left outer join: all PGS SNPs are kept as rows even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS are dropped.
+#' If no PGS SNPs are present in the VCF, the function will terminate with an error.
 #' @examples
 #' # Example VCF
 #' vcf.path <- system.file(
@@ -73,9 +74,12 @@ merge.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
     # check for pgs SNPs missing from the VCF data
     missing.pgs.snp.index <- is.na(merged.vcf.with.pgs.data$REF);
-    if (any(missing.pgs.snp.index)) {
-        warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
-        missing.snp.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
+
+    if (all(missing.pgs.snp.index)) {
+        stop('All PGS SNPs are missing from the VCF, terminating merge.');
+        } else if (any(missing.pgs.snp.index)) {
+            warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
+            missing.snp.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
         } else {
         missing.snp.data <- NULL;
         }
