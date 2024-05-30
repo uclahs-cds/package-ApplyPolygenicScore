@@ -377,9 +377,9 @@ create.pgs.rank.plot <- function(
                     stop('Number of binary and continuous phenotype covariates exceeds the number of binary color palettes. Please provide a larger color palette.');
                     }
                 binary.color.schemes <- lapply(
-                    X = binary.palette,
+                    X = 1:max.binary.colors,
                     FUN = function(x) {
-                        color.scheme <- c('white', x)
+                        color.scheme <- c('white', binary.palette[x])
                         return(color.scheme)
                         }
                     )
@@ -595,7 +595,7 @@ create.pgs.rank.plot <- function(
                     list(
                         title = names(continuous.color.schemes)[x],
                         colours = continuous.color.schemes[[x]],
-                        labels = round(c(min(continuous.phenotype.data[ , x], na.rm = TRUE), max(continuous.phenotype.data[ , x], na.rm = TRUE)), 1),
+                        labels = signif(c(min(continuous.phenotype.data[ , x], na.rm = TRUE), max(continuous.phenotype.data[ , x], na.rm = TRUE)), 2),
                         continuous = TRUE
                         );
                     }
