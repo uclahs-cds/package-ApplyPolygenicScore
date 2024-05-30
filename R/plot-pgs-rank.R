@@ -42,7 +42,7 @@ get.na.coordinates.for.heatmap <- function(data) {
     }
 
 # utility function for validating inputs to plot.pgs.rank()
-rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.genotype.style, output.dir) {
+rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.genotype.style, categorical.palette, binary.palette, output.dir) {
     # check pgs.data
     if (!is.data.frame(pgs.data)) {
         stop('pgs.data must be a data frame');
@@ -72,6 +72,28 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
         stop('pgs.data must contain columns for Indiv, percentile, decile, quartile, n.missing.genotypes, percent.missing.genotypes');
         }
 
+    # validate color palettes
+    are.colors <- function(x) {
+        sapply(x, function(X) {
+            tryCatch(is.matrix(col2rgb(X)), 
+                    error = function(e) FALSE)
+                }
+            )
+        }
+
+    if (!is.null(categorical.palette)) {
+        if (any(!are.colors(categorical.palette))) {
+            stop('categorical.palette must be a vector of valid colors');
+            }
+        }
+
+    if (!is.null(binary.palette)) {
+        if (any(!are.colors(binary.palette))) {
+            stop('binary.palette must be a vector of valid colors');
+            }
+        }
+
+
     # validate output.dir
     if (!is.null(output.dir) && !dir.exists(output.dir)) {
         stop(paste0(output.dir), ' does not exist');
@@ -85,6 +107,11 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' This function is designed to work with the output of the function apply.polygenic.score().
 #' @param phenotype.columns character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is \code{NULL}.
 #' @param missing.genotype.style character style of missing genotype barplot. Default is "count". Options are "count" or "percent".
+#' @param categorical.palette character vector of colors to use for categorical phenotype covariates. Default is \code{NULL} in which case the default palette is used, which contains 12 unique colors.
+#' If the number of unique categories exceeds the number of colors in the color palette, an error will be thrown.
+#' @param binary.palette character vector of colors to use for binary and continuous phenotype covariates. Each color is contrasted with white to create a color ramp or binary categories.
+#' Default is \code{NULL} in which case the default palette is used, which contains 9 unique colors paired with white.
+#' If the number of binary and continuous phenotype covariates exceeds the number of colors in the color palette, an error will be thrown.
 #' @param output.dir character directory path to write plot to file. Default is \code{NULL} in which case the plot is returned as lattice multipanel object.
 #' @param filename.prefix character prefix for plot filename.
 #' @param file.extension character file extension for plot file. Default is "png".
@@ -100,6 +127,10 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' \itemize{
 #' \item x-axis labels are no longer displayed
 #' \item missing (NA) values are not labeled with text in heatmaps but are color-coded with a legend
+#' }
+#' 
+#' Colors for continuous and binary phenotypes are chosen from the binary color palettes in \code{BoutrosLab.plotting.general::default.colours()}.
+#' Colors for categorical phenotypes are chosen by default from the qualitative color palette in \code{BoutrosLab.plotting.general::default.colours()}.
 #' 
 #' @examples
 #' set.seed(200);
@@ -130,6 +161,8 @@ create.pgs.rank.plot <- function(
     pgs.data,
     phenotype.columns = NULL,
     missing.genotype.style = 'count',
+    categorical.palette = NULL,
+    binary.palette = NULL,
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -140,6 +173,16 @@ create.pgs.rank.plot <- function(
     titles.cex = 1.2,
     border.padding = 1
     ) {
+
+    # check input
+    rank.plotting.input.checks(
+        pgs.data = pgs.data,
+        phenotype.columns = phenotype.columns,
+        missing.genotype.style = missing.genotype.style,
+        categorical.palette = categorical.palette,
+        binary.palette = binary.palette,
+        output.dir = output.dir
+        );
 
     # set default fill color for missing values
     FILL.COLOR <- 'grey';
@@ -159,8 +202,15 @@ create.pgs.rank.plot <- function(
             percentile.na.fill <- FILL.COLOR;
             }
 
-    # check input
-    rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, missing.genotype.style = missing.genotype.style, output.dir = output.dir);
+    # set color palette for categorical phenotype covariates
+    if (is.null(categorical.palette)) {
+        suppressWarnings( #suppress grey scale incompatibility warnings)
+            categorical.palette <- BoutrosLab.plotting.general::default.colours(
+                number.of.colours = 12,
+                palette = 'qual'
+                )
+            )
+        }
 
     # factor Indiv by perentile rank
     pgs.data$Indiv <- factor(pgs.data$Indiv, levels = pgs.data$Indiv[order(pgs.data$percentile)]);
@@ -319,13 +369,32 @@ create.pgs.rank.plot <- function(
 
         # retrieve binary color schemes sufficient for plotting all binary and continuous phenotypes
         max.binary.colors <- sum(phenotype.index.by.type$binary | phenotype.index.by.type$continuous);
+
         if (max.binary.colors > 0) {
-            binary.color.schemes <- BoutrosLab.plotting.general::default.colours(
-                number.of.colours = rep(2, max.binary.colors + 1),
-                palette = rep('binary', max.binary.colors + 1)
-                );
-            # remove black and white from binary color schemes (always returned first by default.colours())
-            binary.color.schemes[[1]] <- NULL;
+            if (!is.null(binary.palette)) {
+                max.binary.palettes <- length(binary.palette);
+                if (max.binary.colors > max.binary.palettes) {
+                    stop('Number of binary and continuous phenotype covariates exceeds the number of binary color palettes. Please provide a larger color palette.');
+                    }
+                binary.color.schemes <- lapply(
+                    X = binary.palette,
+                    FUN = function(x) {
+                        color.scheme <- c('white', x)
+                        return(color.scheme)
+                        }
+                    )
+                } else {
+                max.binary.palettes <- 9;
+                if (max.binary.colors > max.binary.palettes) {
+                    stop('Number of binary and continuous phenotype covariates exceeds the number of binary color palettes. Please provide a larger color palette.');
+                    }
+                binary.color.schemes <- BoutrosLab.plotting.general::default.colours(
+                    number.of.colours = rep(2, max.binary.colors + 1),
+                    palette = rep('binary', max.binary.colors + 1)
+                    );
+                # remove black and white from binary color schemes (always returned first by default.colours())
+                binary.color.schemes[[1]] <- NULL;
+                }
             binary.color.schemes.start.index <- 1;
             }
 
@@ -385,20 +454,23 @@ create.pgs.rank.plot <- function(
                         length(unique(na.omit(x)))
                         }
                     );
-                total.categories <- sum(unlist(number.of.categories));
 
-                # retrieve colors for qualitative data that can be divided up into color schemes
-                # only 12 distinct colors are available in the default color palette
-                max.colors <- 12;
-                suppressWarnings( #suppress grey scale incompatibility warnings
-                    all.qual.colors <- BoutrosLab.plotting.general::default.colours(number.of.colors <- max.colors, palette = 'qual')
-                    );
-                # if there are more categories than colors, extend the size of the color palette by repeating colors
-                if (total.categories > max.colors) {
-                    all.qual.colors <- rep(all.qual.colors, ceiling(total.categories / max.colors));
+                # check if number of unique categories exceeds the number of colors in the color palette
+                max.categorical.colors <- length(categorical.palette);
+                if (any(unlist(number.of.categories) > max.categorical.colors)) {
+                    stop('Number of unique categories in a phenotype covariate exceeds the number of colors in the color palette. Please provide a larger color palette.');
                     }
 
-                # assemble a color scheme for each categorical variable
+                total.categories <- sum(unlist(number.of.categories));
+
+                # if there are more total categories than colors, extend the size of the color palette by repeating colors
+                if (total.categories > max.categorical.colors) {
+                    all.qual.colors <- rep(categorical.palette, ceiling(total.categories / max.categorical.colors));
+                    } else {
+                        all.qual.colors <- categorical.palette;
+                        }
+
+                # assemble a color scheme for each categorical variable by cycling through the color palette
                 other.color.schemes <- list();
                 start.palette <- 1;
                 for (i in 1:length(number.of.categories)) {

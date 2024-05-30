@@ -8,6 +8,8 @@ create.pgs.rank.plot(
   pgs.data,
   phenotype.columns = NULL,
   missing.genotype.style = "count",
+  categorical.palette = NULL,
+  binary.palette = NULL,
   output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
@@ -26,6 +28,13 @@ This function is designed to work with the output of the function apply.polygeni
 \item{phenotype.columns}{character vector of column names in pgs.data containing phenotype covariates to plot as color bars. Default is \code{NULL}.}
 
 \item{missing.genotype.style}{character style of missing genotype barplot. Default is "count". Options are "count" or "percent".}
+
+\item{categorical.palette}{character vector of colors to use for categorical phenotype covariates. Default is \code{NULL} in which case the default palette is used, which contains 12 unique colors.
+If the number of unique categories exceeds the number of colors in the color palette, an error will be thrown.}
+
+\item{binary.palette}{character vector of colors to use for binary and continuous phenotype covariates. Each color is contrasted with white to create a color ramp or binary categories.
+Default is \code{NULL} in which case the default palette is used, which contains 9 unique colors paired with white.
+If the number of binary and continuous phenotype covariates exceeds the number of colors in the color palette, an error will be thrown.}
 
 \item{output.dir}{character directory path to write plot to file. Default is \code{NULL} in which case the plot is returned as lattice multipanel object.}
 
@@ -46,7 +55,16 @@ This function is designed to work with the output of the function apply.polygeni
 \item{border.padding}{numeric padding around plot border.}
 }
 \value{
+If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 
+For clarity, certain plot aspects change when sample size exceeds 50:
+\itemize{
+\item x-axis labels are no longer displayed
+\item missing (NA) values are not labeled with text in heatmaps but are color-coded with a legend
+}
+
+Colors for continuous and binary phenotypes are chosen from the binary color palettes in \code{BoutrosLab.plotting.general::default.colours()}.
+Colors for categorical phenotypes are chosen by default from the qualitative color palette in \code{BoutrosLab.plotting.general::default.colours()}.
 }
 \description{
 Plot PGS percentile rank of each sample outputted by \code{apply.polygenic.score()} as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.
