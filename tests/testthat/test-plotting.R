@@ -461,6 +461,40 @@ test_that(
                 ),
             'phenotype.columns must be a subset of the column names in pgs.data'
             );
+        # check that categorical.palette has valid colors
+        expect_error(
+            create.pgs.rank.plot(
+                pgs.data = pgs.test,
+                categorical.palette = c('red', 'blue', 'green', 'not.a.color')
+                ),
+            'categorical.palette must be a vector of valid colors'
+            );
+        # check that there are sufficient colors for the number of categories
+        expect_error(
+            create.pgs.rank.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = 'categorical.phenotype',
+                categorical.palette = c('red', 'blue')
+                ),
+            'Number of unique categories in a phenotype covariate exceeds the number of colors in the color palette. Please provide a larger color palette.'
+            );
+        # check that binary.palette has valid colors
+        expect_error(
+            create.pgs.rank.plot(
+                pgs.data = pgs.test,
+                binary.palette = c('red', 'blue', 'green', 'not.a.color')
+                ),
+            'binary.palette must be a vector of valid colors'
+            );
+        # check that there are sufficient colors for the number of phenotypes
+        expect_error(
+            create.pgs.rank.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = c('binary.phenotype', 'continuous.phenotype'),
+                binary.palette = c('red')
+                ),
+            'Number of binary and continuous phenotype covariates exceeds the number of binary color palettes. Please provide a larger color palette.'
+            );
         # check that output.dir is a directory
         expect_error(
             create.pgs.rank.plot(
@@ -533,6 +567,66 @@ test_that(
         expect_true(
             file.exists(file.path(temp.dir, test.filename))
             );
+        }
+    );
+
+test_that(
+    'create.pgs.rank.plot correctly switches between large and small sample size modes', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+    # create test file with more than 50 individuals
+    large.pgs.test <- pgs.test[rep(1:nrow(pgs.test), 6), ];
+    large.pgs.test$Indiv <- paste0(large.pgs.test$Indiv, rep(1:6, each = nrow(pgs.test)));
+
+        expect_no_error(
+            create.pgs.rank.plot(
+                pgs.data = large.pgs.test,
+                filename.prefix = 'TEST-large-sample-size',
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype'),
+                output.dir = temp.dir
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-large-sample-size',
+            file.core = 'pgs-rank-plot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.rank.plot correctly handles user-provided color palette', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        expect_no_error(
+            create.pgs.rank.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = c('categorical.phenotype', 'binary.phenotype', 'continuous.phenotype'),
+                filename.prefix = 'TEST-color-palette',
+                output.dir = temp.dir,
+                categorical.palette = c('red', 'orange','yellow', 'green', 'blue', 'purple'),
+                binary.palette = c('red2', 'orange2')
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-color-palette',
+            file.core = 'pgs-rank-plot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
         }
     );
 
