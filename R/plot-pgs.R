@@ -443,8 +443,11 @@ create.pgs.with.continuous.phenotype.plot <- function(
                     corner = corr.legend.corner
                         )
                     );
+                # set y limits that make room for the correlation legend in the top of the plot
+                scatter.ylimits <- c(min(phenotype.data.for.plotting[ , phenotype], na.rm = TRUE) * 0.1, max(phenotype.data.for.plotting[ , phenotype], na.rm = TRUE) * 1.3);
                 } else {
                     correlation.legend <- NULL;
+                    scatter.ylimits <- NULL;
                 }
 
             pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
@@ -458,6 +461,7 @@ create.pgs.with.continuous.phenotype.plot <- function(
                 main.cex = 0,
                 # Correlation Legend
                 legend = correlation.legend,
+                ylimits = scatter.ylimits,
                 ylab.cex = titles.cex,
                 xlab.cex = titles.cex,
                 yaxis.cex = yaxes.cex,
