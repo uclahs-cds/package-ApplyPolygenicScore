@@ -95,6 +95,12 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
 #' @param titles.cex numeric size of plot titles.
 #' @param border.padding numeric padding around plot border.
 #' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
+#' 
+#' For clarity, certain plot aspects change when sample size exceeds 50:
+#' \itemize{
+#' \item x-axis labels are no longer displayed
+#' \item missing (NA) values are not labeled with text in heatmaps but are color-coded with a legend
+#' 
 #' @examples
 #' set.seed(200);
 #' percentiles <- get.pgs.percentiles(rnorm(200, 0, 1));
@@ -137,6 +143,21 @@ create.pgs.rank.plot <- function(
 
     # set default fill color for missing values
     FILL.COLOR <- 'grey';
+    # set NA sample-size dependent defaults
+    if (nrow(pgs.data) > 50) {
+        cell.text.na <- '';
+        percentile.na.fill <- 'pink';
+        legend.na <- list(list(
+            title = 'Missing',
+            colours = c(percentile.na.fill, FILL.COLOR),
+            labels = c('NA percentiles', 'NA phenotypes')
+        ));
+        names(legend.na) <- 'legend';
+        } else {
+            cell.text.na <- 'NA';
+            legend.na <- NULL;
+            percentile.na.fill <- FILL.COLOR;
+            }
 
     # check input
     rank.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, missing.genotype.style = missing.genotype.style, output.dir = output.dir);
@@ -145,6 +166,14 @@ create.pgs.rank.plot <- function(
     pgs.data$Indiv <- factor(pgs.data$Indiv, levels = pgs.data$Indiv[order(pgs.data$percentile)]);
 
     # Plot percentile rank barplot
+    # sample-size dependent settings
+    if (nrow(pgs.data) > 50) {
+        rank.xaxis.tck <- 0;
+        rank.xaxis.cex <- 0;
+        } else {
+            rank.xaxis.tck <- 1;
+            rank.xaxis.cex <- xaxis.cex;
+            }
     rank.barplot <- BoutrosLab.plotting.general::create.barplot(
         formula = percentile ~ Indiv,
         data = pgs.data,
@@ -156,8 +185,9 @@ create.pgs.rank.plot <- function(
         main = '',
         main.cex = 0,
         ylab.cex = titles.cex,
-        xaxis.cex = xaxis.cex,
-        yaxis.cex = yaxis.cex
+        xaxis.cex = rank.xaxis.cex,
+        yaxis.cex = yaxis.cex,
+        xaxis.tck = rank.xaxis.tck
         );
 
     # Plot missing genotypes barplot
@@ -190,6 +220,7 @@ create.pgs.rank.plot <- function(
             main.cex = 0,
             ylab.cex = titles.cex,
             xaxis.cex = 0,
+            xaxis.tck = rank.xaxis.tck,
             yaxis.cex = yaxis.cex
             );
         }
@@ -241,7 +272,7 @@ create.pgs.rank.plot <- function(
     # save NA coordinates for labeling
     percentile.cov.na.coords <- get.na.coordinates.for.heatmap(percentile.covariate.df);
     # replace NA values with a color
-    percentile.covariate.df[is.na(percentile.covariate.df)] <- FILL.COLOR;
+    percentile.covariate.df[is.na(percentile.covariate.df)] <- percentile.na.fill;
 
     # Plot percentile covariate heatmap
     percentile.covariate.heatmap <- BoutrosLab.plotting.general::create.heatmap(
@@ -254,7 +285,7 @@ create.pgs.rank.plot <- function(
         xaxis.cex = xaxis.cex,
         yaxis.cex = yaxis.cex,
         # missing value handling
-        cell.text = 'NA',
+        cell.text = cell.text.na,
         col.pos = percentile.cov.na.coords$col,
         row.pos = percentile.cov.na.coords$row,
         text.col = 'white',
@@ -426,7 +457,7 @@ create.pgs.rank.plot <- function(
                 yaxis.lab = NULL,
                 ylab.cex = 0,
                 # na handling
-                cell.text = 'NA',
+                cell.text = cell.text.na,
                 col.pos = cat.phen.na.coords$col,
                 row.pos = cat.phen.na.coords$row,
                 text.col = 'white',
@@ -478,7 +509,7 @@ create.pgs.rank.plot <- function(
                 yaxis.lab = NULL,
                 ylab.cex = 0,
                 # na handling
-                cell.text = 'NA',
+                cell.text = cell.text.na,
                 col.pos = cont.pheno.na.coords$col,
                 row.pos = cont.pheno.na.coords$row,
                 text.col = 'white',
@@ -524,6 +555,7 @@ create.pgs.rank.plot <- function(
 
     # combine all plot legends
     cov.legends <- c(
+        legend.na,
         percentile.covariates.legend,
         binary.covariates.legend,
         categorical.covariates.legend,
@@ -532,7 +564,8 @@ create.pgs.rank.plot <- function(
 
     cov.legend.grob <- suppressWarnings( #legend.grob throws a weird meaningless warning
             BoutrosLab.plotting.general::legend.grob(
-            cov.legends
+            cov.legends,
+            title.just = 'left'
             )
         );
 

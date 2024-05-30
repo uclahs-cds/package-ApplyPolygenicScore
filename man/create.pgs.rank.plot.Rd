@@ -46,7 +46,7 @@ This function is designed to work with the output of the function apply.polygeni
 \item{border.padding}{numeric padding around plot border.}
 }
 \value{
-If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
+
 }
 \description{
 Plot PGS percentile rank of each sample outputted by \code{apply.polygenic.score()} as a barplot, plot missing genotypes if any are present, plot corresponding decile and quartile markers as a heatmap, optionally plot phenotype covariates as color bars.

@@ -537,6 +537,38 @@ test_that(
     );
 
 test_that(
+    'create.pgs.rank.plot correctly switches between large and small sample size modes', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+    # create test file with more than 50 individuals
+    large.pgs.test <- pgs.test[rep(1:nrow(pgs.test), 6), ];
+    large.pgs.test$Indiv <- paste0(large.pgs.test$Indiv, rep(1:6, each = nrow(pgs.test)));
+
+        expect_no_error(
+            create.pgs.rank.plot(
+                pgs.data = large.pgs.test,
+                filename.prefix = 'TEST-large-sample-size',
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype'),
+                output.dir = temp.dir
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-large-sample-size',
+            file.core = 'pgs-rank-plot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+
+test_that(
     'create.pgs.rank.plot runs correctly with user provided phenotypes',{
         skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
 
