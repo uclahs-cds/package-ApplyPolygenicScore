@@ -73,9 +73,12 @@ merge.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
     # check for pgs SNPs missing from the VCF data
     missing.pgs.snp.index <- is.na(merged.vcf.with.pgs.data$REF);
-    if (any(missing.pgs.snp.index)) {
-        warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
-        missing.snp.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
+    
+    if (all(missing.pgs.snp.index)) {
+        stop('All PGS SNPs are missing from the VCF, terminating merge.');
+        } else if (any(missing.pgs.snp.index)) {
+            warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
+            missing.snp.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
         } else {
         missing.snp.data <- NULL;
         }

@@ -82,6 +82,31 @@ test_that(
     )
 
 test_that(
+    'merge.vcf.with.pgs stops when all PGS SNPs are missing from the VCF', {
+        test.vcf.data <- data.frame(
+            CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
+            POS = c(1, 2, 3, 4),
+            REF = c('A', 'T', 'C', 'G'),
+            ALT = c('T', 'A', 'G', 'C')
+            );
+        test.pgs.weight.data <- data.frame(
+            CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
+            POS = c(5, 6, 7, 8),
+            effect_allele = c('A', 'T', 'C', 'G'),
+            beta = c(1, 2, 3, 4)
+            );
+
+        expect_error(
+            merge.vcf.with.pgs(
+                vcf.data = test.vcf.data,
+                pgs.weight.data = test.pgs.weight.data
+                ),
+            'All PGS SNPs are missing from the VCF, terminating merge.'
+            );
+        }
+    );
+
+test_that(
     'merge.vcf.with.pgs correctly formats CHROM column', {
 
         test.vcf.data <- data.frame(
