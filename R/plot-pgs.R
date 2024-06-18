@@ -476,6 +476,8 @@ create.pgs.with.continuous.phenotype.plot <- function(
                     scatter.ylimits <- NULL;
                 }
 
+            xaxis.formatting <- auto.axis(pgs.data[ , pgs.column], log.scaled = FALSE, num.labels = 5, include.origin = FALSE);
+            yaxis.formatting <- auto.axis(pgs.data[ , phenotype], log.scaled = FALSE, num.labels = 5, include.origin = FALSE);
             pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
                 formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
                 data = pgs.data,
@@ -485,6 +487,10 @@ create.pgs.with.continuous.phenotype.plot <- function(
                 ylab.label = phenotype,
                 main = '',
                 main.cex = 0,
+                yat = yaxis.formatting$at,
+                yaxis.lab = yaxis.formatting$axis.lab,
+                xat = xaxis.formatting$at,
+                xaxis.lab = xaxis.formatting$axis.lab,
                 # Correlation Legend
                 legend = correlation.legend,
                 ylimits = scatter.ylimits,
