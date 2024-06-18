@@ -144,6 +144,14 @@ create.pgs.density.plot <- function(
                 pgs.column.main <- pgs.column;
             }
 
+        # prettify x-axis labels (handle exponential notation)
+        basic.xaxis.formatting <- auto.axis(
+            quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+            log.scaled = FALSE,
+            num.labels = 3,
+            include.origin = FALSE
+            );
+
         pgs.density.plots[[pgs.column]] <- BoutrosLab.plotting.general::create.densityplot(
             x = pgs.data.for.plotting,
             ylab.label = NULL,
@@ -151,6 +159,8 @@ create.pgs.density.plot <- function(
             main.cex = titles.cex,
             yaxis.cex = yaxes.cex,
             xaxis.cex = xaxes.cex,
+            xat = basic.xaxis.formatting$at,
+            xaxis.lab = basic.xaxis.formatting$axis.lab,
             lwd = 2
             );
 
@@ -178,6 +188,12 @@ create.pgs.density.plot <- function(
                     # Issue a warning that plot is not bein color-coded
                     warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
                     # plot all lines in black
+                    group.xaxis.formatting <- auto.axis(
+                        quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+                        log.scaled = FALSE,
+                        num.labels = 3,
+                        include.origin = FALSE
+                        );
                     pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
                         x = pgs.data.for.plotting,
                         ylab.label = NULL,
@@ -187,6 +203,8 @@ create.pgs.density.plot <- function(
                         xlab.cex = titles.cex,
                         yaxis.cex = yaxes.cex,
                         xaxis.cex = xaxes.cex,
+                        xat = group.xaxis.formatting$at,
+                        xaxis.lab = group.xaxis.formatting$axis.lab,
                         lwd = 2,
                         col = 'black'
                         );
@@ -207,6 +225,12 @@ create.pgs.density.plot <- function(
                         plot.line.lty <- 1;
                     }
 
+                group.xaxis.formatting <- auto.axis(
+                    quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+                    log.scaled = FALSE,
+                    num.labels = 3,
+                    include.origin = FALSE
+                    );
                 pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.densityplot(
                     x = pgs.data.for.plotting,
                     xlab.label = phenotype,
@@ -216,6 +240,8 @@ create.pgs.density.plot <- function(
                     xlab.cex = titles.cex,
                     yaxis.cex = yaxes.cex,
                     xaxis.cex = xaxes.cex,
+                    xat = group.xaxis.formatting$at,
+                    xaxis.lab = group.xaxis.formatting$axis.lab,
                     lwd = 2,
                     lty = plot.line.lty,
                     col = plot.colors,
