@@ -145,7 +145,7 @@ create.pgs.density.plot <- function(
             }
 
         # prettify x-axis labels (handle exponential notation)
-        basic.xaxis.formatting <- auto.axis(
+        basic.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
             quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
             log.scaled = FALSE,
             num.labels = 3,
@@ -188,7 +188,7 @@ create.pgs.density.plot <- function(
                     # Issue a warning that plot is not bein color-coded
                     warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
                     # plot all lines in black
-                    group.xaxis.formatting <- auto.axis(
+                    group.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
                         quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
                         log.scaled = FALSE,
                         num.labels = 3,
@@ -225,7 +225,7 @@ create.pgs.density.plot <- function(
                         plot.line.lty <- 1;
                     }
 
-                group.xaxis.formatting <- auto.axis(
+                group.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
                     quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
                     log.scaled = FALSE,
                     num.labels = 3,
@@ -476,8 +476,17 @@ create.pgs.with.continuous.phenotype.plot <- function(
                     scatter.ylimits <- NULL;
                 }
 
-            xaxis.formatting <- auto.axis(pgs.data[ , pgs.column], log.scaled = FALSE, num.labels = 5, include.origin = FALSE);
-            yaxis.formatting <- auto.axis(pgs.data[ , phenotype], log.scaled = FALSE, num.labels = 5, include.origin = FALSE);
+            xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+                pgs.data[ , pgs.column],
+                log.scaled = FALSE, num.labels = 5,
+                include.origin = FALSE
+                );
+            yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+                pgs.data[ , phenotype],
+                log.scaled = FALSE,
+                num.labels = 5,
+                include.origin = FALSE
+                );
             pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
                 formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
                 data = pgs.data,
