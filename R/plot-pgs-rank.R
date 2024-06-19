@@ -673,7 +673,7 @@ create.pgs.rank.plot <- function(
         layout.width = 1,
         plot.objects.heights = plot.heights,
         y.spacing = -2,
-        ylab.axis.padding = -6,
+        ylab.axis.padding = -4,
         legend = list(right = list(fun = cov.legend.grob)),
         width = width,
         height = height,
