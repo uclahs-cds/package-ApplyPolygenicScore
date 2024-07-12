@@ -146,7 +146,7 @@ create.pgs.density.plot <- function(
 
         # prettify x-axis labels (handle exponential notation)
         basic.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-            quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+            stats::quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
             log.scaled = FALSE,
             num.labels = 3,
             include.origin = FALSE

@@ -75,7 +75,7 @@ rank.plotting.input.checks <- function(pgs.data, phenotype.columns, missing.geno
     # validate color palettes
     are.colors <- function(x) {
         sapply(x, function(X) {
-            tryCatch(is.matrix(col2rgb(X)),
+            tryCatch(is.matrix(grDevices::col2rgb(X)),
                     error = function(e) FALSE)
                 }
             )
