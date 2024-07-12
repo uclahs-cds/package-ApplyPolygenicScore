@@ -13,7 +13,8 @@ import('pROC');
 
 importFrom(
     'grDevices',
-    'colorRampPalette'
+    'colorRampPalette',
+    'col2rgb'
     );
 importFrom(
     'stats',
@@ -24,6 +25,7 @@ importFrom(
     'lm',
     'na.omit',
     'predict'
+    'quantile'
     );
 importFrom(
     'utils',
