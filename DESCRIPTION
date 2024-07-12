@@ -14,7 +14,7 @@ Description: This tool is intended to simply and transparently parse
     individual in accordance with the additive weighted sum of dosages
     model.
 Depends: 
-    R (>= 4.2.1)
+    R (>= 4.2.0)
 Imports:
     vcfR,
     pROC,
