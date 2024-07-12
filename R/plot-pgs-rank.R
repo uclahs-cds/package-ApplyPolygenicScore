@@ -660,7 +660,7 @@ create.pgs.rank.plot <- function(
         plot.heights[which(names(plot.list) == 'missing.genotypes.barplot')] <- 2;
         }
     if ('rank.barplot' %in% names(plot.list)) {
-        plot.heights[which(names(plot.list) == 'rank.barplot')] <- 5;
+        plot.heights[which(names(plot.list) == 'rank.barplot')] <- 2;
         }
 
     # Final multipanel plot
