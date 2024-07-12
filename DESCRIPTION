@@ -2,7 +2,10 @@ Package: ApplyPolygenicScore
 Type: Package
 Title: Utilities for the Application of a Polygenic Score to a VCF
 Version: 0.1.0
-Author: Nicole Zeltser
+Authors@R: c(
+    person('Paul', 'Boutros', role = 'cre', email = 'PBoutros@mednet.ucla.edu'),
+    person('Nicole', 'Zeltser', role = 'aut', comment = c(ORCID = '000-0001-7246-2771')),
+    person('Rachel', 'Dang', role = 'ctb'))
 Maintainer: Nicole Zeltser <nzeltser@mednet.ucla.edu>
 Description: This tool is intended to simply and transparently parse
     genotype/dosage data from an input VCF, match genotype coordinates
@@ -11,7 +14,7 @@ Description: This tool is intended to simply and transparently parse
     individual in accordance with the additive weighted sum of dosages
     model.
 Depends: 
-    R (>= 2.10)
+    R (>= 4.2.1)
 Imports:
     vcfR,
     pROC,
