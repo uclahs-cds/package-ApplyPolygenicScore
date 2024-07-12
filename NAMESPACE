@@ -24,7 +24,7 @@ importFrom(
     'glm',
     'lm',
     'na.omit',
-    'predict'
+    'predict',
     'quantile'
     );
 importFrom(
