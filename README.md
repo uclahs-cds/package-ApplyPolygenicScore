@@ -1,10 +1,15 @@
 # package-ApplyPolygenicScore
 
-An R package that provides utilities for the application of an existing polygenic score (PGS) to genotype data in VCF form.
-Matches coordinates of a provided polygenic score weight file to VCF a input and calculates a weighted sum of dosages in each individual.
+1. [Description](#description)
+2. [Installation](#installation)
+3. [Getting Started](#getting-started)
+4. [Resources](#resources)
+5. [Contributors](#contributors)
+6. [License](#license)
+
 
 ## Description
-This tool is intended to simply and transparently parse genotype/dosage data from an input VCF, match genotype coordinates to the component SNPs of an existing polygenic score, and apply SNP weights to dosages to calculate a polygenic score for each individual in accordance with the additive weighted sum of dosages model.
+This R package provides a set of utilities to simply and transparently parse genotype/dosage data from an input VCF, match genotype coordinates to the component SNPs of an existing polygenic score, and apply SNP weights to dosages to calculate a polygenic score for each individual in accordance with the additive weighted sum of dosages model.
 
 ## Installation
 To install the latest development version from GitHub:
