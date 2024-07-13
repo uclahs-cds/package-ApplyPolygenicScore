@@ -52,11 +52,17 @@ Under the hood, this function begins by calling `merge.vcf.with.pgs`. The merge 
 4. Create summary plots.
 ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data.
 
+For more step-by-step instructions, check out our vignettes.
+
 ## Resources
 
 ## Getting Help
+Looking for guidance or support with ApplyPolygenicScore? Check out our [Discussions](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions) page.
+
+Submit bugs, suggest new features or see current works at our [Issues](https://github.com/uclahs-cds/package-ApplyPolygenicScore/issues) page.
 
 ## Contributors
+For lists of contributors please visit [here](https://github.com/uclahs-cds/package-ApplyPolygenicScore/graphs/contributors) at GitHub.
 
 ## License
 
