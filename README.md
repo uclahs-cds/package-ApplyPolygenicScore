@@ -49,25 +49,25 @@ If you wish to apply a PGS to a cohort, we recommend that genotypes for the whol
 
 1. Convert PGS weight files to BED coordinate files
 
-We recommend starting by filtering your input VCF for just the variants in your PGS weight files. Several software tools are available to do this, and most all require a coordinate BED file. A description of BED format can be found [here](https://bedtools.readthedocs.io/en/latest/content/general-usage.html).
+    We recommend starting by filtering your input VCF for just the variants in your PGS weight files. Several software tools are available to do this, and most all require a coordinate BED file. A description of BED format can be found [here](https://bedtools.readthedocs.io/en/latest/content/general-usage.html).
 
-The function `import.pgs.weight.file` can be used to import your PGS weight files into R.
-The functions `convert.pgs.to.bed` and `merge.pgs.bed` can be used to make the conversion, and merge several BED dataframes into one, respectively.
+    The function `import.pgs.weight.file` can be used to import your PGS weight files into R.
+    The functions `convert.pgs.to.bed` and `merge.pgs.bed` can be used to make the conversion, and merge several BED dataframes into one, respectively.
 
 2. Import your VCF file.
 
-Once you have filtered down your VCF, simply import it into R using `import.vcf`. This function is a wrapper of `vcfR::vcfR2tidy` that ensures all required fields are imported.
+    Once you have filtered down your VCF, simply import it into R using `import.vcf`. This function is a wrapper of `vcfR::vcfR2tidy` that ensures all required fields are imported.
 
 
 3. Apply your PGS.
 
-Provide your imported VCF and PGS weight files to `apply.polygenic.score`. It's as simple as that.
-Under the hood, this function begins by calling `merge.vcf.with.pgs`. The merge function also outputs a list of variants in your PGS that could not be found in your VCf data, which you can obtain by calling the function independently.
-`apply.polygenic.score` outputs lots of useful information along with the score and provides various customizeable options, such as methods for handling missing sites (see [this discussion](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17) for more) and basic analyses with phenotype data.
+    Provide your imported VCF and PGS weight files to `apply.polygenic.score`. It's as simple as that.
+    Under the hood, this function begins by calling `merge.vcf.with.pgs`. The merge function also outputs a list of variants in your PGS that could not be found in your VCf data, which you can obtain by calling the function independently.
+    `apply.polygenic.score` outputs lots of useful information along with the score and provides various customizeable options, such as methods for handling missing sites (see [this discussion](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17) for more) and basic analyses with phenotype data.
 
 4. Create summary plots.
 
-ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data.
+    ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data.
 
 For more step-by-step instructions, check out our vignettes.
 
