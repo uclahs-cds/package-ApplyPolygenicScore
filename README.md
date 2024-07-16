@@ -31,30 +31,42 @@ You will need only two pieces of data to get started:
 2. A PGS weight file: Coordinates of each SNP that compose the polygenic score you with to apply, and their associated weights.
 
 #### Genotype data
-Genotype data should be provided in the form of a VCF file. Others have done a great job of describing Variant Call Format. For those with a basic understanding of genetic nomenclature, we recommend the GATK [resource](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format). For those who need a refresher on genomics and genomic data, we recommend starting with the [fact sheets](https://www.genome.gov/about-genomics/fact-sheets) curated by the National Human Genome Research Institute (NHGRI).
+- Genotype data should be provided in the form of a VCF (Variant Call Format) file.
+- Others have done a great job of describing Variant Call Format. For those with a basic understanding of genetic nomenclature, we recommend the GATK [resource](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format).
+- For those who need a refresher on genomics and genomic data, we recommend starting with the [fact sheets](https://www.genome.gov/about-genomics/fact-sheets) curated by the National Human Genome Research Institute (NHGRI).
 
 If you wish to apply a PGS to a cohort, we recommend that genotypes for the whole cohort be aggregated in one VCF file, either through a regenotyping process, or through VCF merging with an external tool designed for manipulating VCF files. VCF files can be very large, causing memory-related complications in the R environment. To reduce memory usage and improve speed of PGS application, we recommend pre-filtering the input VCF for only the coordinates that compose the PGS you wish to apply. This action can be performed using a coordinate BED file and tools such as bcftools or bedtools. To facilitate this process, ApplyPolygenicScore provides a function that outputs a BED file containing coordinates for any number of PGS weight files provided as input.
 
 #### PGS weight file
-The PGS weight file describes a PGS by providing a list of component SNPs, their genomic coordinates, and their respective weights. [The PGS Catalog](https://www.pgscatalog.org/) is a public database of PGSs and their weight files, and a great first stop for acquiring a PGS weight file. The functions of ApplyPolygenicScore have been designed to operate on weight files that have been formatted according to the standards established by The PGS Catalog. There are very well documented [here](https://www.pgscatalog.org/downloads/#:~:text=the%20different%20samples.-,PGS%20Scoring%20Files,-Formatted%20Files). However, you could easily create your own compatible PGS weight file, simply by formatting all required columns by Catalog standards. When in doubt, use our `check.pgs.weight.columns()` function to make sure any data table you import into R contains the reqiuired columns for downstream functions.
+- The PGS weight file describes a PGS by providing a list of component SNPs, their genomic coordinates, and their respective weights.
+- [The PGS Catalog](https://www.pgscatalog.org/) is a public database of PGSs and their weight files, and a great first stop for acquiring a PGS weight file.
+- The functions of ApplyPolygenicScore have been designed to operate on weight files that have been formatted according to the standards established by The PGS Catalog. These are very well documented [here](https://www.pgscatalog.org/downloads/#:~:text=the%20different%20samples.-,PGS%20Scoring%20Files,-Formatted%20Files).
+- You could easily create your own compatible PGS weight file, simply by formatting all required columns by Catalog standards.
+- When in doubt, use our `check.pgs.weight.columns()` function to make sure any data table you import into R contains the reqiuired columns for downstream functions.
 
 ### Recommended Workflow
 
+
 1. Convert PGS weight files to BED coordinate files
+
 We recommend starting by filtering your input VCF for just the variants in your PGS weight files. Several software tools are available to do this, and most all require a coordinate BED file. A description of BED format can be found [here](https://bedtools.readthedocs.io/en/latest/content/general-usage.html).
 
 The function `import.pgs.weight.file` can be used to import your PGS weight files into R.
 The functions `convert.pgs.to.bed` and `merge.pgs.bed` can be used to make the conversion, and merge several BED dataframes into one, respectively.
 
 2. Import your VCF file.
+
 Once you have filtered down your VCF, simply import it into R using `import.vcf`. This function is a wrapper of `vcfR::vcfR2tidy` that ensures all required fields are imported.
 
+
 3. Apply your PGS.
+
 Provide your imported VCF and PGS weight files to `apply.polygenic.score`. It's as simple as that.
 Under the hood, this function begins by calling `merge.vcf.with.pgs`. The merge function also outputs a list of variants in your PGS that could not be found in your VCf data, which you can obtain by calling the function independently.
 `apply.polygenic.score` outputs lots of useful information along with the score and provides various customizeable options, such as methods for handling missing sites (see [this discussion](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17) for more) and basic analyses with phenotype data.
 
 4. Create summary plots.
+
 ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data.
 
 For more step-by-step instructions, check out our vignettes.
