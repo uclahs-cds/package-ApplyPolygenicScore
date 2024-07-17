@@ -98,6 +98,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is \code{NULL}.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
 #' When not specified, defaults to \code{missing.genotype.method} choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
+#' @param validate.inputs.only A logical indicating whether to only perform input data validation checks without runnin PGS application, and and return a message indicating whether inputs passed validation. Default is \code{FALSE}.
 #' @return A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
 #'
 #' \strong{Output Structure}
@@ -216,6 +217,13 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'     phenotype.data = phenotype.data
 #'     );
 #'
+#' # Only run validation checks on input data and report back
+#' apply.polygenic.score(
+#'     vcf.data = vcf.import$dat,
+#'     pgs.weight.data = pgs.import$pgs.weight.data,
+#'     validate.inputs.only = TRUE
+#'     );
+#' 
 #' @export
 apply.polygenic.score <- function(
     vcf.data,
@@ -227,7 +235,8 @@ apply.polygenic.score <- function(
     missing.genotype.method = 'mean.dosage',
     use.external.effect.allele.frequency = FALSE,
     n.percentiles = NULL,
-    analysis.source.pgs = NULL
+    analysis.source.pgs = NULL,
+    validate.inputs.only = FALSE
     ) {
 
     ### Start Input Validation ###
@@ -236,6 +245,9 @@ apply.polygenic.score <- function(
     validate.pgs.data.input(pgs.weight.data = pgs.weight.data, use.external.effect.allele.frequency = use.external.effect.allele.frequency);
     validate.phenotype.data.input(phenotype.data = phenotype.data, phenotype.analysis.columns = phenotype.analysis.columns, vcf.data = vcf.data);
 
+    if (validate.inputs.only) {
+        return('Input data passed validation');
+        }
 
     # check missing genotype method input
     if (all(missing.genotype.method %in% c('mean.dosage', 'normalize', 'none'))) {
