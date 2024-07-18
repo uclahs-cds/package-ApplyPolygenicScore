@@ -21,15 +21,24 @@ in this package to facilitate this process and transition smoothly into downstre
 
 # Input data
 
-The application of a polygenic score to genetic data requires to basic inputs:
+The application of a polygenic score to genetic data requires two basic inputs:
 
-1. A VCF file containing genotype data for a set of individuals
-2. A polygenic score file containing the SNP coordinates and weights for the polygenic score.
+1. A VCF file containing genotype data for a set of individuals.
+2. A polygenic score weight file containing the SNP coordinates and weights for the polygenic score.
 
-Optionally, ApplyPolygenicScore functions have useful features that incorporate phenotype data corresponding to 
-the individuals in the VCF file.
+Optionally, a third data type, phenotype data, can be provided to several ApplyPolygenicScore functions.
 
-## Input importation and validation
+VCF file requirements:
+- VCF files must be in standard VCF format.
+- All multiallelic sites must be merged into one line per variant.
+
+PGS weight file requirements:
+- PGS weight files provided by the PGS Catalog should be imported with the native package function `import.pgs.weight.file` to ensure proper formatting
+- PGS weight files from other sources must be formatted according to PGS Catalog standards for compatibility with the import function.
+- PGS weight files form other sources that are imported independantly must have the required columns: `CHROM`, `POS`, `effect_allele`, `beta`.
+- Weights for multiple alleles at the same site can be provided as separate rows in the file with differing alternative alleles specified. 
+
+## Input importation
 
 ApplyPolygenicScore provides functions for the importation of input data into R,
  and the verification of these data for compatibility with other functions in the package.
@@ -42,7 +51,12 @@ that ensures the VCF data is in the format expected by other package functions.
 The example below imports a VCF file from GIAB, included in the package as an example file.
 
 ```{r import-vcf}
-vcf.file <- system.file('extdata', 'HG001_GIAB.vcf.gz', package = 'ApplyPolygenicScore', mustWork = TRUE)
+vcf.file <- system.file(
+    'extdata',
+    'HG001_GIAB.vcf.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    )
 
 vcf.data <- import.vcf(
     vcf.path = vcf.file,
@@ -56,14 +70,19 @@ str(vcf.data)
 
 ### Importing polygenic score data
 
-Use the `import.pgs.weight.file` function to import PGS weight files formatted according to PGS catalog specifications.
+Use the `import.pgs.weight.file` function to import PGS weight files formatted according to PGS Catalog specifications.
 This function parses the header that is typically provided by PGS catalog files and differentiates between harmonized and 
 not harmonized data columns.
 
-The example below imports a PGS weight file from the PGS catalog, included in the package as an example file.
+The example below imports a PGS weight file from the PGS Catalog, included in the package as an example file.
 
 ```{r import-pgs}
-pgs.file <- system.file('extdata', 'PGS000662_hmPOS_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE)
+pgs.file <- system.file(
+    'extdata',
+    'PGS003378_hmPOS_GRCh38.txt.gz',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    )
 
 pgs.data <- import.pgs.weight.file(
     pgs.weight.path = pgs.file,
@@ -76,19 +95,48 @@ str(pgs.data)
 The output of the `import.pgs.weight.file` function is a list with one data frame containing the SNP coordinates and weights for the polygenic score, 
 with standardized column names expected by other package functions, and a second data frame containing the header information from the PGS catalog file.
 
-### Creating a BED coordinate file
+### Importing phenotype data
+
+Providing phenotype data is an optional feature of several ApplyPolygenicScore functions. Phenotype data must be imported as a data frame
+and must contain a column named `Indiv` corresponding to the individual IDs in the VCF file.
+
+```{r import-phenotype}
+
+# Isolating the individual IDs from the VCF data
+vcf.individuals <- unique(vcf.data$dat$Indiv)
+
+# Simulating phenotype data
+set.seed(123)
+phenotype.data <- data.frame(
+    Indiv = vcf.individuals,
+    continuous.phenotype = rnorm(length(vcf.individuals)),
+    binary.phenotype = rbinom(length(vcf.individuals), 1, 0.5)
+    )
+
+head(phenotype.data)
+```
+
+## Creating a BED coordinate file
 
 VCF files can be very large. Sometimes they are too large to be imported into R. In these cases, it is useful to first filter the VCF file to just the variants
 that are included in the PGS you wish to calculate and reduce file size. This is best done using command line tools designed for VCF file manipulation. For filtering, they typically 
 require a BED file containing the coordinates of the variants you wish to keep. To simplify this process, ApplyPolygenicScore provides functions for converting PGS weight files
 to BED coordinate files.
 
-Use the `convert.pgs.to.bed` function to convert a PGS weight file to a BED coordinate file.
+### Conversion of PGS weight files to BED coordinate format
+
+BED format requires the following first three columns: chromosome name, start position, and end position.
+PGS weight files only contain the chromosome name and end position of each variant, so must be reformatted
+with an additional column for the start position, and with the correct column order.
+
+> Note: When writing BED formatted data frames to files, make sure to use tab-separated values and not include row names.
+Additionally, most tools do not accept BED files with column names. If you wish to maintain a header, you may need to add
+a comment character to the first line of the file: `# chr start end`
+
+Use the `convert.pgs.to.bed` function to convert a PGS weight file to a BED coordinate data frame.
 
 ```{r convert-pgs-to-bed}
 
-pgs.file <- system.file('extdata', 'PGS000662_hmPos_GRCh38.txt.gz', package = 'ApplyPolygenicScore', mustWork = TRUE)
-pgs.data <- import.pgs.weight.file(pgs.file)
 pgs.coordinate.info <- pgs.data$pgs.weight.data
 
 pgs.bed.format <- convert.pgs.to.bed(
@@ -105,11 +153,12 @@ head(pgs.bed.format)
 Coordinate files must match the coordinate style used in the VCF file you wish to filter. The `convert.pgs.to.bed` function provides options for
 formatting chromosome names, as these tend to vary between human genome reference GRCh38 and GRCh37 aligned files. Use `chr.prefix = TRUE` to add 'chr'
 to the chromosome name (GRCh38 style) and `chr.prefix = FALSE` to remove 'chr' from the chromosome name (GRCh37 style). Use `numeric.sex.chr = FALSE` to
-format the X and Y chromosomes as 'X' and 'Y' respectively (GRCh38 style), and `numeric.sex.chr = TRUE` to format the X and Y chromosomes as '23' and '24' respectively (GRCh37 style).
+format the X and Y chromosomes as 'X' and 'Y' respectively, and `numeric.sex.chr = TRUE` to format the X and Y chromosomes as '23' and '24' respectively.
 
 The `slop` option immitates `bedtools` nomenclature for adding base pairs to the start and end of a set of coordinates. `slop = 10` adds 10 base pairs to the start and end of each variant coordinate.
 
 Here is an example of BED coordinates for a variant on chromosome 1 at the 20th base pair.
+
 No slop:
 
 |chr|start|end|
@@ -121,6 +170,8 @@ With slop of 10 base pairs:
 |chr|start|end|
 |---|---|---|
 |chr1|9|30|
+
+### Mergeing coordinates from multiple polygenic scores
 
 What if you want to apply multiple polygenic scores to the same VCF file?
 Instead of filtering the VCF file multiple times, you can use the `merge.pgs.bed` function to merge multiple BED data frames
@@ -145,7 +196,6 @@ merged.pgs.bed <- merge.pgs.bed(
     )
 
 str(merged.pgs.bed)
-head(merged.pgs.bed)
 ```
 
 `merge.pgs.bed` automatically annotates each interval (in a new column) with the name of the origin PGS.
@@ -153,24 +203,69 @@ It provides the option of adding information from one additional column from the
 In the cases of overlapping intervals (e.g. the same variant is included in multiple PGSs), overlapping annotations are concatenated
 with a comma.
 
-### Importing phenotype data
+## Input data validation
 
-Providing phenotype data is an optional feature of several ApplyPolygenicScore functions. Phenotype data must be imported as a data frame
-and must contain a column named `Indiv` corresponding to the individual IDs in the VCF file.
+Both the `import.vcf` and `import.pgs.weight.file` functions perform some basic validation of the input data during import.
+For example, PGS files are checked for duplicate variants, and VCF files are checked for unmerged multiallelic sites.
+If you have not used the native import functions, you may wish to check that your data is compatible with the polygenic score application functions in this package.
 
-```{r import-phenotype}
+The `apply.polygenic.score` function performs extensive input validation prior to starting the PGS application process. It can be
+configured to just run the validation step to check your inputs first.
 
-# Isolating the individual IDs from the VCF data
-vcf.individuals <- unique(vcf.data$dat$Indiv)
+```{r check-pgs-columns}
 
-# Simulating phenotype data
-set.seed(123)
-phenotype.data <- data.frame(
-    Indiv = vcf.individuals,
-    continuous.phenotype = rnorm(length(vcf.individuals)),
-    binary.phenotype = rbinom(length(vcf.individuals), 1, 0.5)
+apply.polygenic.score(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    phenotype.data = phenotype.data,
+    validate.inputs.only = TRUE
     )
 
-head(phenotype.data)
+```
+
+# Polygenic Score Application
+
+## Basic usage
+
+The main function of ApplyPolygenicScore is `apply.polygenic.score`. It comes with some bells and whistles, but
+the basic usage is simple. Provide the VCF data and the PGS weight data, and specify how you wish the algorithm
+to handle missing genotypes.
+
+```{r apply-pgs}
+
+pgs.results <- apply.polygenic.score(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    missing.genotype.method = 'none'
+    )
+
+str(pgs.results)
+```
+
+We see several things. First, a warning was printed by `merge.vcf.with.pgs`. This is a function called by `apply.ploygenic.score` to merge vcf and pgs data by genomic coordinates.
+The warning indicates that some variants from the PGS weight data were not found in the VCF data. These variants were not called in any individual. `apply.polygenic.score` does not
+apply any weights to these variants, which effectively assumes their dosage as homozygous reference for all individuals. Checkout our discussion on [missing genotype data](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17)
+for more details on how missing variants come to be.
+
+Next, we see the output of the function. The output is a list with two elements: `pgs.output`, and `regression.output`. `regression.output` is empty because we did not provide the optional `phenotype.data`, more on that later.
+`pgs.output` is a data frame with the individual IDs from the VCF and the calculated polygenic score in the `PGS` column for each individual. As we will see later, each missing genotype method creates a uniquely named column of PGS values.
+Next, the `percentile`, `decile`, and `quartile` columns report the respective percentile information for each individual's PGS among the distribution of the entire cohort in the VCF data.
+These values look a bit strange in this example because our [example VCF](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/6) contains only two individuals which have identical genotypes. In a real-world scenario, these values would be more informative.
+The next two columns report the number and percentage of missing PGS genotypes for each individual. This number should be equal to or greater than the number reported in the warning message from `merge.vcf.with.pgs`.
+
+### `merge.vcf.with.pgs`
+
+A quick aside about this function. While it is internal to `apply.polygenic.score`, it is also available for use on its own. The output includes a list of the variants that were not found in the VCF data,
+which may be useful for troubleshooting missing genotype data.
+
+```{r merge-vcf-with-pgs}
+
+merged.vcf.pgs.data <- merge.vcf.with.pgs(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data
+    )
+
+names(merged.vcf.pgs.data)
+head(merged.vcf.pgs.data$missing.snp.data)
 ```
 
