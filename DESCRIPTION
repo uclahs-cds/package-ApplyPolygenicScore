@@ -6,7 +6,6 @@ Authors@R: c(
     person('Paul', 'Boutros', role = 'cre', email = 'PBoutros@mednet.ucla.edu'),
     person('Nicole', 'Zeltser', role = 'aut', comment = c(ORCID = '000-0001-7246-2771')),
     person('Rachel', 'Dang', role = 'ctb'))
-Maintainer: Nicole Zeltser <nzeltser@mednet.ucla.edu>
 Description: This tool is intended to simply and transparently parse
     genotype/dosage data from an input VCF, match genotype coordinates
     to the component SNPs of an existing polygenic score, and apply

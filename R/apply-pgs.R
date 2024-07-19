@@ -151,10 +151,10 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' \code{normalize}: Missing genotypes are excluded from score calculation but the final score is normalized by the number of non-missing alleles.
 #' The calculation assumes a diploid genome:
 #' \deqn{PGS_i = \dfrac{\sum \left( \beta_m \times dosage_{im} \right)}{P_i * M_{non-missing}}}
-#' Where \emph{P} is the ploidy and has the value \code{2} and \emph{M_{non-missing}} is the number of non-missing genotypes.
+#' Where \emph{P} is the ploidy and has the value \code{2} and \eqn{M_{non-missing}} is the number of non-missing genotypes.
 #'
 #' \code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency \emph{EAF} and the ploidy of a diploid genome:
-#' \overline{dosage_{k} = EAF_k * P}
+#' \deqn{\overline{dosage_{k}} = EAF_k * P}}
 #' where \emph{k} is a PGS component variant that is missing in between 1 and n-1 individuals in the cohort and \emph{P} = ploidy = 2
 #' This dosage calculation holds under assumptions of Hardy-Weinberg equilibrium.
 #' By default, the effect allele frequency is calculated from the provided VCF data.
