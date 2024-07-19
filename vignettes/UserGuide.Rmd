@@ -331,14 +331,33 @@ head(custom.percentiles.pgs.results$pgs.output)
 ## Phenotype analysis
 
 Let's explore the extra features provided for handling phenotype data.
+
+Since these features are much more useful in larger cohorts, let's start by loading a larger VCF file.
+The following example file contains fake genotype data for X madeup individuals, along with some simulated
+phenotype data and a fake set of PGS weights.
+
+```{r load-large-vcf}
+
+phenotype.test.data.path <- system.file(
+    'extdata',
+    'phenotype.test.data.Rda',
+    package = 'ApplyPolygenicScore',
+    mustWork = TRUE
+    )
+
+load(phenotype.test.data.path)
+str(phenotype.test.data)
+
+```
+
 When provided with phenotype data, `apply.polygenic.score` merges the phenotype data with the PGS output.
 
 ```{r phenotype-merge}
 
 pgs.results.with.phenotype <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
-    pgs.weight.data = pgs.data$pgs.weight.data,
-    phenotype.data = phenotype.data
+    vcf.data = phenotype.test.data$vcf.data,
+    pgs.weight.data = phenotype.test.data$pgs.weight.data,
+    phenotype.data = phenotype.test.data$phenotype.data
     )
 
 head(pgs.results.with.phenotype$pgs.output)
@@ -348,13 +367,15 @@ Here we see that the `pgs.output` data frame now contains the phenotype data col
 
 When provided with a vector of `phenotype.analysis.columns`, `apply.polygenic.score` automatically detects the data type
 of each column (continuous or binary), and performs a regression (linear or logistic) between the PGS and each phenotype column.
+This is particularly useful to quickly see how well your PGS predicts the trait it is indented to predict, or whether it is associated
+with any other variables of interest.
 
 ```{r phenotype-analysis}
 
 pgs.results.with.phenotype.analysis <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
-    pgs.weight.data = pgs.data$pgs.weight.data,
-    phenotype.data = phenotype.data,
+    vcf.data = phenotype.test.data$vcf.data,
+    pgs.weight.data = phenotype.test.data$pgs.weight.data,
+    phenotype.data = phenotype.test.data$phenotype.data,
     phenotype.analysis.columns = c('continuous.phenotype', 'binary.phenotype')
     )
 
@@ -362,6 +383,7 @@ head(pgs.results.with.phenotype.analysis$regression.output)
 
 ```
 
-We finally see a data frame in the `regression.output` element of the output list. 
+We finally see a data frame in the `regression.output` element of the output list. This data frame contains the results of the regression analysis
+for each compatible phenotype. An accuracy metric in the form of an r-squared value is computed for linear regression, and an Area Under the (Receiver Operator) Curve (AUC) value is computed for logistic regression.
 
 # Data Visualization
