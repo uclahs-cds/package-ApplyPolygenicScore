@@ -223,7 +223,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'     pgs.weight.data = pgs.import$pgs.weight.data,
 #'     validate.inputs.only = TRUE
 #'     );
-#' 
+#'
 #' @export
 apply.polygenic.score <- function(
     vcf.data,
