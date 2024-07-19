@@ -265,7 +265,6 @@ merged.vcf.pgs.data <- merge.vcf.with.pgs(
     )
 
 names(merged.vcf.pgs.data)
-head(merged.vcf.pgs.data$merged.vcf.with.pgs.data)
 head(merged.vcf.pgs.data$missing.snp.data)[, 1:6]
 ```
 
