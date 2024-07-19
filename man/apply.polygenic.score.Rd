@@ -48,73 +48,7 @@ When not specified, defaults to \code{missing.genotype.method} choice and if mor
 \item{validate.inputs.only}{A logical indicating whether to only perform input data validation checks without running PGS application. If no errors are triggered, a message is printed and TRUE is returned. Default is \code{FALSE}.}
 }
 \value{
-A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
 
-\strong{Output Structure}
-
-The outputed list contains the following elements:
-\itemize{
-\item pgs.output: A data.frame containing the PGS per sample and optional phenotype data.
-\item regression.output: A data.frame containing the results of the regression analysis if phenotype.analysis.columns are provided, otherwise \code{NULL}.
-}
-
-pgs.output columns:
-\itemize{
-\item \code{Indiv}: A character string indicating the sample ID.
-\item \code{PGS}: A numeric vector indicating the PGS per sample. (only if missing.genotype.method includes "none")
-\item \code{PGS.with.normalized.missing}: A numeric vector indicating the PGS per sample with missing genotypes normalized. (only if missing.genotype.method includes "normalize")
-\item \code{PGS.with.replaced.missing}: A numeric vector indicating the PGS per sample with missing genotypes replaced by mean dosage. (only if missing.genotype.method includes "mean.dosage")
-\item \code{percentile}: A numeric vector indicating the percentile rank of the PGS.
-\item \code{decile}: A numeric vector indicating the decile rank of the PGS.
-\item \code{quartile}: A numeric vector indicating the quartile rank of the PGS.
-\item \code{percentile.X:} A numeric vector indicating the user-specified percentile rank of the PGS where "X" is substituted by \code{n.percentiles}. (only if \code{n.percentiles} is specified)
-\item \code{n.missing.genotypes}: A numeric vector indicating the number of missing genotypes per sample.
-\item \code{percent.missing.genotypes}: A numeric vector indicating the percentage of missing genotypes per sample.
-\item All columns in \code{phenotype.data} if provided.
-}
-
-regression.output columns:
-\itemize{
-\item phenotype: A character vector of phenotype names.
-\item \code{model}: A character vector indicating the regression model used. One of "logistic.regression" or "linear.regression".
-\item \code{beta}: A numeric vector indicating the beta coefficient of the regression analysis.
-\item \code{se}: A numeric vector indicating the standard error of the beta coefficient.
-\item \code{p.value}: A numeric vector indicating the p-value of the beta coefficient.
-\item \code{r.squared}: A numeric vector indicating the r-squared value of linear regression analysis. NA for logistic regression.
-\item \code{AUC}: A numeric vector indicating the area under the curve of logistic regression analysis. NA for linear regression.
-}
-
-\strong{PGS Calculation}
-
-PGS for each individual \emph{i} is calculated as the sum of the product of the dosage and beta coefficient for each variant in the PGS:
-\deqn{PGS_i = \sum_{m=1}^{M} \left( \beta_m \times dosage_{im} \right)}
-Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
-
-\strong{Missing Genotype Handling}
-
-Missing genotypes are handled by three methods:
-
-\code{none}: Missing genotype dosages are excluded from the PGS calculation.
-This is equivalent to assuming that all missing genotypes are homozygous for the non-effect allele, resulting in a dosage of 0.
-
-\code{normalize}: Missing genotypes are excluded from score calculation but the final score is normalized by the number of non-missing alleles.
-The calculation assumes a diploid genome:
-\deqn{PGS_i = \dfrac{\sum \left( \beta_m \times dosage_{im} \right)}{P_i * M_{non-missing}}}
-Where \emph{P} is the ploidy and has the value \code{2} and \emph{M_{non-missing}} is the number of non-missing genotypes.
-
-\code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency \emph{EAF} and the ploidy of a diploid genome:
-\overline{dosage_{k} = EAF_k * P}
-where \emph{k} is a PGS component variant that is missing in between 1 and n-1 individuals in the cohort and \emph{P} = ploidy = 2
-This dosage calculation holds under assumptions of Hardy-Weinberg equilibrium.
-By default, the effect allele frequency is calculated from the provided VCF data.
-For variants that are missing in all individuals, dosage is assumed to be zero (homozygous non-reference) for all individuals.
-An external allele frequency can be provided in the \code{pgs.weight.data} as a column named \code{allelefrequency_effect} and by setting \code{use.external.effect.allele.frequency} to \code{TRUE}.
-
-\strong{Multiallelic Site Handling}
-
-VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a PGS weight file provides weights for multiple effect alleles, the appropriate dosage is calculated for the
-alleles that each individual carries. It is assumed that multiallelic variants are encoded in the same row in the VCF data. This is known as "merged" format. Split multiallelic sites are not accepted.
-VCF data can be formatted to merged format using external tools for VCF file manipulation.
 }
 \description{
 Apply a polygenic score to VCF data.
