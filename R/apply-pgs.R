@@ -328,7 +328,7 @@ apply.polygenic.score <- function(
             }
     }
 
-    ### End Misssing Genotype Handling ###
+    ### End Missing Genotype Handling ###
 
     # calculate weighted dosage
     if ('mean.dosage' %in% missing.genotype.method) {

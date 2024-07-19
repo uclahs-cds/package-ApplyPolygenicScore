@@ -387,3 +387,76 @@ We finally see a data frame in the `regression.output` element of the output lis
 for each compatible phenotype. An accuracy metric in the form of an r-squared value is computed for linear regression, and an Area Under the (Receiver Operator) Curve (AUC) value is computed for logistic regression.
 
 # Data Visualization
+
+ApplyPolygenicScore provides three plotting functions designed to operate on the output of `apply.polygenic.score`:
+
+1. `create.pgs.density.plot`
+2. `create.pgs.with.continuous.phenotype.plot`
+3. `create.pgs.rank.plot`
+
+These visualizations are intended to provide quick quality assessments and at-a-glance summaries of PGS in a cohort.
+They really shine when combined with phenotype data to produce 
+
+## Common plotting arguments
+
+These functions are built on the [BoutrosLab.plotting.general](https://github.com/uclahs-cds/package-BoutrosLab-plotting-general) package and produce lattice multipanel plot objects.
+Each function can be provided with an `output.directory`, a `filename.prefix`, and a `file.extension` to write the plots to a file.
+A filename will be generated using the current date and the provided prefix, and the plot will be written in the format specified by the extension.
+
+Plotting functions automatically detect and plot data from the standardized PGS output columns produced by `apply.polygenic.score`: `PGS`, `PGS.with.normalized.missing`, and `PGS.with.replaced.missing`.
+Plots are automatically titled with the name of the PGS column being plotted, and the titles can be "tidied up" to remove period characters and replace them with spaces
+using the `tidy.titles` argument.
+
+Multipanel plot dimensions can be conrolled with `width` and `height` arguments, which are interpreted as inches.
+If your plots are looking squished, try increasing these values.
+Axis and title label font sizes can be controlled with `xaxis.cex`, `yaxis.cex`, and `titles.cex` arguments.
+Border padding can be controlled with `border.padding` and is applied to all four sides of the plot at once.
+
+
+## PGS Density
+
+`create.pgs.density.plot` plots the PGS distribution in the cohort.
+
+### Basic plot
+```{r pgs-density, eval = FALSE}
+
+create.pgs.density.plot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = 'vignettes/img',
+    filename.prefix = 'vignette-example-basic',
+    file.extension = 'png'
+    )
+
+```
+
+```{r out.width = '70%', echo = FALSE}
+knitr::include_graphics("img/2024-07-18_vignette-example-basic_pgs-density.png")
+```
+
+### Add phenotypes
+
+If provided with phenotype column names, this function will plot individual PGS density curves for each category in a categorical phenotype.
+Non-categorical phenotypes are ignored. Colors are automatically assigned up to 12 categories. If more than 12 categories are present, all categories are plotted in black.
+
+```{r pgs-density-phenotype, eval = FALSE}
+
+create.pgs.density.plot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = 'vignettes/img',
+    filename.prefix = 'vignette-example-phenotype',
+    file.extension = 'png',
+    tidy.titles = TRUE,
+    phenotype.columns = c('binary.factor.phenotype', 'categorical.phenotype', 'continuous.phenotype')
+    )
+
+```
+
+```{r out.width = '70%', echo = FALSE}
+knitr::include_graphics("img/2024-07-18_vignette-example-phenotype_pgs-density.png")
+```
+
+
+## PGS Correlation
+
+
+## PGS Percentile Rank

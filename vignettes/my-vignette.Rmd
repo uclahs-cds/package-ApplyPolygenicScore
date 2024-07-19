@@ -1,6 +1,8 @@
 ---
 title: "my-vignette"
-output: rmarkdown::html_vignette
+output:
+    rmarkdown::html_vignette:
+        number_sections: true
 vignette: >
   %\VignetteIndexEntry{my-vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,3 +19,11 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(ApplyPolygenicScore)
 ```
+
+# Introduction
+
+
+
+## Second Level
+
+### Third Level
