@@ -14,7 +14,8 @@ apply.polygenic.score(
   missing.genotype.method = "mean.dosage",
   use.external.effect.allele.frequency = FALSE,
   n.percentiles = NULL,
-  analysis.source.pgs = NULL
+  analysis.source.pgs = NULL,
+  validate.inputs.only = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ Provide allele frequency as a column is \code{pgs.weight.data} named \code{allel
 
 \item{analysis.source.pgs}{A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
 When not specified, defaults to \code{missing.genotype.method} choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.}
+
+\item{validate.inputs.only}{A logical indicating whether to only perform input data validation checks without runnin PGS application, and and return a message indicating whether inputs passed validation. Default is \code{FALSE}.}
 }
 \value{
 A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
@@ -164,6 +167,13 @@ pgs.data <- apply.polygenic.score(
     vcf.data = vcf.import$dat,
     pgs.weight.data = pgs.import$pgs.weight.data,
     phenotype.data = phenotype.data
+    );
+
+# Only run validation checks on input data and report back
+apply.polygenic.score(
+    vcf.data = vcf.import$dat,
+    pgs.weight.data = pgs.import$pgs.weight.data,
+    validate.inputs.only = TRUE
     );
 
 }
