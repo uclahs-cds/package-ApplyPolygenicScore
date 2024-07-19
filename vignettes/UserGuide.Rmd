@@ -269,3 +269,99 @@ names(merged.vcf.pgs.data)
 head(merged.vcf.pgs.data$missing.snp.data)
 ```
 
+## Missing genotype methods
+
+Let's explore all the different options for handling missing genotype data. The `missing.genotype.method` argument can be set to one of the following options:
+`none`, `normalize`, and `mean.dosage`. Any combination of these methods can be applied in the same call to `apply.polygenic.score`, producing the corresponding number
+of polygenic score output columns. For details on how each of these methods work, head back to our [missing genotype data](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17)
+discussion post.
+
+Briefly:
+
+- `none` ignores missing genotypes, effectively assuming them to be homozygous reference calls
+- `normalize` computes the score the same was as `none`, then divides the score by the number of non-missing alleles
+- `mean.dosage` replaces the dosage of genotypes missing in some but not all individuals with the mean dosage of the variant across the cohort; genotypes missing in all individuals are assumed homozygous reference
+
+```{r missing-genotype-methods}
+
+all.missing.methods.pgs.results <- apply.polygenic.score(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    missing.genotype.method = c('none', 'normalize', 'mean.dosage')
+    )
+
+head(all.missing.methods.pgs.results$pgs.output)
+```
+
+We can see that the output now contains three columns of PGS values, one for each missing genotype method.
+
+|missing genotype method|column name|
+|---|---|
+|`none`|`PGS`|
+|`normalize`|`PGS.with.normalized.missing`|
+|`mean.dosage`|`PGS.with.replaced.missing`|
+
+The `PGS.with.normalized.missing` contains the `PGS` values divided by 124: the number of non-missing alleles in the cohort.
+As we can see from the `n.missing.genotypes` column, the number of missing variants is 66. The number of variants in the example PGS
+weight file is 128, so the number of non-missing genotypes is 128 - 66 = 62; multiply by two for a diploid genome (2 alleles per genotype): 62 * 2 = 124.
+
+The `PGS.with.replaced.missing` column is identical to the `PGS` column in this case, since all missing genotypes were missing from all
+individuals in the cohort, all such dosages were assumed as homozygous reference, and no change from the `none` method was made.
+
+What if you have a list of population allele frequencies for the variants in your PGS weight file? Surely, when implementing the `mean.dosage` method, 
+values derived from a massive public dataset would be more accurate than inferring the population dosage from your cohort! No problem, simply add these
+frequencies to your pgs weight file, in PGS Catalog format, and use the `use.external.effect.allele.frequency` argument to tell `apply.polygenic.score` to use them instead.
+
+## Custom percentiles
+
+Curious to see how your PGS values distribute among quintiles? No problem. Specify a custom number of percentiles with `n.percentiles`.
+
+```{r custom-percentiles}
+
+custom.percentiles.pgs.results <- apply.polygenic.score(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    n.percentiles = 5
+    )
+
+head(custom.percentiles.pgs.results$pgs.output)
+
+```
+
+## Phenotype analysis
+
+Let's explore the extra features provided for handling phenotype data.
+When provided with phenotype data, `apply.polygenic.score` merges the phenotype data with the PGS output.
+
+```{r phenotype-merge}
+
+pgs.results.with.phenotype <- apply.polygenic.score(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    phenotype.data = phenotype.data
+    )
+
+head(pgs.results.with.phenotype$pgs.output)
+```
+
+Here we see that the `pgs.output` data frame now contains the phenotype data columns in addition to the PGS columns.
+
+When provided with a vector of `phenotype.analysis.columns`, `apply.polygenic.score` automatically detects the data type
+of each column (continuous or binary), and performs a regression (linear or logistic) between the PGS and each phenotype column.
+
+```{r phenotype-analysis}
+
+pgs.results.with.phenotype.analysis <- apply.polygenic.score(
+    vcf.data = vcf.data$dat,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    phenotype.data = phenotype.data,
+    phenotype.analysis.columns = c('continuous.phenotype', 'binary.phenotype')
+    )
+
+head(pgs.results.with.phenotype.analysis$regression.output)
+
+```
+
+We finally see a data frame in the `regression.output` element of the output list. 
+
+# Data Visualization
