@@ -537,7 +537,6 @@ create.pgs.rank.plot(
 
 ```{r out.width = '50%', echo = FALSE}
 knitr::include_graphics('img/2024-07-19_vignette-example-phenotype_pgs-rank-plot.png')
-
 ```
 
 - Legend titles are inherited from phenotype column names.
