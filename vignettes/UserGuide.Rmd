@@ -333,7 +333,7 @@ head(custom.percentiles.pgs.results$pgs.output)
 Let's explore the extra features provided for handling phenotype data.
 
 Since these features are much more useful in larger cohorts, let's start by loading a larger VCF file.
-The following example file contains fake genotype data for X madeup individuals, along with some simulated
+The following example file contains fake genotype data for 10 fake individuals, along with some simulated
 phenotype data and a fake set of PGS weights.
 
 ```{r load-large-vcf}
@@ -385,6 +385,9 @@ head(pgs.results.with.phenotype.analysis$regression.output)
 
 We finally see a data frame in the `regression.output` element of the output list. This data frame contains the results of the regression analysis
 for each compatible phenotype. An accuracy metric in the form of an r-squared value is computed for linear regression, and an Area Under the (Receiver Operator) Curve (AUC) value is computed for logistic regression.
+
+If multiple missing genotype methods are being used at once, producing multiple PGS columns, the regression analysis is only performed on one of these and defaults to the first method of the vector.
+The source PGS column for regression (and percentile) analysis can be specified using the `analysis.source.pgs` argument.
 
 # Data Visualization
 
@@ -457,6 +460,81 @@ knitr::include_graphics("img/2024-07-18_vignette-example-phenotype_pgs-density.p
 
 
 ## PGS Correlation
+`create.pgs.with.continuous.phenotype.plot` plots a scatterplot between the PGS and a continuous phenotype, and reports a correlation.
+Non-continuous phenotypes are ignored. This function can only be used if phenotype data is provided.
 
+### Basic plot
+
+```{r pgs-correlation, eval = FALSE}
+
+create.pgs.with.continuous.phenotype.plot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = 'vignettes/img',
+    filename.prefix = 'vignette-example-correlation',
+    file.extension = 'png',
+    tidy.titles = TRUE,
+    phenotype.columns = c('continuous.phenotype', 'categorical.phenotype')
+    )
+
+```
+
+```{r out.width = '70%', echo = FALSE}
+knitr::include_graphics("img/2024-07-18_vignette-example-correlation_pgs-scatter.png")
+```
+
+Unsurprisingly, our randomly generated phenotype data is not correlated with our fake PGS.
 
 ## PGS Percentile Rank
+
+`create.pgs.rank.plot` plots several panels of per-individual data, each in the order of increasing PGS percentile rank.
+
+At the top, a barplot of missing PGS variant genotype counts or percents for each individual (only if at least one individual is missing a variant).
+Next, a barplot of the percentile rank of each individual.
+Next, a covariate bar of the PGS quartile and decile of each individual.
+Next, a covariate bar of categories for each provided categorical phenotype in each individual.
+Finally, a heatmap of continuous phenotype values for each provided continuous phenotype in each individual.
+
+### Basic plot
+
+```{r pgs-rank, eval = FALSE}
+
+# Introducing some missing genotypes to demonstrate the missing genotype barplot
+pgs.results.with.phenotype.analysis$pgs.output$n.missing.genotypes <- rep(c(0, 1, 0, 2, 1), 2)
+
+create.pgs.rank.plot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = 'vignettes/img',
+    filename.prefix = 'vignette-example-basic',
+    file.extension = 'png'
+    )
+
+```
+
+```{r out.width = '70%', echo = FALSE}
+knitr::include_graphics("img/2024-07-19_vignette-example-basic_pgs-rank-plot.png")
+```
+
+### Add phenotypes
+
+```{r pgs-rank-phenotype, eval = FALSE}
+
+create.pgs.rank.plot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = 'vignettes/img',
+    filename.prefix = 'vignette-example-phenotype',
+    file.extension = 'png',
+    phenotype.columns = c('binary.factor.phenotype', 'binary.phenotype', 'categorical.phenotype', 'continuous.phenotype')
+    )
+
+```
+
+```{r out.width = '70%', echo = FALSE}
+knitr::include_graphics("img/2024-07-19_vignette-example-phenotype_pgs-rank-plot.png")
+```
+
+### Optional arguments
+This function comes with a handful of additional arguments to control the appearance of the plot.
+
+- Use `missing.genotype.style` to toggle between displaying counts and percentages.
+- Use `categorical.palette` to specify a custom color palette for categorical phenotype bars.
+- Use `binary.pallette` to specify a custom color palette for binary and continuous phenotype bars.
