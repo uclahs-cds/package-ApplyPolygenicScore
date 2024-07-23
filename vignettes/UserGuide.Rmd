@@ -366,7 +366,7 @@ Here we see that the `pgs.output` data frame now contains the phenotype data col
 
 When provided with a vector of `phenotype.analysis.columns`, `apply.polygenic.score` automatically detects the data type
 of each column (continuous or binary), and performs a regression (linear or logistic) between the PGS and each phenotype column.
-This is particularly useful to quickly see how well your PGS predicts the trait it is indented to predict, or whether it is associated
+This is particularly useful to quickly see how well your PGS predicts the trait it is intended to predict, or whether it is associated
 with any other variables of interest.
 
 ```{r phenotype-analysis}
