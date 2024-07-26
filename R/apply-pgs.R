@@ -98,9 +98,9 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is \code{NULL}.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
 #' When not specified, defaults to \code{missing.genotype.method} choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
-#' @param validate.inputs.only A logical indicating whether to only perform input data validation checks without running PGS application. If no errors are triggered, a message is printed and TRUE is returned. Default is \code{FALSE}.
+#' @param validate.inputs.only A logical indicating whether to only perform input data validation checks without running PGS application.
+#' If no errors are triggered, a message is printed and TRUE is returned. Default is \code{FALSE}.
 #' @return A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
-#'
 #' \strong{Output Structure}
 #'
 #' The outputed list contains the following elements:
@@ -154,7 +154,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' Where \emph{P} is the ploidy and has the value \code{2} and \eqn{M_{non-missing}} is the number of non-missing genotypes.
 #'
 #' \code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency \emph{EAF} and the ploidy of a diploid genome:
-#' \deqn{\overline{dosage_{k}} = EAF_k * P}}
+#' \deqn{\overline{dosage_{k}} = EAF_k * P}
 #' where \emph{k} is a PGS component variant that is missing in between 1 and n-1 individuals in the cohort and \emph{P} = ploidy = 2
 #' This dosage calculation holds under assumptions of Hardy-Weinberg equilibrium.
 #' By default, the effect allele frequency is calculated from the provided VCF data.
@@ -224,7 +224,6 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'     pgs.weight.data = pgs.import$pgs.weight.data,
 #'     validate.inputs.only = TRUE
 #'     );
-#'
 #' @export
 apply.polygenic.score <- function(
     vcf.data,

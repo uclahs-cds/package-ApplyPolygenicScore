@@ -1,5 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 .github
+.vscode
 metadata.yaml
 LICENSE.md
+RCMD-CHECK.R
+^doc$
+^Meta$

@@ -18,6 +18,11 @@ To install the latest development version from GitHub:
 # install.packages("devtools")
 
 devtools::install_github("uclahs-cds/package-ApplyPolygenicScore")
+
+# To access vignettes, make sure to add the `build_vignettes` argument:
+
+devtools::install_github("uclahs-cds/package-ApplyPolygenicScore", build_vignettes = TRUE)
+
 ```
 
 ## Getting Started
@@ -72,6 +77,19 @@ If you wish to apply a PGS to a cohort, we recommend that genotypes for the whol
 For more step-by-step instructions, check out our vignettes.
 
 ## Resources
+This package is in the process of being submitted to CRAN, where the manual and vignettes will be readily available. In the meantime, if you have installed the package from GitHub with `build_vignettes = TRUE`, you may view the vignette by running the following:
+
+```
+vignette('UserGuide', package = 'ApplyPolygenicScore')
+```
+Or by simply opening the rendered file that will be automatically written to the `doc` folder in your local package directory.
+
+View function-specific documentation using `?`:
+
+```
+?apply.polygenic.score
+```
+
 
 ## Getting Help
 Looking for guidance or support with ApplyPolygenicScore? Check out our [Discussions](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions) page.
