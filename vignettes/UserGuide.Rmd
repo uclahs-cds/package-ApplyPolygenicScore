@@ -405,6 +405,8 @@ Plotting functions are built on the [BoutrosLab.plotting.general](https://github
 Each function can be provided with an `output.directory`, a `filename.prefix`, and a `file.extension` to write the plots to a file.
 A filename will be generated using the current date and the provided prefix, and the plot will be written in the format specified by the extension.
 
+> Note: in the examples below, all plots are written to a temporary directory from which they are read and displayed inline in the vignette.
+
 Plotting functions automatically detect and plot data from the standardized PGS output columns produced by `apply.polygenic.score`: `PGS`, `PGS.with.normalized.missing`, and `PGS.with.replaced.missing`.
 Plots are automatically titled with the name of the PGS column being plotted, and the titles can be "tidied up" to remove period characters and replace them with spaces
 using the `tidy.titles` argument.
@@ -420,11 +422,47 @@ Border padding can be controlled with `border.padding` and is applied to all fou
 `create.pgs.density.plot` plots the PGS distribution in the cohort.
 
 ### Basic plot
-```{r pgs-density, eval = FALSE}
+
+```{r plotting-dir, echo = FALSE}
+temp.dir <- tempdir();
+
+basic.density.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-basic',
+    file.core = 'pgs-density',
+    extension = 'png'
+    );
+
+phenotype.density.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-phenotype',
+    file.core = 'pgs-density',
+    extension = 'png'
+    );
+
+correlation.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-correlation',
+    file.core = 'pgs-scatter',
+    extension = 'png'
+    );
+
+basic.rank.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-basic',
+    file.core = 'pgs-rank-plot',
+    extension = 'png'
+    );
+
+phenotype.rank.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-phenotype',
+    file.core = 'pgs-rank-plot',
+    extension = 'png'
+    );
+
+```
+
+```{r pgs-density, eval = TRUE}
 
 create.pgs.density.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
-    output.dir = 'vignettes/img',
+    output.dir = temp.dir,
     filename.prefix = 'vignette-example-basic',
     file.extension = 'png'
     )
@@ -432,7 +470,7 @@ create.pgs.density.plot(
 ```
 
 ```{r out.width = '50%', echo = FALSE}
-knitr::include_graphics('img/2024-07-18_vignette-example-basic_pgs-density.png')
+knitr::include_graphics(file.path(temp.dir, basic.density.filename));
 ```
 
 ### Add phenotypes
@@ -445,11 +483,11 @@ If provided with phenotype column names, this function will plot individual PGS 
 - Panels are arranged in a grid with unique PGS inputs on the x-axis and unique phenotype inputs on the y-axis.
 
 
-```{r pgs-density-phenotype, eval = FALSE}
+```{r pgs-density-phenotype, eval = TRUE}
 
 create.pgs.density.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
-    output.dir = 'vignettes/img',
+    output.dir = temp.dir,
     filename.prefix = 'vignette-example-phenotype',
     file.extension = 'png',
     tidy.titles = TRUE,
@@ -459,7 +497,7 @@ create.pgs.density.plot(
 ```
 
 ```{r out.width = '50%', echo = FALSE}
-knitr::include_graphics('img/2024-07-18_vignette-example-phenotype_pgs-density.png')
+knitr::include_graphics(file.path(temp.dir, phenotype.density.filename));
 ```
 
 
@@ -469,11 +507,11 @@ Non-continuous phenotypes are ignored. This function can only be used if phenoty
 
 ### Basic plot
 
-```{r pgs-correlation, eval = FALSE}
+```{r pgs-correlation, eval = TRUE}
 
 create.pgs.with.continuous.phenotype.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
-    output.dir = 'vignettes/img',
+    output.dir = temp.dir,
     filename.prefix = 'vignette-example-correlation',
     file.extension = 'png',
     tidy.titles = TRUE,
@@ -483,7 +521,7 @@ create.pgs.with.continuous.phenotype.plot(
 ```
 
 ```{r out.width = '70%', echo = FALSE}
-knitr::include_graphics('img/2024-07-18_vignette-example-correlation_pgs-scatter.png')
+knitr::include_graphics(file.path(temp.dir, correlation.filename));
 ```
 
 Unsurprisingly, our randomly generated phenotype data is not correlated with our fake PGS.
@@ -503,14 +541,14 @@ Finally, a heatmap of continuous phenotype values for each provided continuous p
 
 ### Basic plot
 
-```{r pgs-rank, eval = FALSE}
+```{r pgs-rank, eval = TRUE}
 
 # Introducing some missing genotypes to demonstrate the missing genotype barplot
 pgs.results.with.phenotype.analysis$pgs.output$n.missing.genotypes <- rep(c(0, 1, 0, 2, 1), 2)
 
 create.pgs.rank.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
-    output.dir = 'vignettes/img',
+    output.dir = temp.dir,
     filename.prefix = 'vignette-example-basic',
     file.extension = 'png'
     )
@@ -518,16 +556,16 @@ create.pgs.rank.plot(
 ```
 
 ```{r out.width = '50%', echo = FALSE}
-knitr::include_graphics('img/2024-07-19_vignette-example-basic_pgs-rank-plot.png')
+knitr::include_graphics(file.path(temp.dir, basic.rank.filename));
 ```
 
 ### Add phenotypes
 
-```{r pgs-rank-phenotype, eval = FALSE}
+```{r pgs-rank-phenotype, eval = TRUE}
 
 create.pgs.rank.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
-    output.dir = 'vignettes/img',
+    output.dir = temp.dir,
     filename.prefix = 'vignette-example-phenotype',
     file.extension = 'png',
     phenotype.columns = c('binary.factor.phenotype', 'binary.phenotype', 'categorical.phenotype', 'continuous.phenotype')
@@ -536,7 +574,7 @@ create.pgs.rank.plot(
 ```
 
 ```{r out.width = '50%', echo = FALSE}
-knitr::include_graphics('img/2024-07-19_vignette-example-phenotype_pgs-rank-plot.png')
+knitr::include_graphics(file.path(temp.dir, phenotype.rank.filename));
 ```
 
 - Legend titles are inherited from phenotype column names.
