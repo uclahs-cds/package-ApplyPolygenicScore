@@ -200,8 +200,22 @@ test_that(
     );
 
 test_that(
+    'apply.polygenic.score correctly outputs validation only option', {
+        load('data/simple.pgs.application.test.data.Rda');
+        expect_equal(
+            apply.polygenic.score(
+                vcf.data = simple.pgs.application.test.data$vcf.data,
+                pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data,
+                validate.inputs.only = TRUE
+                ),
+            TRUE
+            );
+        }
+    );
+
+test_that(
     'apply.polygenic.score correctly formats general output', {
-        load('data/simple.pgs.application.test.data.Rda')
+        load('data/simple.pgs.application.test.data.Rda');
         test.pgs.per.sample <- apply.polygenic.score(
             vcf.data = simple.pgs.application.test.data$vcf.data,
             pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data

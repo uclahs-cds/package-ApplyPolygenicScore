@@ -6,7 +6,6 @@ Authors@R: c(
     person('Paul', 'Boutros', role = 'cre', email = 'PBoutros@mednet.ucla.edu'),
     person('Nicole', 'Zeltser', role = 'aut', comment = c(ORCID = '000-0001-7246-2771')),
     person('Rachel', 'Dang', role = 'ctb'))
-Maintainer: Nicole Zeltser <nzeltser@mednet.ucla.edu>
 Description: This tool is intended to simply and transparently parse
     genotype/dosage data from an input VCF, match genotype coordinates
     to the component SNPs of an existing polygenic score, and apply
@@ -23,9 +22,12 @@ Imports:
     BoutrosLab.plotting.general,
     lattice
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
+VignetteBuilder: knitr

@@ -98,6 +98,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param n.percentiles An integer indicating the number of percentiles to calculate for the PGS. Default is \code{NULL}.
 #' @param analysis.source.pgs A character string indicating the source PGS for percentile calculation and regression analyses. Options are "mean.dosage", "normalize", or "none".
 #' When not specified, defaults to \code{missing.genotype.method} choice and if more than one PGS missing genotype method is chosen, calculation defaults to the first selection.
+#' @param validate.inputs.only A logical indicating whether to only perform input data validation checks without running PGS application. If no errors are triggered, a message is printed and TRUE is returned. Default is \code{FALSE}.
 #' @return A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
 #'
 #' \strong{Output Structure}
@@ -150,13 +151,14 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' \code{normalize}: Missing genotypes are excluded from score calculation but the final score is normalized by the number of non-missing alleles.
 #' The calculation assumes a diploid genome:
 #' \deqn{PGS_i = \dfrac{\sum \left( \beta_m \times dosage_{im} \right)}{P_i * M_{non-missing}}}
-#' Where \emph{P} is the ploidy and has the value \code{2} and \emph{M_{non-missing}} is the number of non-missing genotypes.
+#' Where \emph{P} is the ploidy and has the value \code{2} and \eqn{M_{non-missing}} is the number of non-missing genotypes.
 #'
-#' \code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency and the ploidy of a diploid genome:
-#' \deqn{dosage_{im-missing} = EAF_m * P_i}
-#' Where \emph{EAF} is the effect allele frequency and \emph{P} is the ploidy and has the value \code{2}.
-#' By default, the effect allele frequency is calculated from the provided VCF data. For variants that are missing in all individuals, it is not possible to derive an effect allele frequency
-#' and dosage is assumed to be zero (homozygous non-reference) for all individuals.
+#' \code{mean.dosage}: Missing genotype dosages are replaced by the mean population dosage of the variant which is calculated as the product of the effect allele frequency \emph{EAF} and the ploidy of a diploid genome:
+#' \deqn{\overline{dosage_{k}} = EAF_k * P}}
+#' where \emph{k} is a PGS component variant that is missing in between 1 and n-1 individuals in the cohort and \emph{P} = ploidy = 2
+#' This dosage calculation holds under assumptions of Hardy-Weinberg equilibrium.
+#' By default, the effect allele frequency is calculated from the provided VCF data.
+#' For variants that are missing in all individuals, dosage is assumed to be zero (homozygous non-reference) for all individuals.
 #' An external allele frequency can be provided in the \code{pgs.weight.data} as a column named \code{allelefrequency_effect} and by setting \code{use.external.effect.allele.frequency} to \code{TRUE}.
 #'
 #' \strong{Multiallelic Site Handling}
@@ -216,6 +218,13 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'     phenotype.data = phenotype.data
 #'     );
 #'
+#' # Only run validation checks on input data and report back
+#' apply.polygenic.score(
+#'     vcf.data = vcf.import$dat,
+#'     pgs.weight.data = pgs.import$pgs.weight.data,
+#'     validate.inputs.only = TRUE
+#'     );
+#'
 #' @export
 apply.polygenic.score <- function(
     vcf.data,
@@ -227,7 +236,8 @@ apply.polygenic.score <- function(
     missing.genotype.method = 'mean.dosage',
     use.external.effect.allele.frequency = FALSE,
     n.percentiles = NULL,
-    analysis.source.pgs = NULL
+    analysis.source.pgs = NULL,
+    validate.inputs.only = FALSE
     ) {
 
     ### Start Input Validation ###
@@ -236,6 +246,10 @@ apply.polygenic.score <- function(
     validate.pgs.data.input(pgs.weight.data = pgs.weight.data, use.external.effect.allele.frequency = use.external.effect.allele.frequency);
     validate.phenotype.data.input(phenotype.data = phenotype.data, phenotype.analysis.columns = phenotype.analysis.columns, vcf.data = vcf.data);
 
+    if (validate.inputs.only) {
+        print('Input data passed validation\n');
+        return(TRUE);
+        }
 
     # check missing genotype method input
     if (all(missing.genotype.method %in% c('mean.dosage', 'normalize', 'none'))) {
@@ -316,7 +330,7 @@ apply.polygenic.score <- function(
             }
     }
 
-    ### End Misssing Genotype Handling ###
+    ### End Missing Genotype Handling ###
 
     # calculate weighted dosage
     if ('mean.dosage' %in% missing.genotype.method) {
