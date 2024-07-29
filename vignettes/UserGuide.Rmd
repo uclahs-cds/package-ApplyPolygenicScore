@@ -173,7 +173,7 @@ With slop of 10 base pairs:
 ### Merging coordinates from multiple polygenic scores
 
 What if you want to apply multiple polygenic scores to the same VCF file?
-Instead of filtering the VCF file multiple times, you can use the `merge.pgs.bed` function to merge multiple BED data frames
+Instead of filtering the VCF file multiple times, you can use the `combine.pgs.bed` function to merge multiple BED data frames
 into a single set of coordinates, and filter your VCF just once for the union of all variants in multiple PGSs.
 
 ```{r merge-pgs-bed}
@@ -188,7 +188,7 @@ pgs.bed2$end <- pgs.bed2$end + 20
 # Input must be a named list
 pgs.bed.list <- list(PGS1 = pgs.bed1, PGS2 = pgs.bed2)
 
-merged.pgs.bed <- merge.pgs.bed(
+merged.pgs.bed <- combine.pgs.bed(
     pgs.bed.list = pgs.bed.list,
     add.annotation.data = TRUE,
     annotation.column.index = which(colnames(pgs.bed1) == 'rsID') # keep information from the rsID column during merge
@@ -197,7 +197,7 @@ merged.pgs.bed <- merge.pgs.bed(
 str(merged.pgs.bed)
 ```
 
-`merge.pgs.bed` automatically annotates each interval (in a new column) with the name of the origin PGS.
+`combine.pgs.bed` automatically annotates each interval (in a new column) with the name of the origin PGS.
 It provides the option of adding information from one additional column from the inputs to the annotation in the merged output.
 In the cases of overlapping intervals (e.g. the same variant is included in multiple PGSs), overlapping annotations are concatenated
 with a comma.
@@ -241,7 +241,7 @@ pgs.results <- apply.polygenic.score(
 str(pgs.results)
 ```
 
-We see several things. First, a warning was printed by `merge.vcf.with.pgs`. This is a function called by `apply.polygenic.score` to merge vcf and pgs data by genomic coordinates.
+We see several things. First, a warning was printed by `combine.vcf.with.pgs`. This is a function called by `apply.polygenic.score` to merge vcf and pgs data by genomic coordinates.
 The warning indicates that some variants from the PGS weight data were not found in the VCF data. These variants were not called in any individual. `apply.polygenic.score` does not
 apply any weights to these variants, which effectively assumes their dosage as homozygous reference for all individuals. Checkout our discussion on [missing genotype data](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17)
 for more details on how missing variants come to be.
@@ -250,16 +250,16 @@ Next, we see the output of the function. The output is a list with two elements:
 `pgs.output` is a data frame with the individual IDs from the VCF and the calculated polygenic score in the `PGS` column for each individual. As we will see later, each missing genotype method creates a uniquely named column of PGS values.
 Next, the `percentile`, `decile`, and `quartile` columns report the respective percentile information for each individual's PGS among the distribution of the entire cohort in the VCF data.
 These values look a bit strange in this example because our [example VCF](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/6) contains only two individuals which have identical genotypes. In a real-world scenario, these values would be more informative.
-The next two columns report the number and percentage of missing PGS genotypes for each individual. This number should be equal to or greater than the number reported in the warning message from `merge.vcf.with.pgs`.
+The next two columns report the number and percentage of missing PGS genotypes for each individual. This number should be equal to or greater than the number reported in the warning message from `combine.vcf.with.pgs`.
 
-### `merge.vcf.with.pgs`
+### `combine.vcf.with.pgs`
 
 A quick aside about this function. While it is internal to `apply.polygenic.score`, it is also available for use on its own. The output includes a list of the variants that were not found in the VCF data,
 which may be useful for troubleshooting missing genotype data.
 
 ```{r merge-vcf-with-pgs}
 
-merged.vcf.pgs.data <- merge.vcf.with.pgs(
+merged.vcf.pgs.data <- combine.vcf.with.pgs(
     vcf.data = vcf.data$dat,
     pgs.weight.data = pgs.data$pgs.weight.data
     )
