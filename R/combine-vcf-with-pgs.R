@@ -1,4 +1,4 @@
-#' @title Merge VCF with PGS
+#' @title Combine VCF with PGS
 #' @description Match PGS SNPs to corresponding VCF information by genomic coordinates using a merge operation.
 #' @param vcf.data A data.frame containing VCF data. Required columns: \code{CHROM, POS}.
 #' @param pgs.weight.data A data.frame containing PGS data. Required columns: \code{CHROM, POS}.
@@ -26,12 +26,12 @@
 #'     );
 #' pgs.import <- import.pgs.weight.file(pgs.weight.path);
 #'
-#' merge.data <- merge.vcf.with.pgs(
+#' merge.data <- combine.vcf.with.pgs(
 #'     vcf.data = vcf.import$dat,
 #'     pgs.weight.data = pgs.import$pgs.weight.data
 #'     );
 #' @export
-merge.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
+combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
     # check that inputs are data.frames
     if (!is.data.frame(vcf.data)) {

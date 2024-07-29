@@ -78,7 +78,7 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
     return(pgs.bed);
     }
 
-#' @title Merge PGS BED files
+#' @title Combine PGS BED files
 #' @description Merge overlapping PGS coordinates in multiple BED files.
 #' @param pgs.bed.list A named list of data.frames containing PGS coordinates in BED format.
 #' @param add.annotation.data A logical indicating whether an additional annotation data column should be added to the annotation column.
@@ -99,9 +99,9 @@ convert.pgs.to.bed <- function(pgs.weight.data, chr.prefix = TRUE, numeric.sex.c
 #'     annotation = c('d', 'e', 'f')
 #'     );
 #' bed.input <- list(bed1 = bed1, bed2 = bed2);
-#' merge.pgs.bed(bed.input);
+#' combine.pgs.bed(bed.input);
 #' @export
-merge.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
+combine.pgs.bed <- function(pgs.bed.list, add.annotation.data = FALSE, annotation.column.index = 4, slop = 0) {
 
     # check that pgs.bed.list is a named list
     if (!is.list(pgs.bed.list) | is.null(names(pgs.bed.list))) {
