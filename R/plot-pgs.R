@@ -71,34 +71,45 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @param border.padding numeric padding for plot borders
 #' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 #' @examples
-#' set.seed(200);
+#' set.seed(100);
 #' pgs.data <- data.frame(
-#'     PGS = rnorm(200, 0, 1)
+#'     PGS = rnorm(100, 0, 1)
 #'     );
 #'  temp.dir <- tempdir();
 #'
 #' # Basic Plot
-#' create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'basic-plot');
+#' create.pgs.density.plot(
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'basic-plot',
+#'     width = 6,
+#'     height = 6
+#'     );
 #'
 #' # Plot multiple PGS outputs
-#' pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
-#' create.pgs.density.plot(pgs.data, output.dir = temp.dir);
+#' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
+#' \donttest{create.pgs.density.plot(pgs.data, output.dir = temp.dir);}
 #'
 #' # Plot phenotype categories
-#' pgs.data$sex <- sample(c('male', 'female', 200, replace = TRUE));
+#' \donttest{
+#' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
 #' create.pgs.density.plot(
-#'     pgs.data, output.dir = temp.dir,
+#'     pgs.data,
+#'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-pgs',
 #'     phenotype.columns = 'sex'
 #'     );
-#'
+#'}
 #' # Plot multiple phenotypes
-#' pgs.data$letters <- sample(letters[1:5], 200, replace = TRUE);
+#' \donttest{
+#' pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
 #' create.pgs.density.plot(
-#'     pgs.data, output.dir = temp.dir,
+#'     pgs.data,
+#'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-phenotypes',
 #'     phenotype.columns = c('sex', 'letters')
 #'     );
+#' }
 #' @export
 create.pgs.density.plot <- function(
     pgs.data,
@@ -370,11 +381,11 @@ create.pgs.density.plot <- function(
 #' @param border.padding numeric padding for plot borders
 #' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 #' @examples
-#' set.seed(200);
+#' set.seed(100);
 #'
 #' pgs.data <- data.frame(
-#'     PGS = rnorm(200, 0, 1),
-#'     continuous.phenotype = rnorm(200, 2, 1)
+#'     PGS = rnorm(100, 0, 1),
+#'     continuous.phenotype = rnorm(100, 2, 1)
 #'     );
 #'  temp.dir <- tempdir();
 #'
@@ -383,26 +394,32 @@ create.pgs.density.plot <- function(
 #'     pgs.data,
 #'     output.dir = temp.dir,
 #'     filename.prefix = 'basic-plot',
-#'     phenotype.columns = 'continuous.phenotype'
+#'     phenotype.columns = 'continuous.phenotype',
+#'     width = 6,
+#'     height = 6
 #'     );
 #'
 #' # Plot multiple PGS outputs
-#' pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
+#' \donttest{
+#' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 #' create.pgs.with.continuous.phenotype.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-pgs',
 #'     phenotype.columns = 'continuous.phenotype'
 #'     );
-#'
+#'}
+#' 
 #' # Plot multiple phenotypes
-#' pgs.data$continuous.phenotype2 <- rnorm(200, 10, 1);
+#' \donttest{
+#' pgs.data$continuous.phenotype2 <- rnorm(100, 10, 1);
 #' create.pgs.with.continuous.phenotype.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-phenotypes',
 #'     phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
 #'     );
+#' }
 #' @export
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,

@@ -56,32 +56,43 @@ Plot density curves of PGS data outputted by \code{apply.polygenic.score}.
 If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 }
 \examples{
-set.seed(200);
+set.seed(100);
 pgs.data <- data.frame(
-    PGS = rnorm(200, 0, 1)
+    PGS = rnorm(100, 0, 1)
     );
  temp.dir <- tempdir();
 
 # Basic Plot
-create.pgs.density.plot(pgs.data, output.dir = temp.dir, filename.prefix = 'basic-plot');
+create.pgs.density.plot(
+    pgs.data,
+    output.dir = temp.dir,
+    filename.prefix = 'basic-plot',
+    width = 6,
+    height = 6
+    );
 
 # Plot multiple PGS outputs
-pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
-create.pgs.density.plot(pgs.data, output.dir = temp.dir);
+pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
+\donttest{create.pgs.density.plot(pgs.data, output.dir = temp.dir);}
 
 # Plot phenotype categories
-pgs.data$sex <- sample(c('male', 'female', 200, replace = TRUE));
+\donttest{
+pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
 create.pgs.density.plot(
-    pgs.data, output.dir = temp.dir,
+    pgs.data,
+    output.dir = temp.dir,
     filename.prefix = 'multiple-pgs',
     phenotype.columns = 'sex'
     );
-
+}
 # Plot multiple phenotypes
-pgs.data$letters <- sample(letters[1:5], 200, replace = TRUE);
+\donttest{
+pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
 create.pgs.density.plot(
-    pgs.data, output.dir = temp.dir,
+    pgs.data,
+    output.dir = temp.dir,
     filename.prefix = 'multiple-phenotypes',
     phenotype.columns = c('sex', 'letters')
     );
+}
 }

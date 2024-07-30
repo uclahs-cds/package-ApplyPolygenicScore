@@ -64,11 +64,11 @@ If no output directory is provided, a multipanel lattice plot object is returned
 Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
 }
 \examples{
-set.seed(200);
+set.seed(100);
 
 pgs.data <- data.frame(
-    PGS = rnorm(200, 0, 1),
-    continuous.phenotype = rnorm(200, 2, 1)
+    PGS = rnorm(100, 0, 1),
+    continuous.phenotype = rnorm(100, 2, 1)
     );
  temp.dir <- tempdir();
 
@@ -77,24 +77,30 @@ create.pgs.with.continuous.phenotype.plot(
     pgs.data,
     output.dir = temp.dir,
     filename.prefix = 'basic-plot',
-    phenotype.columns = 'continuous.phenotype'
+    phenotype.columns = 'continuous.phenotype',
+    width = 6,
+    height = 6
     );
 
 # Plot multiple PGS outputs
-pgs.data$PGS.with.normalized.missing <- rnorm(200, 1, 1);
+\donttest{
+pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 create.pgs.with.continuous.phenotype.plot(
     pgs.data,
     output.dir = temp.dir,
     filename.prefix = 'multiple-pgs',
     phenotype.columns = 'continuous.phenotype'
     );
+}
 
 # Plot multiple phenotypes
-pgs.data$continuous.phenotype2 <- rnorm(200, 10, 1);
+\donttest{
+pgs.data$continuous.phenotype2 <- rnorm(100, 10, 1);
 create.pgs.with.continuous.phenotype.plot(
     pgs.data,
     output.dir = temp.dir,
     filename.prefix = 'multiple-phenotypes',
     phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
     );
+}
 }
