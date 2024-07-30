@@ -409,7 +409,7 @@ create.pgs.density.plot <- function(
 #'     phenotype.columns = 'continuous.phenotype'
 #'     );
 #'}
-#' 
+#'
 #' # Plot multiple phenotypes
 #' \donttest{
 #' pgs.data$continuous.phenotype2 <- rnorm(100, 10, 1);
