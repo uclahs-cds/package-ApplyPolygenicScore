@@ -278,7 +278,7 @@ apply.polygenic.score <- function(
     ### End Input Validation ###
 
     # merge VCF and PGS data
-    merged.vcf.with.pgs.data <- merge.vcf.with.pgs(
+    merged.vcf.with.pgs.data <- combine.vcf.with.pgs(
         vcf.data = vcf.data,
         pgs.weight.data = pgs.weight.data
         )$merged.vcf.with.pgs.data;

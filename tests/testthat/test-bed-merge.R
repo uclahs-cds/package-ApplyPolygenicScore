@@ -1,13 +1,13 @@
 test_that(
-    'merge.pgs.bed correctly checks input', {
+    'combine.pgs.bed correctly checks input', {
         # check that pgs.bed.list is a named list
         expect_error(
-            merge.pgs.bed(pgs.bed.list = 'not.a.named.list'),
+            combine.pgs.bed(pgs.bed.list = 'not.a.named.list'),
             'pgs.bed.list must be a named list'
             );
 
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -19,7 +19,7 @@ test_that(
 
         # check that pgs.bed.list is a list of data.frames
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 test = 'not.a.data.frame'
                 )),
             'all elements of pgs.bed.list must be data.frames'
@@ -27,7 +27,7 @@ test_that(
 
         # check that all elements of pgs.bed.list have the same column names
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -44,7 +44,7 @@ test_that(
             );
 
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -64,7 +64,7 @@ test_that(
 
         # check that pgs.bed.list has required columns
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -76,7 +76,7 @@ test_that(
 
         # check that provided coordinates are one bp in length
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -88,7 +88,7 @@ test_that(
 
         # check that annotation.column.index is whitin the bounds of the data
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -103,7 +103,7 @@ test_that(
 
         # check that slop is a non-negative integer
         expect_error(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -117,7 +117,7 @@ test_that(
 
         # check that correct input is accepted
         expect_silent(
-            merge.pgs.bed(pgs.bed.list = list(
+            combine.pgs.bed(pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
                     start = c(1, 2, 3),
@@ -136,9 +136,9 @@ test_that(
     );
 
 test_that(
-    'merge.pgs.bed correctly formats output', {
+    'combine.pgs.bed correctly formats output', {
 
-        simple.test.output <- merge.pgs.bed(pgs.bed.list = list(
+        simple.test.output <- combine.pgs.bed(pgs.bed.list = list(
             name1 = data.frame(
                 chr = c('1', '2', '3'),
                 start = c(1, 2, 3),
@@ -172,10 +172,10 @@ test_that(
 );
 
 test_that(
-    'merge.pgs.bed correctly merges overlapping intervals', {
+    'combine.pgs.bed correctly merges overlapping intervals', {
         load('data/tiny.bed.test.data.Rda')
 
-        simple.test.output <- merge.pgs.bed(
+        simple.test.output <- combine.pgs.bed(
             pgs.bed.list = tiny.bed.test.data,
             add.annotation.data = TRUE,
             annotation.column.index = 4
@@ -227,9 +227,9 @@ test_that(
     );
 
 test_that(
-    'merge.pgs.bed correctly adds slop', {
+    'combine.pgs.bed correctly adds slop', {
 
-        small.slop.test.output <- merge.pgs.bed(
+        small.slop.test.output <- combine.pgs.bed(
             pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
@@ -255,7 +255,7 @@ test_that(
             c(3, 4, 5)
             );
 
-        large.slop.test.output <- merge.pgs.bed(
+        large.slop.test.output <- combine.pgs.bed(
             pgs.bed.list = list(
                 name1 = data.frame(
                     chr = c('1', '2', '3'),
@@ -281,7 +281,7 @@ test_that(
             );
 
         expect_warning(
-            merge.pgs.bed(
+            combine.pgs.bed(
                 pgs.bed.list = list(
                     name1 = data.frame(
                         chr = c('1', '2', '3'),
@@ -303,7 +303,7 @@ test_that(
     );
 
 test_that(
-    'merge.pgs.bed works on real data', {
+    'combine.pgs.bed works on real data', {
         pgs1 <- import.pgs.weight.file('data/PGS000662_hmPOS_GRCh38.txt');
         pgs1.bed <- convert.pgs.to.bed(pgs.weight.data = pgs1$pgs.weight.data);
         pgs1.bed <- subset(pgs1.bed, select = c('chr', 'start', 'end'));
@@ -316,7 +316,7 @@ test_that(
             );
 
         expect_silent(
-            merge.pgs.bed(pgs.bed.list = pgs.bed.list)
+            combine.pgs.bed(pgs.bed.list = pgs.bed.list)
             );
         }
     );

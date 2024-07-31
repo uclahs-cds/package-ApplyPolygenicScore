@@ -35,6 +35,8 @@ importFrom(
 
 export(
     apply.polygenic.score,
+    combine.pgs.bed,
+    combine.vcf.with.pgs,
     convert.alleles.to.pgs.dosage,
     convert.allele.frequency.to.dosage,
     convert.pgs.to.bed,
@@ -42,8 +44,6 @@ export(
     get.pgs.percentiles,
     import.pgs.weight.file,
     import.vcf,
-    merge.pgs.bed,
-    merge.vcf.with.pgs,
     parse.pgs.input.header,
     create.pgs.density.plot,
     create.pgs.rank.plot,
