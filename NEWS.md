@@ -1,4 +1,4 @@
-# ApplyPolygenicScore Unreleased
+# ApplyPolygenicScore 2.0.0 (2024-07-31)
 
 ## Changed
 * Renamed functions starting with reserved vocabulary for S3 generic methods merge. -> combine.
