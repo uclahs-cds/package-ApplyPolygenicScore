@@ -345,7 +345,12 @@ apply.polygenic.score <- function(
     sample.coordinate.to.row.dict.hash <- new.env(hash = TRUE, parent = emptyenv());
 
     for (i in 1:nrow(merged.vcf.with.pgs.data)) {
+        # skip if the variant is missing from all samples
+        if (is.na(merged.vcf.with.pgs.data[i, 'Indiv'])) {
+            next;
+            }
         key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
+        # save all row indexes that have the same sample:coordinate combination under on key
         sample.coordinate.to.row.dict.hash[[key]] <- c(sample.coordinate.to.row.dict.hash[[key]], i);
         }
 
