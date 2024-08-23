@@ -350,7 +350,7 @@ apply.polygenic.score <- function(
             next;
             }
         key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
-        # save all row indexes that have the same sample:coordinate combination under on key
+        # save all row indexes that have the same sample:coordinate combination under one key
         sample.coordinate.to.row.dict.hash[[key]] <- c(sample.coordinate.to.row.dict.hash[[key]], i);
         }
 
