@@ -380,6 +380,7 @@ create.pgs.density.plot <- function(
 #' @param point.cex numeric size for plot points
 #' @param border.padding numeric padding for plot borders
 #' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
+#' If no continuous phenotype variables are detected, a warning is issued and \code{NULL} is returned.
 #' @examples
 #' set.seed(100);
 #'

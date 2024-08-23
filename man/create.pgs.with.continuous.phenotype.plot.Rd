@@ -59,6 +59,7 @@ This function is designed to work with the output of \code{apply.polygenic.score
 }
 \value{
 If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
+If no continuous phenotype variables are detected, a warning is issued and \code{NULL} is returned.
 }
 \description{
 Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
