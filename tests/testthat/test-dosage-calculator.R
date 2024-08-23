@@ -46,28 +46,28 @@ test_that(
                 called.alleles = c('A/A', 'A'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A,'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A-A'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'a/A'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(

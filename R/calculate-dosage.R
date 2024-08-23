@@ -30,7 +30,7 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
             passing.alleles <- grepl(allowed.pattern, called.alleles);
             passing.alleles[is.na(called.alleles)] <- TRUE; # NA allowed
             if (!all(passing.alleles)) {
-                stop('unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.');
+                stop('unrecognized called.alleles format, must be capitalized letters, "." or "*" separated by a slash or pipe.');
                 }
             split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
             }
