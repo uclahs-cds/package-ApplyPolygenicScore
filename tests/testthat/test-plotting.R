@@ -273,12 +273,34 @@ test_that(
             'phenotype.columns cannot contain recognized PGS column names'
             );
         # check that at least one of the phenotype columns provided is a continuous variable
-        expect_error(
+        expect_warning(
             create.pgs.with.continuous.phenotype.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = 'binary.phenotype'
                 ),
-            'No continuous phenotype variables detected'
+            'No continuous phenotype variables detected; returning NULL'
+            );
+        expect_equal(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = 'binary.phenotype'
+                ),
+            NULL
+            );
+        # handle NULL phenotype.columns
+        expect_warning(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = NULL
+                ),
+            'No continuous phenotype variables detected; returning NULL'
+            );
+        expect_equal(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = NULL
+                ),
+            NULL
             );
         # check that output.dir is a real directory
         expect_error(
