@@ -442,6 +442,11 @@ create.pgs.with.continuous.phenotype.plot <- function(
     # check input
     pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
+    if (is.null(phenotype.columns)) {
+        warning('No continuous phenotype variables detected; returning NULL');
+        return(NULL);
+        }
+
     recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
     pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
 
@@ -451,7 +456,8 @@ create.pgs.with.continuous.phenotype.plot <- function(
     phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$continuous);
 
     if (length(phenotype.data.for.plotting) == 0) {
-        stop('No continuous phenotype variables detected');
+        warning('No continuous phenotype variables detected; returning NULL');
+        return(NULL);
         }
 
     # Plotting
