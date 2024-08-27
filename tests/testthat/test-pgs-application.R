@@ -210,6 +210,14 @@ test_that(
                 ),
             TRUE
             );
+        expect_message(
+            apply.polygenic.score(
+                vcf.data = simple.pgs.application.test.data$vcf.data,
+                pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data,
+                validate.inputs.only = TRUE
+                ),
+            'Input data passed validation'
+            );
         }
     );
 
