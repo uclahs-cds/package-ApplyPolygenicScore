@@ -46,28 +46,28 @@ test_that(
                 called.alleles = c('A/A', 'A'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A,'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A-A'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'a/A'),
                 risk.alleles = c('A', 'T')
                 ),
-            'unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.'
+            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
@@ -108,8 +108,8 @@ test_that(
         # check that correct input is accepted
         expect_silent(
             convert.alleles.to.pgs.dosage(
-                called.alleles = c('A/A', 'A|T', 'TA/T', 'A/ATTTT', './.', '.'),
-                risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T')
+                called.alleles = c('A/A', 'A|T', 'TA/T', 'A/ATTTT', './.', '.', '*/T', 'T/*', '*/*'),
+                risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T', 'A', 'T', 'A')
                 )
             );
     }
@@ -159,6 +159,18 @@ test_that(
                 risk.alleles = c('A', 'A', 'T', 'T', 'T')
                 ),
             c(NA, NA, NA, NA, NA)
+            );
+        }
+    );
+
+test_that(
+    'convert.alleles.to.pgs.dosage calculates dosage correctly for overlapping deletion alleles', {
+        expect_equal(
+            convert.alleles.to.pgs.dosage(
+                called.alleles = c('A/*', '*/A', '*/*', 'A/*', '*/A'),
+                risk.alleles = c('A', 'A', 'A', 'T', 'T')
+                ),
+            c(1, 1, 0, 0, 0)
             );
         }
     );

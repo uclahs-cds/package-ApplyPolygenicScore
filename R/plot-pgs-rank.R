@@ -250,12 +250,14 @@ create.pgs.rank.plot <- function(
             missing.barplot.formula <- percent.missing.genotypes ~ Indiv;
             missing.barplot.ylimits <- c(0, 1.05);
             missing.barplot.ylabel <- 'Missing GT\n(%)';
+            missing.barplot.yat <- seq(0, 1, 0.2);
 
             } else {
                 # count barplot formatting
                 missing.barplot.formula <- n.missing.genotypes ~ Indiv;
                 missing.barplot.ylimits <- c(0, max(pgs.data$n.missing.genotypes) * 1.05);
                 missing.barplot.ylabel <- 'Missing GT\ncount';
+                missing.barplot.yat <- 'auto';
                 }
 
         missing.genotypes.barplot <- BoutrosLab.plotting.general::create.barplot(
@@ -265,7 +267,7 @@ create.pgs.rank.plot <- function(
             xlab.label = '',
             ylab.label = missing.barplot.ylabel,
             xaxis.lab = '',
-            yat = 'auto',
+            yat = missing.barplot.yat,
             main = '',
             main.cex = 0,
             ylab.cex = titles.cex,
