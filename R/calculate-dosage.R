@@ -25,11 +25,12 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         split.alleles <- data.frame(called.alleles, called.alleles);
         } else {
             # check that called.alleles is a vector of genotypes in allelic notation or '.' separated by a slash or pipe
-            allowed.pattern <- '^((([A-Z]+|\\.)[/\\|]([A-Z]+|\\.))|\\.)$' # '|' are special chars in regular expressions
+            # "*" characters represent overlapping deletions from an upstream indel and are accepted VCF format
+            allowed.pattern <- '^((([A-Z]+|\\.|\\*)[/\\|]([A-Z]+|\\.|\\*))|\\.)$' # '|' are special chars in regular expressions
             passing.alleles <- grepl(allowed.pattern, called.alleles);
             passing.alleles[is.na(called.alleles)] <- TRUE; # NA allowed
             if (!all(passing.alleles)) {
-                stop('unrecognized called.alleles format, must be capitalized letters or "." separated by a slash or pipe.');
+                stop('unrecognized called.alleles format, must be capitalized letters, "." or "*" separated by a slash or pipe.');
                 }
             split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
             }
