@@ -3,12 +3,14 @@ test_that(
         test.vcf.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 4),
+            ID = c('rs1', 'rs2', 'rs3', 'rs4'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C')
             );
         test.pgs.weight.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 4),
+            ID  = c('rs1', 'rs2', 'rs3', 'rs4'),
             effect_allele = c('A', 'T', 'C', 'G'),
             beta = c(1, 2, 3, 4)
             );
@@ -30,30 +32,49 @@ test_that(
             );
 
         # check required columns
+        # missing POS
         expect_error(
             combine.vcf.with.pgs(
                 vcf.data = data.frame(
                     CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
                     foo = c(1, 2, 3, 4),
+                    ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                     REF = c('A', 'T', 'C', 'G'),
                     ALT = c('T', 'A', 'G', 'C')
                     ),
                 pgs.weight.data = test.pgs.weight.data
                 ),
-            'vcf.data must contain columns named CHROM and POS'
+            'vcf.data must contain columns named CHROM, POS, and ID'
             );
+        # missing CHROM
         expect_error(
             combine.vcf.with.pgs(
                 vcf.data = data.frame(
                     foo = c('chr1', 'chr1', 'chr1', 'chr1'),
                     POS = c(1, 2, 3, 4),
+                    ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                     REF = c('A', 'T', 'C', 'G'),
                     ALT = c('T', 'A', 'G', 'C')
                     ),
                 pgs.weight.data = test.pgs.weight.data
                 ),
-            'vcf.data must contain columns named CHROM and POS'
+            'vcf.data must contain columns named CHROM, POS, and ID'
             );
+        # missing ID
+        expect_error(
+            combine.vcf.with.pgs(
+                vcf.data = data.frame(
+                    CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
+                    POS = c(1, 2, 3, 4),
+                    foo = c('rs1', 'rs2', 'rs3', 'rs4'),
+                    REF = c('A', 'T', 'C', 'G'),
+                    ALT = c('T', 'A', 'G', 'C')
+                    ),
+                pgs.weight.data = test.pgs.weight.data
+                ),
+            'vcf.data must contain columns named CHROM, POS, and ID'
+            );
+
         expect_error(
             combine.vcf.with.pgs(
                 vcf.data = test.vcf.data,
@@ -64,7 +85,7 @@ test_that(
                     beta = c(1, 2, 3, 4)
                     )
                 ),
-            'pgs.weight.data must contain columns named CHROM and POS'
+            'pgs.weight.data must contain columns named CHROM, POS, and ID'
             );
         expect_error(
             combine.vcf.with.pgs(
@@ -76,7 +97,7 @@ test_that(
                     beta = c(1, 2, 3, 4)
                     )
                 ),
-            'pgs.weight.data must contain columns named CHROM and POS'
+            'pgs.weight.data must contain columns named CHROM, POS, and ID'
             );
         }
     )
@@ -86,12 +107,14 @@ test_that(
         test.vcf.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 4),
+            ID = c('rs1', 'rs2', 'rs3', 'rs4'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C')
             );
         test.pgs.weight.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(5, 6, 7, 8),
+            ID  = c('rs5', 'rs6', 'rs7', 'rs8'),
             effect_allele = c('A', 'T', 'C', 'G'),
             beta = c(1, 2, 3, 4)
             );
@@ -112,12 +135,14 @@ test_that(
         test.vcf.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 4),
+            ID = c('rs1', 'rs2', 'rs3', 'rs4'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C')
             );
         test.pgs.weight.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 4),
+            ID  = c('rs1', 'rs2', 'rs3', 'rs4'),
             effect_allele = c('A', 'T', 'C', 'G'),
             beta = c(1, 2, 3, 4)
             );
@@ -127,6 +152,7 @@ test_that(
             pgs.weight.data = data.frame(
                 CHROM = c('1', '1', '1', '1'),
                 POS = c(1, 2, 3, 4),
+                ID  = c('rs1', 'rs2', 'rs3', 'rs4'),
                 effect_allele = c('A', 'T', 'C', 'G'),
                 beta = c(1, 2, 3, 4)
                 )
@@ -135,6 +161,7 @@ test_that(
             vcf.data = data.frame(
                 CHROM = c('1', '1', '1', '1'),
                 POS = c(1, 2, 3, 4),
+                ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                 REF = c('A', 'T', 'C', 'G'),
                 ALT = c('T', 'A', 'G', 'C')
                 ),
@@ -144,12 +171,14 @@ test_that(
             vcf.data = data.frame(
                 CHROM = c('23', '23', '24', '24'),
                 POS = c(1, 2, 3, 4),
+                ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                 REF = c('A', 'T', 'C', 'G'),
                 ALT = c('T', 'A', 'G', 'C')
                 ),
                 pgs.weight.data = data.frame(
                     CHROM = c('X', 'X', 'Y', 'Y'),
                     POS = c(1, 2, 3, 4),
+                    ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                     effect_allele = c('A', 'T', 'C', 'G'),
                     beta = c(1, 2, 3, 4)
                     )
@@ -158,12 +187,14 @@ test_that(
             vcf.data = data.frame(
                 CHROM = c('X', 'X', 'Y', 'Y'),
                 POS = c(1, 2, 3, 4),
+                ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                 REF = c('A', 'T', 'C', 'G'),
                 ALT = c('T', 'A', 'G', 'C')
                 ),
                 pgs.weight.data = data.frame(
                     CHROM = c('23', '23', '24', '24'),
                     POS = c(1, 2, 3, 4),
+                    ID = c('rs1', 'rs2', 'rs3', 'rs4'),
                     effect_allele = c('A', 'T', 'C', 'G'),
                     beta = c(1, 2, 3, 4)
                     )
@@ -193,6 +224,7 @@ test_that(
         test.vcf.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 4),
+            ID = c('rs1', 'rs2', 'rs3', 'rs4'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C'),
             Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
@@ -201,6 +233,7 @@ test_that(
         test.pgs.weight.data <- data.frame(
             CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
             POS = c(1, 2, 3, 5),
+            ID  = c('rs1', 'rs2', 'rs3', 'rs5'),
             effect_allele = c('A', 'T', 'C', 'G'),
             beta = c(1, 2, 3, 4)
             );
@@ -244,6 +277,7 @@ test_that(
         test.vcf.data.no.missing <- data.frame(
             CHROM = c('chr1', 'chr2', 'chr3', 'chr4'),
             POS = c(1, 2, 3, 4),
+            ID = c('rs1', 'rs2', 'rs3', 'rs4'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C'),
             Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
@@ -252,6 +286,16 @@ test_that(
         test.vcf.data.missing <- data.frame(
             CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
             POS = c(1, 3, 2, 5),
+            ID = c('rs1', 'rs3', 'rs2', 'rs5'),
+            REF = c('A', 'T', 'C', 'G'),
+            ALT = c('T', 'A', 'G', 'C'),
+            Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
+            gt_GT_alleles = c('A/T', 'T/A', 'C/G', 'G/C')
+            );
+        test.vcf.data.missing.locus.matching.rsid <- data.frame(
+            CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
+            POS = c(1, 3, 3, 6),
+            ID = c('rs1', 'rs3', 'rs2', 'rs5'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C'),
             Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
@@ -260,6 +304,7 @@ test_that(
         test.pgs.weight.data <- data.frame(
             CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
             POS = c(1, 3, 2, 4),
+            ID  = c('rs1', 'rs3', 'rs2', 'rs4'),
             effect_allele = c('A', 'T', 'C', 'G'),
             beta = c(1, 2, 3, 4)
             );
@@ -268,6 +313,14 @@ test_that(
         expect_warning(
             combine.vcf.with.pgs(
                 vcf.data = test.vcf.data.missing,
+                pgs.weight.data = test.pgs.weight.data
+                ),
+            'PGS is missing 1 SNPs from VCF'
+            );
+
+        expect_warning(
+            combine.vcf.with.pgs(
+                vcf.data = test.vcf.data.missing.locus.matching.rsid,
                 pgs.weight.data = test.pgs.weight.data
                 ),
             'PGS is missing 1 SNPs from VCF'
@@ -283,6 +336,11 @@ test_that(
             pgs.weight.data = test.pgs.weight.data
             );
 
+        test.combine.vcf.with.pgs.missing.locus.matching.rsid <- combine.vcf.with.pgs(
+            vcf.data = test.vcf.data.missing.locus.matching.rsid,
+            pgs.weight.data = test.pgs.weight.data
+            );
+
         # check that combine.vcf.with.pgs returns the correct number of rows
         expect_equal(
             nrow(test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data),
@@ -293,6 +351,11 @@ test_that(
             4
             );
         expect_equal(
+            nrow(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data),
+            4
+            );
+
+        expect_equal(
             nrow(test.combine.vcf.with.pgs.missing$missing.snp.data),
             1
             );
@@ -300,23 +363,34 @@ test_that(
             test.combine.vcf.with.pgs.no.missing$missing.snp.data,
             NULL
             );
+        expect_equal(
+            nrow(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data),
+            1
+            );
 
         # check that combine.vcf.with.pgs returns the correct number of columns
         expect_equal(
             ncol(test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data),
-            8
+            11
             );
         expect_equal(
             ncol(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data),
-            8
+            11
+            );
+        expect_equal(
+            ncol(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data),
+            11
             );
 
         # check that combine.vcf.with.pgs returns the correct columns
         expect_true(
-            all(colnames(test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta'))
+            all(colnames(test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy'))
             );
         expect_true(
-            all(colnames(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta'))
+            all(colnames(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy'))
+            );
+        expect_true(
+            all(colnames(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy'))
             );
 
         # check that combine.vcf.with.pgs returns the correct values
@@ -329,6 +403,12 @@ test_that(
             c('chr1', 'chr2', 'chr3', 'chr4')
             );
         expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$CHROM,
+            c('chr1', 'chr3', 'chr2', 'chr4')
+            );
+
+
+        expect_equal(
             test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data$POS,
             c(1, 2, 3, 4)
             );
@@ -336,13 +416,50 @@ test_that(
             test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data$POS,
             c(1, 2, 3, 4)
             );
-        # check that combine.vcf.with.pgs returns the correct values for missing SNPs
         expect_equal(
-            test.combine.vcf.with.pgs.missing$missing.snp.data$CHROM,
-            'chr4'
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$POS,
+            c(1, 3, 3, 4)
+            );
+
+        expect_equal(
+            test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data$ID.pgs,
+            c('rs1', 'rs2', 'rs3', 'rs4')
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing$missing.snp.data$POS,
+            test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data$ID.pgs,
+            c('rs1', 'rs2', 'rs3', 'rs4')
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$ID.pgs,
+            c('rs1', 'rs3', 'rs2', 'rs4')
+            );
+
+
+        # check that combine.vcf.with.pgs returns the correct values for missing SNPs
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$missing.snp.data$CHROM.pgs,
+            'chr4'
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing$missing.snp.data$CHROM.vcf)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$missing.snp.data$POS.pgs,
+            4
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing$missing.snp.data$POS.vcf)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$missing.snp.data$ID,
+            'rs4'
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$missing.snp.data$effect_allele,
+            'G'
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$missing.snp.data$beta,
             4
             );
         expect_true(
@@ -365,6 +482,46 @@ test_that(
             test.combine.vcf.with.pgs.missing$missing.snp.data$beta,
             4
             );
+
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$CHROM.pgs,
+            'chr4'
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$CHROM.vcf)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$POS.pgs,
+            4
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$POS.vcf)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$ID,
+            'rs4'
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$effect_allele,
+            'G'
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$beta,
+            4
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$REF)
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$ALT)
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$Indiv)
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$gt_GT_alleles)
+            );
+
         }
     );
 

@@ -38,7 +38,7 @@ test_that(
     'check.pgs.weight.columns detects missing generic columns', {
         # check that required columns are present
         expect_error(
-            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'foo', 'bar'), harmonized = FALSE),
+            check.pgs.weight.columns(pgs.weight.colnames = c('rsID', 'chr_name', 'chr_position', 'effect_allele', 'foo', 'bar'), harmonized = FALSE),
             'The following required columns are missing from the PGS weight file: effect_weight'
             );
         }
@@ -48,7 +48,7 @@ test_that(
     'check.pgs.weight.columns detects missing harmonized columns', {
         # check that required columns are present
         expect_error(
-            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr'), harmonized = TRUE),
+            check.pgs.weight.columns(pgs.weight.colnames = c('rsID', 'chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_rsID', 'hm_chr'), harmonized = TRUE),
             'The following required columns are missing from the PGS weight file: hm_pos'
             );
         }
@@ -58,7 +58,7 @@ test_that(
     'check.pgs.weight.columns accepts complete column set', {
         # check that required columns are present
         expect_true(
-            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
+            check.pgs.weight.columns(pgs.weight.colnames = c('rsID', 'chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_rsID', 'hm_chr', 'hm_pos'), harmonized = TRUE)
             );
         }
     );
@@ -123,10 +123,10 @@ test_that(
         # check that pgs.weight.data is correctly formatted
         expect_equal(
             dim(beta.weights$pgs.weight.data),
-            c(269, 18)
+            c(269, 19)
             );
 
-        expected.colnames <- c(TEST.FILE.COLNAMES, 'CHROM', 'POS', 'beta');
+        expected.colnames <- c(TEST.FILE.COLNAMES, 'ID', 'CHROM', 'POS', 'beta');
 
         expect_equal(
             colnames(beta.weights$pgs.weight.data),
@@ -160,10 +160,14 @@ test_that(
             beta.weights$pgs.weight.data$POS,
             beta.weights$pgs.weight.data$hm_pos
             );
+        expect_equal(
+            beta.weights$pgs.weight.data$ID,
+            beta.weights$pgs.weight.data$hm_rsID
+            );
 
         # check first row of data frame
 
-        expected.first.row <- c(TEST.FILE.FIRST.ROW, '1', '5683136', '0.102298257');
+        expected.first.row <- c(TEST.FILE.FIRST.ROW, 'rs7542260', '1', '5683136', '0.102298257');
 
         expect_equal(
             as.vector(unlist(beta.weights$pgs.weight.data[1,])),
@@ -186,9 +190,13 @@ test_that(
             beta.weights$pgs.weight.data$POS,
             beta.weights$pgs.weight.data$chr_position
             );
+        expect_equal(
+            beta.weights$pgs.weight.data$ID,
+            beta.weights$pgs.weight.data$rsID
+            );
 
         # check first row of data frame
-        expected.first.row <- c(TEST.FILE.FIRST.ROW, '1', '5743196', '0.102298257');
+        expected.first.row <- c(TEST.FILE.FIRST.ROW, 'rs7542260', '1', '5743196', '0.102298257');
 
         expect_equal(
             as.vector(unlist(beta.weights$pgs.weight.data[1,])),
@@ -197,23 +205,6 @@ test_that(
         }
     );
 
-
-test_that(
-    'import.pgs.weight.file correctly formats columns for non-harmonized data', {
-        # import beta weights
-        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS000662_hmPOS_GRCh38.txt', use.harmonized.data = FALSE);
-
-        # check that the harmonized data columns are correctly formatted
-        expect_equal(
-            beta.weights$pgs.weight.data$CHROM,
-            beta.weights$pgs.weight.data$chr_name
-            );
-        expect_equal(
-            beta.weights$pgs.weight.data$POS,
-            beta.weights$pgs.weight.data$chr_position
-            );
-        }
-    );
 
 test_that(
     'import.pgs.weight.file identifies duplicate variants', {
