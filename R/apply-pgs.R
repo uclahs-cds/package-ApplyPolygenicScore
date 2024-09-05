@@ -293,18 +293,22 @@ apply.polygenic.score <- function(
         );
 
     ### Start Missing Genotype Handling ###
-
+    variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
     if ('mean.dosage' %in% missing.genotype.method) {
         # calculate dosage to replace missing genotypes
         if (use.external.effect.allele.frequency) {
-            missing.genotype.dosage <- convert.allele.frequency.to.dosage(allele.frequency = pgs.weight.data$allelefrequency_effect);
-            names(missing.genotype.dosage) <- paste(pgs.weight.data$CHROM, pgs.weight.data$POS, pgs.weight.data$effect_allele, sep = ':');
+            missing.genotype.dosage <- data.frame(dosage = convert.allele.frequency.to.dosage(allele.frequency = merged.vcf.with.pgs.data$allelefrequency_effect));
+            missing.genotype.dosage$variant.id <- variant.id;
+            # remove duplicated rows
+            missing.genotype.dosage <- missing.genotype.dosage[!duplicated(missing.genotype.dosage$variant.id), ];
+            # convert to named vector
+            missing.genotype.dosage <- setNames(missing.genotype.dosage$dosage, missing.genotype.dosage$variant.id);
             # identify missing genotypes
             # this method includes variants that are missing in all Indivs, these are all replaced with the same mean dosage
             missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage));
             } else {
             # create sample by variant dosage matrix
-            variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
+            
             dosage.matrix <- get.variant.by.sample.matrix(
                 long.data = merged.vcf.with.pgs.data,
                 variant.id = variant.id,
