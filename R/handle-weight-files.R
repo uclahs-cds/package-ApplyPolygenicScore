@@ -5,8 +5,8 @@
 #' @return A logical indicating whether the file contains the required columns.
 #' @export
 check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
-    required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
-    required.harmonized.columns <- c('hm_chr', 'hm_pos');
+    required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'rsID');
+    required.harmonized.columns <- c('hm_chr', 'hm_pos', 'hm_rsID');
 
     if (harmonized) {
         required.columns <- c(required.generic.columns, required.harmonized.columns);
@@ -135,14 +135,17 @@ import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) 
     if (use.harmonized.data) {
 
         # label harmonized data columns with standardized names
+        pgs.weight.data$ID <- pgs.weight.data$hm_rsID;
         pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
         pgs.weight.data$POS <- pgs.weight.data$hm_pos;
-        format.harmonized.columns <- TRUE;
+
         } else {
 
         # label non-harmonized data columns with standardized names
+        pgs.weight.data$ID <- pgs.weight.data$rsID;
         pgs.weight.data$CHROM <- pgs.weight.data$chr_name;
         pgs.weight.data$POS <- pgs.weight.data$chr_position;
+
         }
 
     # extract weight format from file metadata key 'weight_type'
