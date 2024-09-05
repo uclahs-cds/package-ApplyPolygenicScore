@@ -109,12 +109,14 @@ simple.pgs.application.test.data <- list(
     pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2'),
         POS = c(1, 2),
+        ID = c('rs1', 'rs2'),
         effect_allele = c('T', 'T'),
         beta = c(1.0, 1.0)
         ),
     vcf.data = data.frame(
         CHROM = c('chr1', 'chr1', 'chr2', 'chr2'),
         POS = c(1, 1, 2, 2),
+        ID = c('rs1', 'rs1', 'rs2', 'rs2'),
         REF = c('A', 'A', 'T', 'T'),
         ALT = c('T', 'T', 'A', 'A'),
         Indiv = c('sample1', 'sample2', 'sample1', 'sample2'),
@@ -133,6 +135,7 @@ merged.multiallelic.site.test.data <- list(
         # merged multiallelic site at chr2:2 with betas provided
         # merged multiallelic site at chr3:3 with no betas provided
         POS = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+        ID = c('rs1', 'rs1', 'rs1', 'rs2', 'rs2', 'rs2', 'rs3', 'rs3', 'rs3'),
         REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
         # three possible alleles at chr2:2 (T, A, C)
         ALT = c('A', 'A', 'A', 'A,C', 'A,C', 'A,C', 'A,G', 'A,G', 'A,G'),
@@ -150,24 +153,28 @@ merged.multiallelic.site.test.data <- list(
     ref.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr3'),
         POS = c(1, 2, 3),
+        ID = c('rs1', 'rs2', 'rs3'),
         effect_allele = c('T', 'T', 'T'),
         beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr3'),
         POS = c(1, 2, 3),
+        ID = c('rs1', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'A'),
         beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.two.risk.alleles.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr2', 'chr3'),
         POS = c(1, 2, 2, 3),
+        ID = c('rs1', 'rs2', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'C', 'A'),
         beta = c(1.0, 1.0, 0.5, 1.0)
         ),
     ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr2', 'chr3'),
         POS = c(1, 2, 2, 3),
+        ID = c('rs1', 'rs2', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'T', 'A'),
         beta = c(1.0, 1.0, 0.5, 1.0)
         )
@@ -180,19 +187,24 @@ save(
 
 # create simple VCF data for testing missing site handling
 missing.genotype.test.data <- list(
+    # rs4 is missing from all samples
+    # rs1 is missing from sample 3
+    # rs5 is missing from sample 3 and has mismatching coordinates (must be matched by rsid)
     missing.genotype.vcf.data = data.frame(
-        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3', 'chr3'),
-        POS = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
-        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
-        ALT = c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'),
-        Indiv = c('sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4'),
-        gt_GT_alleles = c('T/T', 'T/A', './.', 'T/A', 'T/A', 'A/A', '.', 'T/A', 'T/T', 'T/A', NA, NA)
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3', 'chr3', 'chr5', 'chr5', 'chr5', 'chr5'),
+        POS = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 6, 6, 6, 6),
+        ID = c('rs1', 'rs1', 'rs1', 'rs1', 'rs2', 'rs2', 'rs2', 'rs2', 'rs3', 'rs3', 'rs3', 'rs3', 'rs5', 'rs5', 'rs5', 'rs5'),
+        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
+        ALT = c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'),
+        Indiv = c('sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4'),
+        gt_GT_alleles = c('T/T', 'T/A', './.', 'T/A', 'T/A', 'A/A', '.', 'T/A', 'T/T', 'T/A', NA, NA, 'T/T', 'T/A', '.', 'T/A')
         ),
     missing.genotype.pgs.weight.data = data.frame(
-        CHROM = c('chr1', 'chr2', 'chr3', 'chr4'),
-        POS = c(1, 2, 3, 4),
-        effect_allele = c('A', 'A', 'A', 'A'),
-        beta = c(1.0, 1.0, 1.0, 1.0)
+        CHROM = c('chr1', 'chr2', 'chr3', 'chr4', 'chr5'),
+        POS = c(1, 2, 3, 4, 5),
+        ID = c('rs1', 'rs2', 'rs3', 'rs4', 'rs5'),
+        effect_allele = c('A', 'A', 'A', 'A', 'A'),
+        beta = c(1.0, 1.0, 1.0, 1.0, 1.0)
         )
     );
 save(
@@ -223,6 +235,7 @@ phenotype.test.data <- list(
     vcf.data = data.frame(
         CHROM = paste0('chr', rep(1:10, each = 10)),
         POS = rep(1:10, each = 10),
+        ID = paste0('rs', rep(1:10, each = 10)),
         REF = rep('T', 100),
         ALT = rep('A', 100),
         Indiv = rep(paste0('sample', 1:n.samples), n.variants),
@@ -231,6 +244,7 @@ phenotype.test.data <- list(
     pgs.weight.data = data.frame(
         CHROM = paste0('chr', 1:10),
         POS = 1:10,
+        ID = paste0('rs', 1:10),
         effect_allele = 'A',
         beta = rnorm(10) # random beta values
         ),
