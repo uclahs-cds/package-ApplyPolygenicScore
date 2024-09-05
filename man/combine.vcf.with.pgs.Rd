@@ -14,12 +14,13 @@ combine.vcf.with.pgs(vcf.data, pgs.weight.data)
 \value{
 A list containing a data.frame of merged VCF and PGS data and a data.frame of PGS SNPs missing from the VCF.
 
-Merge is performed on chromosome and base pair coordinates.
+A primary merge is first performed on chromosome and base pair coordinates. For SNPs that could not be matched in the first mergs, a second merge is attempted by rsID.
+This action can account for short INDELs that can have coordinate mismatches between the PGS and VCF data.
 The merge is a left outer join: all PGS SNPs are kept as rows even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS are dropped.
 If no PGS SNPs are present in the VCF, the function will terminate with an error.
 }
 \description{
-Match PGS SNPs to corresponding VCF information by genomic coordinates using a merge operation.
+Match PGS SNPs to corresponding VCF information by genomic coordinates or rsID using a merge operation.
 }
 \examples{
 # Example VCF

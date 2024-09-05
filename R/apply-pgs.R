@@ -142,8 +142,12 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
 #'
 #' \strong{Missing Genotype Handling}
-#'
-#' Missing genotypes are handled by three methods:
+#' 
+#' VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a SNP cannot be matched by genomic coordinate,
+#' an attempt is made to match by rsID. If a SNP from the PGS weight data is not found in the VCF data after these two matching attempts,
+#' it is considered a cohort-wide missing variant.
+#' 
+#' Missing genotypes (in individual samples) among successfully matched variants are handled by three methods:
 #'
 #' \code{none}: Missing genotype dosages are excluded from the PGS calculation.
 #' This is equivalent to assuming that all missing genotypes are homozygous for the non-effect allele, resulting in a dosage of 0.
@@ -158,13 +162,13 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' where \emph{k} is a PGS component variant that is missing in between 1 and n-1 individuals in the cohort and \emph{P} = ploidy = 2
 #' This dosage calculation holds under assumptions of Hardy-Weinberg equilibrium.
 #' By default, the effect allele frequency is calculated from the provided VCF data.
-#' For variants that are missing in all individuals, dosage is assumed to be zero (homozygous non-reference) for all individuals.
+#' For variants that are missing in all individuals (cohort-wide), dosage is assumed to be zero (homozygous non-reference) for all individuals.
 #' An external allele frequency can be provided in the \code{pgs.weight.data} as a column named \code{allelefrequency_effect} and by setting \code{use.external.effect.allele.frequency} to \code{TRUE}.
 #'
 #' \strong{Multiallelic Site Handling}
 #'
-#' VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a PGS weight file provides weights for multiple effect alleles, the appropriate dosage is calculated for the
-#' alleles that each individual carries. It is assumed that multiallelic variants are encoded in the same row in the VCF data. This is known as "merged" format. Split multiallelic sites are not accepted.
+#' If a PGS weight file provides weights for multiple effect alleles, the appropriate dosage is calculated for the alleles that each individual carries.
+#' It is assumed that multiallelic variants are encoded in the same row in the VCF data. This is known as "merged" format. Split multiallelic sites are not accepted.
 #' VCF data can be formatted to merged format using external tools for VCF file manipulation.
 #'
 #' @examples
