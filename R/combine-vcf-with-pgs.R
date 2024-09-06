@@ -4,7 +4,7 @@
 #' @param pgs.weight.data A data.frame containing PGS data. Required columns: \code{CHROM, POS}.
 #' @return A list containing a data.frame of merged VCF and PGS data and a data.frame of PGS SNPs missing from the VCF.
 #'
-#' A primary merge is first performed on chromosome and base pair coordinates. For SNPs that could not be matched in the first mergs, a second merge is attempted by rsID.
+#' A primary merge is first performed on chromosome and base pair coordinates. For SNPs that could not be matched in the first mergs, a second merge is attempted by rsID if available.
 #' This action can account for short INDELs that can have coordinate mismatches between the PGS and VCF data.
 #' The merge is a left outer join: all PGS SNPs are kept as rows even if they are missing from the VCF, and all VCF SNPs that are not a component of the PGS are dropped.
 #' If no PGS SNPs are present in the VCF, the function will terminate with an error.
@@ -44,13 +44,25 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         }
 
     # check that inputs contain required columns for mergeing
-    required.vcf.columns <- c('CHROM', 'POS', 'ID');
-    required.pgs.columns <- c('CHROM', 'POS', 'ID');
+    required.vcf.columns <- c('CHROM', 'POS');
+    required.pgs.columns <- c('CHROM', 'POS');
     if (!all(required.vcf.columns %in% colnames(vcf.data))) {
-        stop('vcf.data must contain columns named CHROM, POS, and ID');
+        stop('vcf.data must contain columns named CHROM and POS');
         }
     if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
-        stop('pgs.weight.data must contain columns named CHROM, POS, and ID');
+        stop('pgs.weight.data must contain columns named CHROM and POS');
+        }
+
+    # check for optional ID column
+    rsid.available <- TRUE;
+    if (!'ID' %in% colnames(vcf.data)) {
+        rsid.available <- FALSE;
+        warning('ID column not found in VCF data. Merging by rsID will not be possible.');
+        }
+
+    if (!'ID' %in% colnames(pgs.weight.data)) {
+        rsid.available <- FALSE;
+        warning('ID column not found in PGS weight data. Merging by rsID will not be possible.');
         }
 
     # match CHROM notation in pgs data to vcf data formatting
@@ -81,7 +93,7 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
     missing.pgs.snp.index <- is.na(merged.vcf.with.pgs.data$REF);
 
     # attempt additional merge for missing SNPs, this time on rsID
-    if (any(missing.pgs.snp.index)) {
+    if (any(missing.pgs.snp.index) & rsid.available) {
         # extract merged rows corresponding to missing PGS SNPs
         missing.snp.merged.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
         # rename ID column to match pre-merge pgs weight data
@@ -151,6 +163,16 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         # combine merged data
         merged.vcf.with.pgs.data <- rbind(merged.vcf.with.pgs.data[!missing.pgs.snp.index, ], merged.vcf.with.missing.pgs.data);
         rm(merged.vcf.with.missing.pgs.data);
+
+        } else if (any(missing.pgs.snp.index)) {
+
+        warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
+        missing.snp.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
+
+        } else {
+
+        missing.snp.data <- NULL;
+
         }
 
     output <- list(
