@@ -250,7 +250,7 @@ apply.polygenic.score <- function(
     validate.phenotype.data.input(phenotype.data = phenotype.data, phenotype.analysis.columns = phenotype.analysis.columns, vcf.data = vcf.data);
 
     if (validate.inputs.only) {
-        print('Input data passed validation\n');
+        message('Input data passed validation');
         return(TRUE);
         }
 

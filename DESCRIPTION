@@ -6,12 +6,14 @@ Authors@R: c(
     person('Paul', 'Boutros', role = 'cre', email = 'PBoutros@mednet.ucla.edu'),
     person('Nicole', 'Zeltser', role = 'aut', comment = c(ORCID = '0000-0001-7246-2771')),
     person('Rachel', 'Dang', role = 'ctb'))
-Description: This tool is intended to simply and transparently parse
-    genotype/dosage data from an input VCF, match genotype coordinates
-    to the component SNPs of an existing polygenic score, and apply
-    SNP weights to dosages to calculate a polygenic score for each
-    individual in accordance with the additive weighted sum of dosages
-    model.
+Description: Simple and transparent parsing of genotype/dosage data
+    from an input Variant Call Format (VCF) file, matching of genotype
+    coordinates to the component Single Nucleotide Polymorphisms (SNPs)
+    of an existing polygenic score (PGS), and application of SNP weights
+    to dosages for the calculation of a polygenic score for each individual
+    in accordance with the additive weighted sum of dosages model. Methods
+    are designed in reference to best practices described by
+    Collister, Liu, and Clifton (2022) <doi:10.3389/fgene.2022.818574>.
 Depends: 
     R (>= 4.2.0)
 Imports:
