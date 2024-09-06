@@ -144,7 +144,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' \strong{Missing Genotype Handling}
 #'
 #' VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a SNP cannot be matched by genomic coordinate,
-#' an attempt is made to match by rsID. If a SNP from the PGS weight data is not found in the VCF data after these two matching attempts,
+#' an attempt is made to match by rsID (if available). If a SNP from the PGS weight data is not found in the VCF data after these two matching attempts,
 #' it is considered a cohort-wide missing variant.
 #'
 #' Missing genotypes (in individual samples) among successfully matched variants are handled by three methods:
