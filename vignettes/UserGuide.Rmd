@@ -35,7 +35,7 @@ VCF file requirements:
 PGS weight file requirements:
 - PGS weight files provided by the PGS Catalog should be imported with the native package function `import.pgs.weight.file` to ensure proper formatting
 - PGS weight files from other sources must be formatted according to PGS Catalog standards for compatibility with the import function.
-- PGS weight files from other sources that are imported independently must have the required columns: `CHROM`, `POS`, `effect_allele`, `beta`.
+- PGS weight files from other sources that are imported independently must have the required columns: `CHROM`, `POS`, `ID`, `effect_allele`, `beta`.
 - Weights for multiple alleles at the same site can be provided as separate rows in the file with differing alternative alleles specified. 
 
 ## Input importation
