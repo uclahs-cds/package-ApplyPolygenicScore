@@ -546,7 +546,7 @@ test_that(
             vcf.data = test.vcf.data,
             pgs.weight.data = test.pgs.weight.data
             );
-        
+
         test.combine.vcf.with.pgs.missing <- combine.vcf.with.pgs(
             vcf.data = test.vcf.data.missing,
             pgs.weight.data = test.pgs.weight.data

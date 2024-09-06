@@ -141,7 +141,7 @@ import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) 
 
         # label harmonized data columns with standardized names
         # if harmonized rsID column is present and not empty, use it
-        if ('hm_rsID' %in% colnames(pgs.weight.data)){
+        if ('hm_rsID' %in% colnames(pgs.weight.data)) {
             if (!all(is.na(pgs.weight.data$hm_rsID))) {
                 pgs.weight.data$ID <- pgs.weight.data$hm_rsID;
                 }
