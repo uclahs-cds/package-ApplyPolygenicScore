@@ -5,8 +5,8 @@
 #' @return A logical indicating whether the file contains the required columns.
 #' @export
 check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
-    required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'rsID');
-    required.harmonized.columns <- c('hm_chr', 'hm_pos', 'hm_rsID');
+    required.generic.columns <- c('chr_name', 'chr_position', 'effect_allele', 'effect_weight');
+    required.harmonized.columns <- c('hm_chr', 'hm_pos');
 
     if (harmonized) {
         required.columns <- c(required.generic.columns, required.harmonized.columns);
@@ -16,6 +16,11 @@ check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
 
     if (!all(required.columns %in% pgs.weight.colnames)) {
         stop('The following required columns are missing from the PGS weight file: ', paste(setdiff(required.columns, pgs.weight.colnames), collapse = ', '));
+        }
+
+    rsid.columns <- c('rsID', 'hm_rsID');
+    if (any(!(rsid.columns %in% pgs.weight.colnames))) {
+        warning('rsID or hm_rsID column not found in PGS weight file. Merging by rsID will not be possible.');
         }
 
     return(TRUE);
@@ -135,14 +140,25 @@ import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) 
     if (use.harmonized.data) {
 
         # label harmonized data columns with standardized names
-        pgs.weight.data$ID <- pgs.weight.data$hm_rsID;
+        # if harmonized rsID column is present and not empty, use it
+        if ('hm_rsID' %in% colnames(pgs.weight.data)){
+            if (!all(is.na(pgs.weight.data$hm_rsID))) {
+                pgs.weight.data$ID <- pgs.weight.data$hm_rsID;
+                }
+            }
+
         pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
         pgs.weight.data$POS <- pgs.weight.data$hm_pos;
 
         } else {
 
         # label non-harmonized data columns with standardized names
-        pgs.weight.data$ID <- pgs.weight.data$rsID;
+        if ('rsID' %in% colnames(pgs.weight.data)) {
+            if (!all(is.na(pgs.weight.data$rsID == ''))) {
+                pgs.weight.data$ID <- pgs.weight.data$rsID;
+                }
+            }
+
         pgs.weight.data$CHROM <- pgs.weight.data$chr_name;
         pgs.weight.data$POS <- pgs.weight.data$chr_position;
 
