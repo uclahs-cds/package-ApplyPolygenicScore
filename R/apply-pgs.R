@@ -142,11 +142,11 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
 #'
 #' \strong{Missing Genotype Handling}
-#' 
+#'
 #' VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a SNP cannot be matched by genomic coordinate,
 #' an attempt is made to match by rsID. If a SNP from the PGS weight data is not found in the VCF data after these two matching attempts,
 #' it is considered a cohort-wide missing variant.
-#' 
+#'
 #' Missing genotypes (in individual samples) among successfully matched variants are handled by three methods:
 #'
 #' \code{none}: Missing genotype dosages are excluded from the PGS calculation.
@@ -312,7 +312,7 @@ apply.polygenic.score <- function(
             missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage));
             } else {
             # create sample by variant dosage matrix
-            
+
             dosage.matrix <- get.variant.by.sample.matrix(
                 long.data = merged.vcf.with.pgs.data,
                 variant.id = variant.id,

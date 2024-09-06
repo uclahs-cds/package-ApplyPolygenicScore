@@ -99,7 +99,7 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
             split.rsid.vcf.data <- merge(
                 x = vcf.data,
                 # split only entries with multiple rsIDs, save in new column, and merge back with the original data
-                y = vcf.data[grepl(';', ID), strsplit(as.character(ID), ";", fixed=TRUE), by = .(Indiv, CHROM, POS)
+                y = vcf.data[grepl(';', ID), strsplit(as.character(ID), ';', fixed = TRUE), by = .(Indiv, CHROM, POS)
                     ][,.(new.ID = V1, Indiv, CHROM, POS)],
                 by = c('CHROM', 'POS', 'Indiv'),
                 all = TRUE
