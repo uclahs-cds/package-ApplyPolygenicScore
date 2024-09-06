@@ -55,10 +55,45 @@ test_that(
     );
 
 test_that(
+    'check.pgs.weight.columns detects missing ID columns', {
+
+        expect_warning(
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_rsID', 'hm_chr', 'hm_pos'), harmonized = TRUE),
+            'rsID or hm_rsID column not found in PGS weight file. Merging by rsID will not be possible.'
+            );
+
+        expect_warning(
+            check.pgs.weight.columns(pgs.weight.colnames = c('rsID', 'chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = FALSE),
+            'rsID or hm_rsID column not found in PGS weight file. Merging by rsID will not be possible.'
+            );
+
+        expect_warning(
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE),
+            'rsID or hm_rsID column not found in PGS weight file. Merging by rsID will not be possible.'
+            );
+
+        }
+    );
+
+
+test_that(
     'check.pgs.weight.columns accepts complete column set', {
-        # check that required columns are present
+
         expect_true(
             check.pgs.weight.columns(pgs.weight.colnames = c('rsID', 'chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_rsID', 'hm_chr', 'hm_pos'), harmonized = TRUE)
+            );
+
+        expect_true(
+            check.pgs.weight.columns(pgs.weight.colnames = c('rsID', 'chr_name', 'chr_position', 'effect_allele', 'effect_weight'), harmonized = FALSE)
+            );
+
+        # no rsID
+        expect_true(
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_rsID', 'hm_chr', 'hm_pos'), harmonized = FALSE)
+            );
+
+        expect_true(
+            check.pgs.weight.columns(pgs.weight.colnames = c('chr_name', 'chr_position', 'effect_allele', 'effect_weight', 'hm_chr', 'hm_pos'), harmonized = TRUE)
             );
         }
     );
@@ -205,6 +240,24 @@ test_that(
         }
     );
 
+test_that(
+    'import.pgs.weight.file correctly formats columns for data with missing rsID', {
+        # import beta weights
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS003766_hmPOS_GRCh38.txt.gz', use.harmonized.data = FALSE);
+
+        expect_equal(
+            beta.weights$pgs.weight.data$ID,
+            NULL
+            );
+
+        beta.weights <- import.pgs.weight.file(pgs.weight.path = 'data/PGS003766_hmPOS_GRCh38.txt.gz', use.harmonized.data = TRUE);
+        expect_equal(
+            beta.weights$pgs.weight.data$ID,
+            NULL
+            );
+
+        }
+    );
 
 test_that(
     'import.pgs.weight.file identifies duplicate variants', {

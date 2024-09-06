@@ -44,7 +44,7 @@ test_that(
                     ),
                 pgs.weight.data = test.pgs.weight.data
                 ),
-            'vcf.data must contain columns named CHROM, POS, and ID'
+            'vcf.data must contain columns named CHROM and POS'
             );
         # missing CHROM
         expect_error(
@@ -58,10 +58,10 @@ test_that(
                     ),
                 pgs.weight.data = test.pgs.weight.data
                 ),
-            'vcf.data must contain columns named CHROM, POS, and ID'
+            'vcf.data must contain columns named CHROM and POS'
             );
         # missing ID
-        expect_error(
+        expect_warning(
             combine.vcf.with.pgs(
                 vcf.data = data.frame(
                     CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
@@ -72,33 +72,23 @@ test_that(
                     ),
                 pgs.weight.data = test.pgs.weight.data
                 ),
-            'vcf.data must contain columns named CHROM, POS, and ID'
+            'ID column not found in VCF data. Merging by rsID will not be possible.'
             );
 
-        expect_error(
+        expect_warning(
             combine.vcf.with.pgs(
                 vcf.data = test.vcf.data,
                 pgs.weight.data = data.frame(
                     CHROM = c('chr1', 'chr1', 'chr1', 'chr1'),
+                    POS = c(1, 2, 3, 4),
                     foo = c(1, 2, 3, 4),
                     effect_allele = c('A', 'T', 'C', 'G'),
                     beta = c(1, 2, 3, 4)
                     )
                 ),
-            'pgs.weight.data must contain columns named CHROM, POS, and ID'
+            'ID column not found in PGS weight data. Merging by rsID will not be possible.'
             );
-        expect_error(
-            combine.vcf.with.pgs(
-                vcf.data = test.vcf.data,
-                pgs.weight.data = data.frame(
-                    foo = c('chr1', 'chr1', 'chr1', 'chr1'),
-                    POS = c(1, 2, 3, 4),
-                    effect_allele = c('A', 'T', 'C', 'G'),
-                    beta = c(1, 2, 3, 4)
-                    )
-                ),
-            'pgs.weight.data must contain columns named CHROM, POS, and ID'
-            );
+
         }
     )
 
@@ -384,13 +374,13 @@ test_that(
 
         # check that combine.vcf.with.pgs returns the correct columns
         expect_true(
-            all(colnames(test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy'))
+            all(c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data))
             );
         expect_true(
-            all(colnames(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy'))
+            all(c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data))
             );
         expect_true(
-            all(colnames(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data) %in% c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy'))
+            all(c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data))
             );
 
         # check that combine.vcf.with.pgs returns the correct values
@@ -524,6 +514,74 @@ test_that(
 
         }
     );
+
+test_that(
+    'combine.vcf.with.pgs correctly performs merge with no rsID', {
+        test.vcf.data <- data.frame(
+            CHROM = c('chr1', 'chr2', 'chr3', 'chr4'),
+            POS = c(1, 2, 3, 4),
+            ID = c('rs1', 'rs2', 'rs3', 'rs4'),
+            REF = c('A', 'T', 'C', 'G'),
+            ALT = c('T', 'A', 'G', 'C'),
+            Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
+            gt_GT_alleles = c('A/T', 'T/A', 'C/G', 'G/C')
+            );
+        test.vcf.data.missing <- data.frame(
+            CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
+            POS = c(1, 3, 2, 5),
+            ID = c('rs1', 'rs3', 'rs2', 'rs5'),
+            REF = c('A', 'T', 'C', 'G'),
+            ALT = c('T', 'A', 'G', 'C'),
+            Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
+            gt_GT_alleles = c('A/T', 'T/A', 'C/G', 'G/C')
+            );
+        test.pgs.weight.data <- data.frame(
+            CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
+            POS = c(1, 3, 2, 4),
+            effect_allele = c('A', 'T', 'C', 'G'),
+            beta = c(1, 2, 3, 4)
+            );
+
+        test.combine.vcf.with.pgs <- combine.vcf.with.pgs(
+            vcf.data = test.vcf.data,
+            pgs.weight.data = test.pgs.weight.data
+            );
+        
+        test.combine.vcf.with.pgs.missing <- combine.vcf.with.pgs(
+            vcf.data = test.vcf.data.missing,
+            pgs.weight.data = test.pgs.weight.data
+            );
+
+        # check that combine.vcf.with.pgs returns the correct number of rows
+        expect_equal(
+            nrow(test.combine.vcf.with.pgs$merged.vcf.with.pgs.data),
+            4
+            );
+        expect_equal(
+            nrow(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data),
+            4
+            );
+
+        # check that combine.vcf.with.pgs returns the correct number of columns
+        expect_equal(
+            ncol(test.combine.vcf.with.pgs$merged.vcf.with.pgs.data),
+            10
+            );
+        expect_equal(
+            ncol(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data),
+            10
+            );
+
+        # check that combine.vcf.with.pgs returns the correct columns
+        expect_true(
+            all(c('CHROM', 'POS', 'REF', 'ALT', 'ID', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs$merged.vcf.with.pgs.data))
+            );
+        expect_true(
+            all(c('CHROM', 'POS', 'REF', 'ALT', 'ID', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data))
+            );
+
+    }
+)
 
 test_that(
     'combine.vcf.with.pgs works correctly with real data', {
