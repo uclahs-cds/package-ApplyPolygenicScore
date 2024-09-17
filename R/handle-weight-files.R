@@ -19,7 +19,7 @@ check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
         }
 
     rsid.columns <- c('rsID', 'hm_rsID');
-    if (any(!(rsid.columns %in% pgs.weight.colnames))) {
+    if (!all(rsid.columns %in% pgs.weight.colnames)) {
         warning('rsID or hm_rsID column not found in PGS weight file. Merging by rsID will not be possible.');
         }
 
