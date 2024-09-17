@@ -44,7 +44,7 @@ import.test.data <- list(
 
 save(
     import.test.data,
-    file = 'tests/testthat/data/import.test.data.Rda'
+    file = 'data/import.test.data.Rda'
     );
 
 # create data frame of test PGS coordinates (for testing)
@@ -59,7 +59,7 @@ tiny.pgs.test.data <- data.frame(
 # save .Rda file of tiny PGS test data
 save(
     tiny.pgs.test.data,
-    file = 'tests/testthat/data/tiny.pgs.test.data.Rda'
+    file = 'data/tiny.pgs.test.data.Rda'
     );
 
 # create list of data frames of test BED coordinates (for testing)
@@ -81,12 +81,12 @@ tiny.bed.test.data <- simple.test.input <- list(
 # save .Rda file of tiny BED test data
 save(
     tiny.bed.test.data,
-    file = 'tests/testthat/data/tiny.bed.test.data.Rda'
+    file = 'data/tiny.bed.test.data.Rda'
     );
 
 # create BED file for VCF filtration
 pgs.weights <- ApplyPolygenicScore::import.pgs.weight.file(
-    pgs.weigh.path <- 'tests/testthat/data/PGS003378_hmPOS_GRCh38.txt',
+    pgs.weigh.path <- 'data/PGS003378_hmPOS_GRCh38.txt',
     use.harmonized.data = TRUE
     );
 pgs.bed <- ApplyPolygenicScore::convert.pgs.to.bed(
@@ -97,7 +97,7 @@ pgs.bed <- ApplyPolygenicScore::convert.pgs.to.bed(
     );
 write.table(
     x = pgs.bed,
-    file = 'tests/testthat/data/PGS003378_hmPOS_GRCh38_slop10.bed',
+    file = 'data/PGS003378_hmPOS_GRCh38_slop10.bed',
     sep = '\t',
     row.names = FALSE,
     col.names = FALSE,
@@ -125,7 +125,7 @@ simple.pgs.application.test.data <- list(
     );
 save(
     simple.pgs.application.test.data,
-    file = 'tests/testthat/data/simple.pgs.application.test.data.Rda'
+    file = 'data/simple.pgs.application.test.data.Rda'
     );
 
 # create simple VCF data for testing multiallelic site handling
@@ -182,7 +182,7 @@ merged.multiallelic.site.test.data <- list(
 
 save(
     merged.multiallelic.site.test.data,
-    file = 'tests/testthat/data/merged.multiallelic.site.test.data.Rda'
+    file = 'data/merged.multiallelic.site.test.data.Rda'
     );
 
 # create simple VCF data for testing missing site handling
@@ -209,7 +209,7 @@ missing.genotype.test.data <- list(
     );
 save(
     missing.genotype.test.data,
-    file = 'tests/testthat/data/missing.genotype.test.data.Rda'
+    file = 'data/missing.genotype.test.data.Rda'
     );
 
 # create data for testing phenotype related functionality
@@ -258,5 +258,5 @@ phenotype.data = data.frame(
     );
 save(
     phenotype.test.data,
-    file = 'tests/testthat/data/phenotype.test.data.Rda'
+    file = 'data/phenotype.test.data.Rda'
     );
