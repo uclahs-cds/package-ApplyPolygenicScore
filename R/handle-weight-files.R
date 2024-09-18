@@ -18,6 +18,11 @@ check.pgs.weight.columns <- function(pgs.weight.colnames, harmonized = TRUE) {
         stop('The following required columns are missing from the PGS weight file: ', paste(setdiff(required.columns, pgs.weight.colnames), collapse = ', '));
         }
 
+    rsid.columns <- c('rsID', 'hm_rsID');
+    if (!all(rsid.columns %in% pgs.weight.colnames)) {
+        warning('rsID or hm_rsID column not found in PGS weight file. Merging by rsID will not be possible.');
+        }
+
     return(TRUE);
     }
 
@@ -135,14 +140,28 @@ import.pgs.weight.file <- function(pgs.weight.path, use.harmonized.data = TRUE) 
     if (use.harmonized.data) {
 
         # label harmonized data columns with standardized names
+        # if harmonized rsID column is present and not empty, use it
+        if ('hm_rsID' %in% colnames(pgs.weight.data)) {
+            if (!all(is.na(pgs.weight.data$hm_rsID))) {
+                pgs.weight.data$ID <- pgs.weight.data$hm_rsID;
+                }
+            }
+
         pgs.weight.data$CHROM <- pgs.weight.data$hm_chr;
         pgs.weight.data$POS <- pgs.weight.data$hm_pos;
-        format.harmonized.columns <- TRUE;
+
         } else {
 
         # label non-harmonized data columns with standardized names
+        if ('rsID' %in% colnames(pgs.weight.data)) {
+            if (!all(is.na(pgs.weight.data$rsID == ''))) {
+                pgs.weight.data$ID <- pgs.weight.data$rsID;
+                }
+            }
+
         pgs.weight.data$CHROM <- pgs.weight.data$chr_name;
         pgs.weight.data$POS <- pgs.weight.data$chr_position;
+
         }
 
     # extract weight format from file metadata key 'weight_type'

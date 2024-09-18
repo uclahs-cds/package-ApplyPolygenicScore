@@ -44,7 +44,7 @@ import.test.data <- list(
 
 save(
     import.test.data,
-    file = 'tests/testthat/data/import.test.data.Rda'
+    file = 'data/import.test.data.Rda'
     );
 
 # create data frame of test PGS coordinates (for testing)
@@ -59,7 +59,7 @@ tiny.pgs.test.data <- data.frame(
 # save .Rda file of tiny PGS test data
 save(
     tiny.pgs.test.data,
-    file = 'tests/testthat/data/tiny.pgs.test.data.Rda'
+    file = 'data/tiny.pgs.test.data.Rda'
     );
 
 # create list of data frames of test BED coordinates (for testing)
@@ -81,12 +81,12 @@ tiny.bed.test.data <- simple.test.input <- list(
 # save .Rda file of tiny BED test data
 save(
     tiny.bed.test.data,
-    file = 'tests/testthat/data/tiny.bed.test.data.Rda'
+    file = 'data/tiny.bed.test.data.Rda'
     );
 
 # create BED file for VCF filtration
 pgs.weights <- ApplyPolygenicScore::import.pgs.weight.file(
-    pgs.weigh.path <- 'tests/testthat/data/PGS003378_hmPOS_GRCh38.txt',
+    pgs.weigh.path <- 'data/PGS003378_hmPOS_GRCh38.txt',
     use.harmonized.data = TRUE
     );
 pgs.bed <- ApplyPolygenicScore::convert.pgs.to.bed(
@@ -97,7 +97,7 @@ pgs.bed <- ApplyPolygenicScore::convert.pgs.to.bed(
     );
 write.table(
     x = pgs.bed,
-    file = 'tests/testthat/data/PGS003378_hmPOS_GRCh38_slop10.bed',
+    file = 'data/PGS003378_hmPOS_GRCh38_slop10.bed',
     sep = '\t',
     row.names = FALSE,
     col.names = FALSE,
@@ -109,12 +109,14 @@ simple.pgs.application.test.data <- list(
     pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2'),
         POS = c(1, 2),
+        ID = c('rs1', 'rs2'),
         effect_allele = c('T', 'T'),
         beta = c(1.0, 1.0)
         ),
     vcf.data = data.frame(
         CHROM = c('chr1', 'chr1', 'chr2', 'chr2'),
         POS = c(1, 1, 2, 2),
+        ID = c('rs1', 'rs1', 'rs2', 'rs2'),
         REF = c('A', 'A', 'T', 'T'),
         ALT = c('T', 'T', 'A', 'A'),
         Indiv = c('sample1', 'sample2', 'sample1', 'sample2'),
@@ -123,7 +125,7 @@ simple.pgs.application.test.data <- list(
     );
 save(
     simple.pgs.application.test.data,
-    file = 'tests/testthat/data/simple.pgs.application.test.data.Rda'
+    file = 'data/simple.pgs.application.test.data.Rda'
     );
 
 # create simple VCF data for testing multiallelic site handling
@@ -133,6 +135,7 @@ merged.multiallelic.site.test.data <- list(
         # merged multiallelic site at chr2:2 with betas provided
         # merged multiallelic site at chr3:3 with no betas provided
         POS = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+        ID = c('rs1', 'rs1', 'rs1', 'rs2', 'rs2', 'rs2', 'rs3', 'rs3', 'rs3'),
         REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
         # three possible alleles at chr2:2 (T, A, C)
         ALT = c('A', 'A', 'A', 'A,C', 'A,C', 'A,C', 'A,G', 'A,G', 'A,G'),
@@ -150,24 +153,28 @@ merged.multiallelic.site.test.data <- list(
     ref.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr3'),
         POS = c(1, 2, 3),
+        ID = c('rs1', 'rs2', 'rs3'),
         effect_allele = c('T', 'T', 'T'),
         beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr3'),
         POS = c(1, 2, 3),
+        ID = c('rs1', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'A'),
         beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.two.risk.alleles.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr2', 'chr3'),
         POS = c(1, 2, 2, 3),
+        ID = c('rs1', 'rs2', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'C', 'A'),
         beta = c(1.0, 1.0, 0.5, 1.0)
         ),
     ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr2', 'chr3'),
         POS = c(1, 2, 2, 3),
+        ID = c('rs1', 'rs2', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'T', 'A'),
         beta = c(1.0, 1.0, 0.5, 1.0)
         )
@@ -175,29 +182,34 @@ merged.multiallelic.site.test.data <- list(
 
 save(
     merged.multiallelic.site.test.data,
-    file = 'tests/testthat/data/merged.multiallelic.site.test.data.Rda'
+    file = 'data/merged.multiallelic.site.test.data.Rda'
     );
 
 # create simple VCF data for testing missing site handling
 missing.genotype.test.data <- list(
+    # rs4 is missing from all samples
+    # rs1 is missing from sample 3
+    # rs5 is missing from sample 3 and has mismatching coordinates (must be matched by rsid)
     missing.genotype.vcf.data = data.frame(
-        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3', 'chr3'),
-        POS = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
-        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
-        ALT = c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'),
-        Indiv = c('sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4'),
-        gt_GT_alleles = c('T/T', 'T/A', './.', 'T/A', 'T/A', 'A/A', '.', 'T/A', 'T/T', 'T/A', NA, NA)
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3', 'chr3', 'chr5', 'chr5', 'chr5', 'chr5'),
+        POS = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 6, 6, 6, 6),
+        ID = c('rs1', 'rs1', 'rs1', 'rs1', 'rs2', 'rs2', 'rs2', 'rs2', 'rs3', 'rs3', 'rs3', 'rs3', 'rs5', 'rs5', 'rs5', 'rs5'),
+        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
+        ALT = c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'),
+        Indiv = c('sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4'),
+        gt_GT_alleles = c('T/T', 'T/A', './.', 'T/A', 'T/A', 'A/A', '.', 'T/A', 'T/T', 'T/A', NA, NA, 'T/T', 'T/A', '.', 'T/A')
         ),
     missing.genotype.pgs.weight.data = data.frame(
-        CHROM = c('chr1', 'chr2', 'chr3', 'chr4'),
-        POS = c(1, 2, 3, 4),
-        effect_allele = c('A', 'A', 'A', 'A'),
-        beta = c(1.0, 1.0, 1.0, 1.0)
+        CHROM = c('chr1', 'chr2', 'chr3', 'chr4', 'chr5'),
+        POS = c(1, 2, 3, 4, 5),
+        ID = c('rs1', 'rs2', 'rs3', 'rs4', 'rs5'),
+        effect_allele = c('A', 'A', 'A', 'A', 'A'),
+        beta = c(1.0, 1.0, 1.0, 1.0, 1.0)
         )
     );
 save(
     missing.genotype.test.data,
-    file = 'tests/testthat/data/missing.genotype.test.data.Rda'
+    file = 'data/missing.genotype.test.data.Rda'
     );
 
 # create data for testing phenotype related functionality
@@ -223,6 +235,7 @@ phenotype.test.data <- list(
     vcf.data = data.frame(
         CHROM = paste0('chr', rep(1:10, each = 10)),
         POS = rep(1:10, each = 10),
+        ID = paste0('rs', rep(1:10, each = 10)),
         REF = rep('T', 100),
         ALT = rep('A', 100),
         Indiv = rep(paste0('sample', 1:n.samples), n.variants),
@@ -231,6 +244,7 @@ phenotype.test.data <- list(
     pgs.weight.data = data.frame(
         CHROM = paste0('chr', 1:10),
         POS = 1:10,
+        ID = paste0('rs', 1:10),
         effect_allele = 'A',
         beta = rnorm(10) # random beta values
         ),
@@ -244,5 +258,5 @@ phenotype.data = data.frame(
     );
 save(
     phenotype.test.data,
-    file = 'tests/testthat/data/phenotype.test.data.Rda'
+    file = 'data/phenotype.test.data.Rda'
     );

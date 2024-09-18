@@ -457,23 +457,23 @@ test_that(
         # check that PGS values are calculated correctly
         expect_equal(
             test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
-            c(1, 4, 2.5, 2.5)
+            c(1, 5, 19 / 6, 3.5)
             );
         expect_equal(
             test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$PGS.with.normalized.missing,
-            c(1 / 6, 4 / 6, NA, 0.5)
+            c(1 / 8, 5 / 8, NA, 3 / 6)
             );
         expect_equal(
             test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$PGS.with.normalized.missing,
-            c(1 / 6, 4 / 6, NA, 0.5)
+            c(1 / 8, 5 / 8, NA, 3 / 6)
             );
         expect_equal(
             test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
-            c(1, 4, 2.5, 2.5)
+            c(1, 5, 19 / 6, 3.5)
             );
         expect_equal(
             test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$PGS,
-            c(1, 4, 0, 2)
+            c(1, 5, 0, 3)
             );
 
         # check that percentiles are calculated correctly
@@ -490,37 +490,37 @@ test_that(
         # check missing genotype counts
         expect_equal(
             test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
-            c(1, 1, 4, 2)
+            c(1, 1, 5, 2)
             );
         expect_equal(
             test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
-            c(1, 1, 4, 2)
+            c(1, 1, 5, 2)
             );
         expect_equal(
             test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
-            c(1, 1, 4, 2)
+            c(1, 1, 5, 2)
             );
         expect_equal(
             test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$n.missing.genotypes,
-            c(1, 1, 4, 2)
+            c(1, 1, 5, 2)
             );
 
         # check missing genotype percentages
         expect_equal(
             test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
-            c(0.25, 0.25, 1, 0.5)
+            c(0.20, 0.20, 1, 0.40)
             );
         expect_equal(
             test.missing.genotype.normalize[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
-            c(0.25, 0.25, 1, 0.5)
+            c(0.20, 0.20, 1, 0.40)
             );
         expect_equal(
             test.missing.genotype.both[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
-            c(0.25, 0.25, 1, 0.5)
+            c(0.20, 0.20, 1, 0.40)
             );
         expect_equal(
             test.missing.genotype.none[[PGS.OUTPUT.INDEX]]$percent.missing.genotypes,
-            c(0.25, 0.25, 1, 0.5)
+            c(0.20, 0.20, 1, 0.40)
             );
         }
     );
@@ -529,7 +529,7 @@ test_that(
     'apply.polygenic.score correctly handles external effect allele frequency', {
         load('data/missing.genotype.test.data.Rda');
         # add effect allele frequency column to PGS weight data
-        missing.genotype.test.data$missing.genotype.pgs.weight.data$allelefrequency_effect <- c(0.5, 0.25, 0.75, 0.5);
+        missing.genotype.test.data$missing.genotype.pgs.weight.data$allelefrequency_effect <- c(0.5, 0.25, 0.75, 0.5, 0.25);
         test.missing.genotype.mean.dosage <- apply.polygenic.score(
             vcf.data = missing.genotype.test.data$missing.genotype.vcf.data,
             pgs.weight.data = missing.genotype.test.data$missing.genotype.pgs.weight.data,
@@ -539,7 +539,7 @@ test_that(
 
         expect_equal(
             test.missing.genotype.mean.dosage[[PGS.OUTPUT.INDEX]]$PGS.with.replaced.missing,
-            c(1, 4, 3, 3.5)
+            c(1, 5, 3.5, 4.5)
             );
         }
     );

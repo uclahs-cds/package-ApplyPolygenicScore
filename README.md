@@ -33,7 +33,7 @@ Below is an overview of the data you will require to get started. For even more 
 ### Input Data
 You will need only two pieces of data to get started: 
 1. A VCF file: Genotype data of the individuals upon which you wish to apply a polygenic score.
-2. A PGS weight file: Coordinates of each SNP that compose the polygenic score you with to apply, and their associated weights.
+2. A PGS weight file: Coordinates of each SNP that compose the polygenic score you with to apply, a SNP ID, and their associated weights.
 
 #### Genotype data
 - Genotype data should be provided in the form of a VCF (Variant Call Format) file.
@@ -47,7 +47,16 @@ If you wish to apply a PGS to a cohort, we recommend that genotypes for the whol
 - [The PGS Catalog](https://www.pgscatalog.org/) is a public database of PGSs and their weight files, and a great first stop for acquiring a PGS weight file.
 - The functions of ApplyPolygenicScore have been designed to operate on weight files that have been formatted according to the standards established by The PGS Catalog. These are very well documented [here](https://www.pgscatalog.org/downloads/#:~:text=the%20different%20samples.-,PGS%20Scoring%20Files,-Formatted%20Files).
 - You could easily create your own compatible PGS weight file, simply by formatting all required columns by Catalog standards.
-- When in doubt, use our `check.pgs.weight.columns()` function to make sure any data table you import into R contains the reqiuired columns for downstream functions.
+- When in doubt, use our `check.pgs.weight.columns()` function to make sure any data table you import into R contains the required columns for downstream functions.
+- Required columns in text files prior to importation are: `chr_name`, `chr_position`, `effect_allele`, `effect_weight`
+- An optional column that can be used in certain functions is `rsID`.
+- The following PGS Catalog column names are converted upon importation to column names used by VCF files to facilitate PGS/VCF matching
+
+|input to `import.pgs.weight.file`| output of `import.pgs.weight.file`|
+|---------------------------------|-----------------------------------|
+|`rsID`| `ID`|
+|`chr_name`|`CHROM`|
+|`chr_position`|`POS`|
 
 ### Recommended Workflow
 
