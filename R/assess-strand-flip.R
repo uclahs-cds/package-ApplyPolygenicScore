@@ -43,22 +43,21 @@ assess.strand.flip <- function(
         default.ref.check <- vcf.ref.allele[i] == pgs.ref.allele[i];
         default.alt.check <- vcf.alt.allele[i] == pgs.effect.allele[i];
 
-        if(default.ref.check & default.alt.check) {
+        if (default.ref.check & default.alt.check) {
             flip.designation[i] <- 'default';
             flipped.effect.allele[i] <- pgs.effect.allele[i];
             flipped.other.allele[i] <- pgs.ref.allele[i];
             break;
             }
 
-        # check if effect designation is on the reference allele
+        # check if PGS effect designation is on the VCF reference allele (effect switch)
         effect.switch.ref.check <- vcf.ref.allele[i] == pgs.effect.allele[i];
         effect.switch.alt.check <- vcf.alt.allele[i] == pgs.ref.allele[i];
 
-        if(effect.switch.ref.check & effect.switch.alt.check) {
-            flip.designation[i] <- 'effect_switch';
-            flipped.effect.allele[i] <- pgs.effect.allele[i];
-            flipped.other.allele[i] <- pgs.ref.allele[i];
-            break;
+        if (effect.switch.ref.check & effect.switch.alt.check) {
+            effect.switch.candidate <- TRUE;
+            } else {
+                effect.switch.candidate <- FALSE;
             }
 
         # attempt strand flip on default ref-ref / alt-effect alleles
@@ -68,14 +67,32 @@ assess.strand.flip <- function(
         default.ref.flip.check <- vcf.ref.allele[i] == pgs.ref.flip;
         default.alt.flip.check <- vcf.alt.allele[i] == pgs.effect.flip;
 
-        if(default.ref.flip.check & default.alt.flip.check) {
-            flip.designation[i] <- 'strand_flip';
-            flipped.effect.allele[i] <- pgs.effect.flip;
-            flipped.other.allele[i] <- pgs.ref.flip;
-            break;
+        if (default.ref.flip.check & default.alt.flip.check) {
+            strand.flip.candidate <- TRUE;
+            } else {
+                strand.flip.candidate <- FALSE;
             }
 
-        # attempt strand flip on effect_switch ref-effect / alt-ref alleles
+        if (effect.switch.candidate & strand.flip.candidate) {
+            # not possible to determine whether effect switch or strand flip has occured
+            # This is an ambiguous case caused by palindromic SNPs
+            flip.designation[i] <- 'ambiguous';
+            flipped.effect.allele[i] <- NA;
+            flipped.other.allele[i] <- NA;
+            break;
+            } else if (effect.switch.candidate) {
+                flip.designation[i] <- 'effect_switch';
+                flipped.effect.allele[i] <- pgs.effect.allele[i];
+                flipped.other.allele[i] <- pgs.ref.allele[i];
+                break;
+                } else if (strand.flip.candidate) {
+                    flip.designation[i] <- 'strand_flip';
+                    flipped.effect.allele[i] <- pgs.effect.flip;
+                    flipped.other.allele[i] <- pgs.ref.flip;
+                    break;
+                    }
+
+        # attempt strand flip on effect_switch ref-effect / alt-other alleles
         effect.switch.ref.flip.check <- vcf.ref.allele[i] == pgs.effect.flip;
         effect.switch.alt.flip.check <- vcf.alt.allele[i] == pgs.ref.flip;
 
@@ -85,11 +102,6 @@ assess.strand.flip <- function(
             flipped.other.allele[i] <- pgs.ref.flip;
             break;
             }
-
-        # if no match is found, declare ambiguous and return NA
-        flip.designation[i] <- 'ambiguous';
-        flipped.effect.allele[i] <- NA;
-        flipped.other.allele[i] <- NA;
 
         }
 
