@@ -4,25 +4,40 @@ flip.DNA.allele <- function(allele) {
         }
     # check that allele is a character vector
     if (!is.character(allele)) {
-        stop('allele must be a character vector.');
+        stop('allele must be a character vector');
         }
+
+    # split any INDEL alleles into individual characters
+    allele.bases <- lapply(X = allele, FUN = function(x) unlist(strsplit(x, '')));
 
     accepted.alleles <- c('A', 'T', 'C', 'G');
-    allele.check <- allele[!is.na(allele)] %in% accepted.alleles;
-    if (any(!allele.check, na.rm = TRUE)) {
-        stop('Invalid allele: ', allele[!is.na(allele)][!allele.check]);
-        }
+    allele.check <- unlist(lapply(X = allele.bases, FUN = function(x) all(x[!is.na(x)] %in% accepted.alleles)));
 
-    flipped.allele <- sapply(
-        X = allele,
-        FUN = switch,
-        'A' = 'T',
-        'T' = 'A',
-        'C' = 'G',
-        'G' = 'C',
-        `NA` = NA
-            );
-    return(flipped.allele);
+    if (any(!allele.check, na.rm = TRUE)) {
+        stop('Invalid allele: ', unlist(allele.bases)[!allele.check]);
+        }
+    flipped.allele <- lapply(
+        X = allele.bases,
+        FUN = function(x) {
+            flip <- sapply(
+                X = x,
+                FUN = switch,
+                'A' = 'T',
+                'T' = 'A',
+                'C' = 'G',
+                'G' = 'C',
+                `NA` = NA
+                );
+            reverse.complement <- rev(flip);
+            if (any(is.na(reverse.complement))) {
+                return(NA);
+                } else {
+                    return(paste(reverse.complement, collapse = ''));
+                    }
+            }
+        );
+
+    return(unlist(flipped.allele));
     }
 
 assess.strand.flip <- function(
@@ -39,9 +54,16 @@ assess.strand.flip <- function(
     flip.designation <- rep(NA, length(vcf.ref.allele));
 
     for (i in 1:length(vcf.ref.allele)) {
+
+        # VCF ALT field may contain multiallelic variants
+        # Multiple alleles are separated by commas e.g. 'A,T'
+        # Split the VCF ALT field into a vector of alleles
+        vcf.alt.allele.split <- unlist(strsplit(vcf.alt.allele[i], ','));
+
+
         # check if default ref-ref / alt-effect alleles match
         default.ref.check <- vcf.ref.allele[i] == pgs.ref.allele[i];
-        default.alt.check <- vcf.alt.allele[i] == pgs.effect.allele[i];
+        default.alt.check <- any(vcf.alt.allele.split) %in% pgs.effect.allele[i];
 
         if (default.ref.check & default.alt.check) {
             flip.designation[i] <- 'default';
@@ -52,7 +74,7 @@ assess.strand.flip <- function(
 
         # check if PGS effect designation is on the VCF reference allele (effect switch)
         effect.switch.ref.check <- vcf.ref.allele[i] == pgs.effect.allele[i];
-        effect.switch.alt.check <- vcf.alt.allele[i] == pgs.ref.allele[i];
+        effect.switch.alt.check <- any(vcf.alt.allele.split) %in% pgs.ref.allele[i];
 
         if (effect.switch.ref.check & effect.switch.alt.check) {
             effect.switch.candidate <- TRUE;
