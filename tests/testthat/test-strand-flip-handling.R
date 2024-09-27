@@ -40,7 +40,7 @@ test_that(
 
         expect_equal(
             flip.DNA.allele(c('ATCG', 'TATA', 'AAAA', 'TTTA', 'AACCTTGGAACCTTGG', NA)),
-            c('CGAT', 'TATA', 'TTTT', 'TAAA', 'CCAAGGTTCCAAGGTT', NA)
+            c('CGA', 'TAT', 'TTT', 'TAA', 'CCAAGGTTCCAAGGT', NA)
             );
         }
     );
@@ -55,6 +55,21 @@ vcf.ref.allele <- c('A', 'A', 'A', 'A')
 vcf.alt.allele <- c('G', 'G', 'G', 'T')
 pgs.ref.allele <- c('A', 'T', 'C', 'T')
 pgs.effect.allele <- c('G', 'C', 'T', 'A')
+
+# test data (indels):
+# 1. no strand flips insertion
+# 2. no strand flips deletion
+# 3. effect allele switch insertion
+# 4. effect allele switch deletion
+# 3. strand flip insertion
+# 4. strand flip deletion
+# strand flip and effect allele switch insertion
+
+vcf.ref.indel.allele <- c('A', 'ATCG', 'A', 'ATCG', 'A', 'ATCG', 'A');
+vcf.alt.indel.allele <- c('ATCG', 'A', 'ATCG', 'A', 'ATCG', 'A', 'ATCG');
+pgs.ref.indel.allele <- c('A', 'ATCG', 'ATCG', 'A', 'G', 'GCGA', 'CGAT');
+pgs.alt.indel.allele <- c('ATCG', 'A', 'A', 'ATCG', 'GCGA', 'G', 'A');
+
 
 # test data (multi-allelic):
 # 1. no strand flips
