@@ -138,9 +138,9 @@ test_that(
         pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
         phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
         phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
-        phenotype.data$binary.factor <- rep(c('a', 'b'), 5); # should be included in the regression
-        phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
-        phenotype.data$binary.factor <- rep(c('a', 'b'), 5);
+        phenotype.data$binary.factor <- c(rep(c('a', 'b'), 5), 'a'); # should be included in the regression
+        phenotype.data$categorical.phenotype <- c(rep(c('a', 'b', 'c', 'd', 'e'), 2), 'f'); # should not be included in the regression
+        phenotype.data$binary.factor <- c(rep(c('a', 'b'), 5), 'a');
 
         # run function
         regression.data <- run.pgs.regression(pgs = pgs, phenotype.data = phenotype.data);
@@ -177,8 +177,8 @@ test_that(
         pgs <- seq(0, 1, length.out = nrow(phenotype.test.data$phenotype.data));
         phenotype.columns <- c('continuous.phenotype', 'binary.phenotype');
         phenotype.data <- phenotype.test.data$phenotype.data[ , phenotype.columns];
-        phenotype.data$binary.factor <- rep(c('a', 'b'), 5); # should be included in the regression
-        phenotype.data$categorical.phenotype <- rep(c('a', 'b', 'c', 'd', 'e'), 2); # should not be included in the regression
+        phenotype.data$binary.factor <- c(rep(c('a', 'b'), 5), 'a'); # should be included in the regression
+        phenotype.data$categorical.phenotype <- c(rep(c('a', 'b', 'c', 'd', 'e'), 2), 'f'); # should not be included in the regression
 
         # run function
         regression.data <- run.pgs.regression(pgs = pgs, phenotype.data = phenotype.data);

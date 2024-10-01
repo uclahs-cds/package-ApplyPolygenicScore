@@ -157,7 +157,7 @@ create.pgs.density.plot <- function(
 
         # prettify x-axis labels (handle exponential notation)
         basic.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-            stats::quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+            stats::quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9), na.rm = TRUE),
             log.scaled = FALSE,
             num.labels = 3,
             include.origin = FALSE
@@ -200,7 +200,7 @@ create.pgs.density.plot <- function(
                     warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
                     # plot all lines in black
                     group.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-                        quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+                        quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9), na.rm = TRUE),
                         log.scaled = FALSE,
                         num.labels = 3,
                         include.origin = FALSE
@@ -237,7 +237,7 @@ create.pgs.density.plot <- function(
                     }
 
                 group.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-                    quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9)),
+                    quantile(unlist(pgs.data.for.plotting), probs = c(0.1, 0.9), na.rm = TRUE),
                     log.scaled = FALSE,
                     num.labels = 3,
                     include.origin = FALSE
