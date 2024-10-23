@@ -25,6 +25,16 @@ test_that(
     );
 
 test_that(
+    'flip.DNA.allele correctly formats output', {
+
+        expect_equal(
+            class(flip.DNA.allele(c('A', 'T', 'C', 'G', NA))),
+            'character'
+            );
+        }
+    );
+
+test_that(
     'flip.DNA.allele correctly flips SNP alleles', {
 
         flipped.alleles <- c('T', 'A', 'G', 'C', NA);
@@ -36,11 +46,16 @@ test_that(
     );
 
 test_that(
-    'flip.DNA.allele correctly flips INDEL alleles', {
+    'flip.DNA.allele correctly handles INDEL alleles', {
 
         expect_equal(
             flip.DNA.allele(c('ATCG', 'TATA', 'AAAA', 'TTTA', 'AACCTTGGAACCTTGG', NA)),
-            c('CGA', 'TAT', 'TTT', 'TAA', 'CCAAGGTTCCAAGGT', NA)
+            c('ATCG', 'TATA', 'AAAA', 'TTTA', 'AACCTTGGAACCTTGG', NA) # no flip expected
+            );
+
+        expect_equal(
+            flip.DNA.allele(c('ATCG', 'TATA', 'AAAA', 'TTTA', 'AACCTTGGAACCTTGG', NA), return.indels.as.missing = TRUE),
+            c(NA, NA, NA, NA, NA, NA) # missing expected
             );
         }
     );
