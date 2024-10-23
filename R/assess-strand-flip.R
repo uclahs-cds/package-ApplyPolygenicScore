@@ -1,4 +1,5 @@
-flip.DNA.allele <- function(allele) {
+# default indel handling is to just return as is (no flip).
+flip.DNA.allele <- function(allele, return.indels.as.missing = FALSE) {
     if (all(is.na(allele))) {
         return(NA);
         }
@@ -7,46 +8,44 @@ flip.DNA.allele <- function(allele) {
         stop('allele must be a character vector');
         }
 
-    # split any INDEL alleles into individual characters
-    allele.bases <- lapply(X = allele, FUN = function(x) unlist(strsplit(x, '')));
-
+    # Verify acceptable SNP alleles
+    snp.allele <- allele[nchar(allele) == 1];
     accepted.alleles <- c('A', 'T', 'C', 'G');
-    allele.check <- unlist(lapply(X = allele.bases, FUN = function(x) all(x[!is.na(x)] %in% accepted.alleles)));
+    allele.check <- snp.allele[!is.na(snp.allele)] %in% accepted.alleles;
 
     if (any(!allele.check, na.rm = TRUE)) {
-        stop('Invalid allele: ', unlist(allele.bases)[!allele.check]);
+        stop('Invalid allele: ', snp.allele[!is.na(snp.allele)][!allele.check]);
         }
-    flipped.allele <- lapply(
-        X = allele.bases,
+
+    flipped.allele <- sapply(
+        X = allele,
         FUN = function(x) {
-            flip <- sapply(
-                X = x,
-                FUN = switch,
-                'A' = 'T',
-                'T' = 'A',
-                'C' = 'G',
-                'G' = 'C',
-                `NA` = NA
-                );
-            reverse.complement <- rev(flip);
-            if (any(is.na(reverse.complement))) {
+            # NA handling
+            if (is.na(x)) {
                 return(NA);
-                } else if (length(reverse.complement) > 1) {
-                    # An allele with more than one base indicates an INDEL.
-                    # The first base of an insertion ALT or deletion REF is upstream of the actual insertion/deletion
-                    # The "upstream" variant of an INDEL called on the reverse strand will be downstream of the INDEL on the forward strand
-                    # and thus would not be recorded in the original VCF file
-                    # It is impossible to know the upstream base of a flipped INDEL
-                    # We discard the last base of the reverse complement and only return the flip of the
-                    # inserted or deleted base.
-                    return(paste(reverse.complement[-length(reverse.complement)], collapse = ''));
+                # INDEL handling
+                } else if (nchar(x) > 1) {
+                if (return.indels.as.missing) {
+                    return(NA);
                     } else {
-                    return(paste(reverse.complement, collapse = ''));
-                    }
+                        return(x); # no INDEL flipping supported
+                        }
+                # SNP handling
+                } else {
+                    flip <- switch(
+                        x,
+                        'A' = 'T',
+                        'T' = 'A',
+                        'C' = 'G',
+                        'G' = 'C',
+                        `NA` = NA
+                        );
+                }
             }
         );
 
-    return(unlist(flipped.allele));
+    names(flipped.allele) <- NULL;
+    return(flipped.allele);
     }
 
 assess.strand.flip <- function(
@@ -85,13 +84,13 @@ assess.strand.flip <- function(
             stop('alleles must be character vectors');
             }
 
-        accepted.alleles <- c('A', 'T', 'C', 'G');
+        accepted.alleles <- c('A', 'T', 'C', 'G', '*');
         allele.check <- unlist(lapply(X = all.alleles, FUN = function(x) all(strsplit(x, '')[[1]] %in% accepted.alleles)));
         if (any(!allele.check)) {
             stop('Invalid allele: ', all.alleles[!allele.check]);
             }
 
-        # check for invalid indels (both REF/Other and ALT/Effect cannot be more than one base long)
+        # check for invalid indels (both Other and Effect cannot be more than one base long)
         if (nchar(current.pgs.ref.allele) > 1 && nchar(current.pgs.effect.allele) > 1) {
             stop('Invalid PGS alleles: ', current.pgs.ref.allele, ' / ', current.pgs.effect.allele);
             }
@@ -112,10 +111,10 @@ assess.strand.flip <- function(
             }
 
         # check if PGS effect designation is on the VCF reference allele (effect switch)
-        effect.switch.ref.check <- vcf.ref.allele[i] == pgs.effect.allele[i];
-        effect.switch.alt.check <- any(vcf.alt.allele.split) %in% pgs.ref.allele[i];
+        effect.switch.ref.check <- current.pgs.ref.allele == current.vcf.effect.allele;
+        effect.switch.alt.check <- any(vcf.alt.allele.split) %in% current.pgs.ref.allele;
 
-        if (effect.switch.ref.check & effect.switch.alt.check) {
+        if (effect.switch.ref.check && effect.switch.alt.check) {
             effect.switch.candidate <- TRUE;
             } else {
                 effect.switch.candidate <- FALSE;
