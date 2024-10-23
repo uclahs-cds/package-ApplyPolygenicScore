@@ -1,24 +1,32 @@
-# default indel handling is to just return as is (no flip).
-flip.DNA.allele <- function(allele, return.indels.as.missing = FALSE) {
-    if (all(is.na(allele))) {
+#' @title Flip DNA allele
+#' @description Flip single base pair DNA alleles to their reverse complement. INDEL flipping is not supported.
+#' @param alleles A character vector of DNA alleles.
+#' @param return.indels.as.missing A logical value indicating whether to return NA for INDEL alleles. Default is FALSE.
+#' @return A character vector of flipped DNA alleles. INDEL alleles are returned as is unless return.indels.as.missing is TRUE.
+#' @examples
+#' alleles <- c('A', 'T', 'C', 'G', ATG, NA);
+#' flip.DNA.allele(alleles);
+#' @export
+flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
+    if (all(is.na(alleles))) {
         return(NA);
         }
-    # check that allele is a character vector
-    if (!is.character(allele)) {
+    # check that alleles is a character vector
+    if (!is.character(alleles)) {
         stop('allele must be a character vector');
         }
 
     # Verify acceptable SNP alleles
-    snp.allele <- allele[nchar(allele) == 1];
+    snp.alleles <- alleles[nchar(alleles) == 1];
     accepted.alleles <- c('A', 'T', 'C', 'G');
-    allele.check <- snp.allele[!is.na(snp.allele)] %in% accepted.alleles;
+    allele.check <- snp.alleles[!is.na(snp.alleles)] %in% accepted.alleles;
 
     if (any(!allele.check, na.rm = TRUE)) {
-        stop('Invalid allele: ', snp.allele[!is.na(snp.allele)][!allele.check]);
+        stop('Invalid allele: ', snp.alleles[!is.na(snp.alleles)][!allele.check]);
         }
 
-    flipped.allele <- sapply(
-        X = allele,
+    flipped.alleles <- sapply(
+        X = alleles,
         FUN = function(x) {
             # NA handling
             if (is.na(x)) {
@@ -44,8 +52,8 @@ flip.DNA.allele <- function(allele, return.indels.as.missing = FALSE) {
             }
         );
 
-    names(flipped.allele) <- NULL;
-    return(flipped.allele);
+    names(flipped.alleles) <- NULL;
+    return(flipped.alleles);
     }
 
 assess.strand.flip <- function(
