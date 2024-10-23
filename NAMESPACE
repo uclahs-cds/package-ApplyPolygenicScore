@@ -41,6 +41,7 @@ export(
     convert.alleles.to.pgs.dosage,
     convert.allele.frequency.to.dosage,
     convert.pgs.to.bed,
+    flip.DNA.allele,
     format.chromosome.notation,
     get.pgs.percentiles,
     import.pgs.weight.file,
