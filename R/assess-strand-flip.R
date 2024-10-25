@@ -68,8 +68,53 @@ flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
     names(flipped.alleles) <- NULL;
     return(flipped.alleles);
     }
-
-assess.strand.flip <- function(
+#' @title Assess PGS allele match to VCF allele
+#' @description Assess whether PGS reference and effect alleles match provided VCF reference and alternative alleles.
+#' Mismatches are checked for potential switching of effect and reference PGS alleles (cases where the effect allele is the REF VCF allele)
+#' and are evaluated for DNA strand flips (by flipping the PGS alleles). INDEL alleles are not supported for strand flip assessment.
+#' @param vcf.ref.allele A character vector of singular VCF reference (REF) alleles.
+#' @param vcf.alt.allele A character vector of VCF alternative (ALT) alleles. Multiple alleles at a multiallelic site must be separated by commas.
+#' @param pgs.ref.allele A character vector of singular PGS reference alleles aka "non-effect" or "other" alleles.
+#' @param pgs.effect.allele A character vector of singular PGS effect alleles.
+#' @param return.indels.as.missing A logical value indicating whether to return NA for INDEL alleles with detected mismatches. Default is FALSE.
+#' @param return.ambiguous.as.missing A logical value indicating whether to return NA for ambiguous cases where both a strand flip and effect switch are possible. Default is FALSE.
+#' @return A list containing the match assessment, a new PGS effect allele, and a new PGS other allele.
+#' \strong{Output Structure}
+#'
+#' The outputed list contains the following elements:
+#' \itemize{
+#' \item \code{match.status}: A character vector indicating the match status for each pair of allele pairs. Possible values are \code{default_match}, \code{effect_switch}, \code{strand_flip}, \code{effect_switch_with_strand_flip}, \code{ambiguous_flip}, \code{indel_mismatch}, and \code{unresolved_mismatch}.
+#' \item \code{new.pgs.effect.allele}: A character vector of new PGS effect alleles based on the match status. If the match status is \code{default_match} or \code{effect_switch}, the original PGS effect allele is returned.
+#' If the match status is \code{strand_flip} or \code{effect_switch_with_strand_flip} the flipped PGS effect allele is returned. If the match status is \code{ambiguous_flip}, \code{indel_mismatch}, or \code{unresolved_mismatch},
+#' the return value is either the original allele or NA as dictated by the return.indels.as.missing and return.ambiguous.as.missing parameters.
+#' \item \code{new.pgs.other.allele}: A character vector of new PGS other alleles based on the match status, following the same logic as \code{new.pgs.effect.allele}.
+#' }
+#'
+#' The match.status output indicates the following:
+#' \itemize{
+#' \item \code{default_match}: The default PGS reference allele matches the VCF REF allele and the default PGS effect allele matches one of the VCF ALT alleles.
+#' \item \code{effect_switch}: The PGS effect allele matches the VCF REF allele and the PGS reference allele matches one of the VCF ALT alleles.
+#' \item \code{strand_flip}: The PGS reference and effect alleles match their respective VCF pairs when flipped.
+#' \item \code{effect_switch_with_strand_flip}: The PGS effect allele matches the VCF REF allele and the PGS reference allele matches one of the VCF ALT alleles when flipped.
+#' \item \code{ambiguous_flip}: Both an effect switch and a strand flip have been detected. This is an ambiguous case caused by palindromic SNPs.
+#' \item \code{indel_mismatch}: A mismatch was detected between pairs of alleles where at least one was an INDEL. INDEL alleles are not supported for strand flip assessment.
+#' \item \code{unresolved_mismatch}: A mismatch was detected between pairs of non-INDEL alleles that could not be resolved by an effect switch or flipping the PGS alleles.
+#' }
+#' @examples
+#' # Example data demonstrating the following cases in each vector element:
+#' # 1. no strand flips
+#' # 2. effect allele switch
+#' # 3. strand flip
+#' # 4. effect allele switch AND strand flip
+#' # 5. palindromic (ambiguous) alleles
+#' # 6. unresolved mismatch
+#' vcf.ref.allele <- c('A', 'A', 'A', 'A', 'A', 'A');
+#' vcf.alt.allele <- c('G', 'G', 'G', 'G', 'T', 'G');
+#' pgs.ref.allele <- c('A', 'G', 'T', 'C', 'T', 'A');
+#' pgs.effect.allele <- c('G', 'A', 'C', 'T', 'A', 'C');
+#' assess.pgs.vcf.allele.match(vcf.ref.allele, vcf.alt.allele, pgs.ref.allele, pgs.effect.allele);
+#' @export
+assess.pgs.vcf.allele.match <- function(
     vcf.ref.allele,
     vcf.alt.allele,
     pgs.ref.allele,
