@@ -142,12 +142,12 @@ assess.pgs.vcf.allele.match <- function(
         }
 
     # verify valid alleles
-    validate.allele.input(vcf.ref.allele, na.allowed = FALSE);
-    validate.allele.input(pgs.ref.allele, na.allowed = FALSE);
-    validate.allele.input(pgs.effect.allele, na.allowed = FALSE);
+    validate.allele.input(vcf.ref.allele, na.allowed = TRUE);
+    validate.allele.input(pgs.ref.allele, na.allowed = TRUE);
+    validate.allele.input(pgs.effect.allele, na.allowed = TRUE);
 
     # split multiallelic sites in VCF ALT field and validate
-    vcf.alt.allele.split <- sapply(
+    vcf.alt.allele.split <- unlist(sapply(
         X = vcf.alt.allele,
         FUN = function(x) {
             if (is.na(x)) {
@@ -156,8 +156,8 @@ assess.pgs.vcf.allele.match <- function(
                     return(unlist(strsplit(x, ',')));
                 }
             }
-        );
-    validate.allele.input(vcf.alt.allele.split, na.allowed = FALSE);
+        ));
+    validate.allele.input(vcf.alt.allele.split, na.allowed = TRUE);
 
     # initialize empty vectors to store flip info
     flipped.effect.allele <- rep(NA, length(vcf.ref.allele));
@@ -175,6 +175,17 @@ assess.pgs.vcf.allele.match <- function(
         # Multiple alleles are separated by commas e.g. 'A,T'
         # Split the VCF ALT field into a vector of alleles
         current.vcf.alt.allele.split <- unlist(strsplit(vcf.alt.allele[i], ','));
+
+        # NA handling.
+        # If one of the four alleles is missing, it is not possible to assess the match.
+        # Note that A VCF can have a missing ALT allele when in GVCF format and reporting
+        # a site where all individuals are non-variant (homozygous reference)
+        if (all(is.na(current.vcf.alt.allele.split)) || is.na(current.vcf.ref.allele) || is.na(current.pgs.ref.allele) || is.na(current.pgs.effect.allele)) {
+            flip.designation[i] <- 'missing_allele';
+                flipped.effect.allele[i] <- current.pgs.effect.allele;
+                flipped.other.allele[i] <- current.pgs.ref.allele;
+                next;
+                }
 
         # check if default ref-ref / alt-effect alleles match
         default.ref.check <- current.pgs.ref.allele == current.vcf.ref.allele;
