@@ -33,7 +33,7 @@ A list containing the match assessment, a new PGS effect allele, and a new PGS o
 The outputed list contains the following elements:
 \itemize{
 \item \code{match.status}: A character vector indicating the match status for each pair of allele pairs. Possible values are \code{default_match}, \code{effect_switch}, \code{strand_flip}, \code{effect_switch_with_strand_flip}, \code{ambiguous_flip}, \code{indel_mismatch}, and \code{unresolved_mismatch}.
-\item \code{new.pgs.effect.allele}: A character vector of new PGS effect alleles based on the match status. If the match status is \code{default_match} or \code{effect_switch}, the original PGS effect allele is returned.
+\item \code{new.pgs.effect.allele}: A character vector of new PGS effect alleles based on the match status. If the match status is \code{default_match}, \code{effect_switch} or \code{missing_allele}, the original PGS effect allele is returned.
 If the match status is \code{strand_flip} or \code{effect_switch_with_strand_flip} the flipped PGS effect allele is returned. If the match status is \code{ambiguous_flip}, \code{indel_mismatch}, or \code{unresolved_mismatch},
 the return value is either the original allele or NA as dictated by the return.indels.as.missing and return.ambiguous.as.missing parameters.
 \item \code{new.pgs.other.allele}: A character vector of new PGS other alleles based on the match status, following the same logic as \code{new.pgs.effect.allele}.
@@ -48,6 +48,7 @@ The match.status output indicates the following:
 \item \code{ambiguous_flip}: Both an effect switch and a strand flip have been detected. This is an ambiguous case caused by palindromic SNPs.
 \item \code{indel_mismatch}: A mismatch was detected between pairs of alleles where at least one was an INDEL. INDEL alleles are not supported for strand flip assessment.
 \item \code{unresolved_mismatch}: A mismatch was detected between pairs of non-INDEL alleles that could not be resolved by an effect switch or flipping the PGS alleles.
+\item \code{missing_allele}: One of the four alleles is missing, making it impossible to assess the match.
 }
 }
 \description{
