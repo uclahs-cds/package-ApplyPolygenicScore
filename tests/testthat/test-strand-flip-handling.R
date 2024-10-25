@@ -104,10 +104,10 @@ test_that(
         # Accepted alleles
         expect_silent(
             assess.pgs.vcf.allele.match(
-                c('A', '*', 'C', 'G', 'T'),
-                c('T', '*', 'G', 'C', 'A'),
-                c('A', 'T', 'C', 'G', 'T'),
-                c('T', 'A', 'G', 'C', 'A')
+                c('A', '*', 'C', 'G', 'T', NA),
+                c('T', '*', 'G', 'C', NA, 'A'),
+                c('A', 'T', 'C', NA, 'G', 'T'),
+                c('T', 'A', NA, 'G', 'C', 'A')
                 )
             );
         }
@@ -168,6 +168,31 @@ test_that(
         }
     );
 
+test_that(
+    'assess.pgs.vcf.allele.match correctly handles NA cases', {
+        test.na.output <- assess.pgs.vcf.allele.match(
+            c(NA, 'A', 'A', 'A'),
+            c('G', NA, 'G', 'G'),
+            c('A', 'G', NA, 'C'),
+            c('G', 'A', 'C', NA)
+            );
+
+        expect_equal(
+            test.na.output$match.status,
+            c('missing_allele', 'missing_allele', 'missing_allele', 'missing_allele')
+            );
+
+        expect_equal(
+            test.na.output$new.pgs.effect.allele,
+            c('G', 'A', 'C', NA)
+            );
+
+        expect_equal(
+            test.na.output$new.pgs.other.allele,
+            c('A', 'G', NA, 'C')
+            );
+        }
+    );
 
 test_that(
     'assess.pgs.vcf.allele.match correctly handles INDEL cases', {
