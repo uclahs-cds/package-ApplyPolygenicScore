@@ -120,7 +120,7 @@ assess.strand.flip <- function(
     # strand status
     flip.designation <- rep(NA, length(vcf.ref.allele));
 
-    for (i in 1:length(vcf.ref.allele)) {
+    for (i in seq_along(vcf.ref.allele)) {
 
         current.pgs.ref.allele <- pgs.ref.allele[i];
         current.pgs.effect.allele <- pgs.effect.allele[i];
@@ -139,7 +139,7 @@ assess.strand.flip <- function(
             flip.designation[i] <- 'default_match';
             flipped.effect.allele[i] <- pgs.effect.allele[i];
             flipped.other.allele[i] <- pgs.ref.allele[i];
-            break;
+            next;
             }
 
         # check if PGS effect designation is on the VCF reference allele (effect switch)
@@ -158,16 +158,16 @@ assess.strand.flip <- function(
         if (nchar(current.pgs.ref.allele) > 1 || nchar(current.pgs.effect.allele) > 1) {
             pgs.indel <- TRUE;
             # no INDEL flipping supported, return either NA or the original allele
-            warning('Mismatch detected in INDEL PGS allele. Skipping strand flip assessment');
+            warning('Mismatch detected in INDEL PGS allele. Skipping strand flip assessment.');
             flip.designation[i] <- 'indel_mismatch';
             if (return.indels.as.missing) {
                 flipped.effect.allele[i] <- NA;
                 flipped.other.allele[i] <- NA;
-                break;
+                next;
                 } else {
                     flipped.effect.allele[i] <- pgs.effect.allele[i];
                     flipped.other.allele[i] <- pgs.ref.allele[i];
-                    break;
+                    next;
                     }
             } else {
                 pgs.indel <- FALSE;
@@ -175,21 +175,18 @@ assess.strand.flip <- function(
 
         # identify insertion/deletion alleles in VCF
         if (nchar(current.vcf.ref.allele) > 1 || all(nchar(current.vcf.alt.allele.split) > 1)) {
-            vcf.indel <- TRUE;
             # no INDEL flipping supported, return either NA or the original allele
-            warning('Mismatch detected in INDEL VCF allele. Skipping strand flip assessment');
+            warning('Mismatch detected in INDEL VCF allele. Skipping strand flip assessment.');
             flip.designation[i] <- 'indel_mismatch';
             if (return.indels.as.missing) {
                 flipped.effect.allele[i] <- NA;
                 flipped.other.allele[i] <- NA;
-                break;
+                next;
                 } else {
                     flipped.effect.allele[i] <- current.pgs.effect.allele;
                     flipped.other.allele[i] <- current.pgs.ref.allele;
-                    break;
+                    next;
                     }
-            } else {
-                vcf.indel <- FALSE;
             }
 
 
@@ -215,11 +212,11 @@ assess.strand.flip <- function(
             if (return.ambiguous.as.missing) {
                 flipped.effect.allele[i] <- NA;
                 flipped.other.allele[i] <- NA;
-                break;
+                next;
                 } else {
                 flipped.effect.allele[i] <- current.pgs.effect.allele;
                 flipped.other.allele[i] <- current.pgs.ref.allele;
-                break;
+                next;
                 }
             } else if (effect.switch.candidate) {
             # if this is a clear-cut effect switch, return the default PGS alleles
@@ -227,13 +224,13 @@ assess.strand.flip <- function(
             flip.designation[i] <- 'effect_switch';
             flipped.effect.allele[i] <- current.pgs.effect.allele;
             flipped.other.allele[i] <- current.pgs.ref.allele;
-            break;
+            next;
             } else if (strand.flip.candidate) {
             # if this is a clear-cut strand flip, return the flipped PGS alleles
             flip.designation[i] <- 'strand_flip';
             flipped.effect.allele[i] <- pgs.effect.flip;
             flipped.other.allele[i] <- pgs.ref.flip;
-            break;
+            next;
             }
 
         # The only remaining case is when a ref/ref and alt/alt mismatch was detected
@@ -248,7 +245,7 @@ assess.strand.flip <- function(
             flip.designation[i] <- 'effect_switch_with_strand_flip';
             flipped.effect.allele[i] <- pgs.effect.flip;
             flipped.other.allele[i] <- pgs.ref.flip;
-            break;
+            next;
             } else {
                 # no solution found for ref/ref alt/alt mismatch
                 # same return strategy as ambiguous case
@@ -256,11 +253,11 @@ assess.strand.flip <- function(
                 if (return.ambiguous.as.missing) {
                     flipped.effect.allele[i] <- NA;
                     flipped.other.allele[i] <- NA;
-                    break;
+                    next;
                     } else {
                     flipped.effect.allele[i] <- current.pgs.effect.allele;
                     flipped.other.allele[i] <- current.pgs.ref.allele;
-                    break;
+                    next;
                     }
                 }
 
@@ -275,12 +272,3 @@ assess.strand.flip <- function(
         );
 
     }
-
-# assess.strand.flip(
-#     vcf.ref.allele = 'A',
-#     vcf.alt.allele = 'G',
-#     pgs.ref.allele = 'C',
-#     pgs.effect.allele = 'TAA',
-#     return.indels.as.missing = FALSE,
-#     return.ambiguous.as.missing = FALSE
-#     )
