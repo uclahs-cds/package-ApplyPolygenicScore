@@ -147,6 +147,9 @@ vcf.alt.allele <- c('G', 'G', 'G', 'G', 'T', 'G')
 pgs.ref.allele <- c('A', 'G', 'T', 'C', 'T', 'A')
 pgs.effect.allele <- c('G', 'A', 'C', 'T', 'A', 'C')
 
+vcf.alt.multi.allele <- c('G,T', 'G,T', 'G,T', 'G,T', 'G,T', 'G,T')
+
+
 test_that(
     'assess.strand.flip correctly handles SNP cases', {
         test.output <- assess.strand.flip(vcf.ref.allele, vcf.alt.allele, pgs.ref.allele, pgs.effect.allele);
@@ -172,6 +175,8 @@ vcf.ref.allele.indel.test <- c('A', 'A', 'A', 'A', 'A')
 vcf.alt.allele.indel.test <- c('G', 'G', 'G', 'G', 'T')
 pgs.ref.allele.indel.test <- c('A', 'G', 'T', 'C', 'T')
 pgs.effect.allele.indel.test <- c('G', 'A', 'C', 'T', 'A')
+
+
 
 test_that(
     'assess.strand.flip correctly handles INDEL cases', {
@@ -442,12 +447,103 @@ test_that(
     );
 
 test_that(
-    
-)
+    'assess.strand.flip correctly handles multi-allelic cases', {
+        # case with extra alleles that don't change the result
+        vcf.alt.multi.allele <- c('G,T', 'G,T', 'G,T', 'G,T', 'G,T', 'G,T')
+        test.output.benign.multi <- assess.strand.flip(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
+
+        expect_equal(
+            test.output.benign.multi$match.status,
+            c('default_match', 'effect_switch', 'strand_flip', 'effect_switch_with_strand_flip', 'ambiguous_flip', 'unresolved_mismatch')
+            );
+
+        expect_equal(
+            test.output.benign.multi$new.pgs.effect.allele,
+            c('G', 'A', 'G', 'A', 'A', 'C')
+            );
+        
+        expect_equal(
+            test.output.benign.multi$new.pgs.other.allele,
+            c('A', 'G', 'A', 'G', 'T', 'A')
+            );
+
+        # case with extra alleles that can change unresolved result
+        vcf.alt.multi.allele <- c('G,T', 'G,A', 'G,C', 'G,T', 'A,T', 'G,C')
+        test.output.unresolved.multi <- assess.strand.flip(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
+
+        expect_equal(
+            test.output.unresolved.multi$match.status,
+            c('default_match', 'effect_switch', 'strand_flip', 'effect_switch_with_strand_flip', 'ambiguous_flip', 'default_match')
+            );
+
+        expect_equal(
+            test.output.unresolved.multi$new.pgs.effect.allele,
+            c('G', 'A', 'G', 'A', 'A', 'C')
+            );
+
+        expect_equal(
+            test.output.unresolved.multi$new.pgs.other.allele,
+            c('A', 'G', 'A', 'G', 'T', 'A')
+            );
+
+        # case with extra indels that don't change the result
+        vcf.alt.multi.allele <- c('G,TGCA', 'G,TGCA', 'G,TGCA', 'G,TGCA', 'GTCA,T', 'G,TGCA')
+        test.output.benign.multi.indel <- assess.strand.flip(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
+
+        expect_equal(
+            test.output.benign.multi.indel$match.status,
+            c('default_match', 'effect_switch', 'strand_flip', 'effect_switch_with_strand_flip', 'ambiguous_flip', 'unresolved_mismatch')
+            );
+
+        expect_equal(
+            test.output.benign.multi.indel$new.pgs.effect.allele,
+            c('G', 'A', 'G', 'A', 'A', 'C')
+            );
+
+        expect_equal(
+            test.output.benign.multi.indel$new.pgs.other.allele,
+            c('A', 'G', 'A', 'G', 'T', 'A')
+            );
+
+        # case with only indel multi-alleles in a mismatch
+        expect_warning(
+            assess.strand.flip(
+                c('A', 'A'),
+                c('TG,TGCA', 'G,TGCA'),
+                c('A', 'A'),
+                c('G', 'TGCA')
+                ),
+            'Mismatch detected in INDEL VCF allele. Skipping strand flip assessment.'
+            );
+
+        # case with only indel multi-alleles in a match
+        test.output.indel.multi <- assess.strand.flip(
+            c('A', 'A'),
+            c('TG,TGCA', 'G,TGCA'),
+            c('A', 'A'),
+            c('TGCA', 'G')
+            );
+
+        expect_equal(
+            test.output.indel.multi$match.status,
+            c('default_match', 'default_match')
+            );
+
+        expect_equal(
+            test.output.indel.multi$new.pgs.effect.allele,
+            c('TGCA', 'G')
+            );
+
+        expect_equal(
+            test.output.indel.multi$new.pgs.other.allele,
+            c('A', 'A')
+            );
+        }
+    );
 
 assess.strand.flip(
     vcf.ref.allele = vcf.ref.allele,
-    vcf.alt.allele = vcf.alt.allele,
+    vcf.alt.allele = vcf.alt.multi.allele,
     pgs.ref.allele = pgs.ref.allele,
     pgs.effect.allele = pgs.effect.allele,
     return.indels.as.missing = FALSE,
