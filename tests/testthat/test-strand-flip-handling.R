@@ -62,48 +62,48 @@ test_that(
 
 
 test_that(
-    'assess.strand.flip correctly checks input', {
+    'assess.pgs.vcf.allele.match correctly checks input', {
 
         # input class
         expect_error(
-            assess.strand.flip(1, 'A', 'A', 'T'),
+            assess.pgs.vcf.allele.match(1, 'A', 'A', 'T'),
             'alleles must be character vectors'
             );
 
         expect_error(
-            assess.strand.flip('A', 1, 'A', 'T'),
+            assess.pgs.vcf.allele.match('A', 1, 'A', 'T'),
             'alleles must be character vectors'
             );
 
         expect_error(
-            assess.strand.flip('A', 'A', 1, 'T'),
+            assess.pgs.vcf.allele.match('A', 'A', 1, 'T'),
             'alleles must be character vectors'
             );
 
         expect_error(
-            assess.strand.flip('A', 'A', 'T', 1),
+            assess.pgs.vcf.allele.match('A', 'A', 'T', 1),
             'alleles must be character vectors'
             );
 
         # input length
         expect_error(
-            assess.strand.flip('A', c('A', 'T'), 'A', 'TT'),
+            assess.pgs.vcf.allele.match('A', c('A', 'T'), 'A', 'TT'),
             'vcf.ref.allele and vcf.alt.allele must be the same length.'
             );
 
         expect_error(
-            assess.strand.flip('A', 'A', 'TT', c('A', 'T')),
+            assess.pgs.vcf.allele.match('A', 'A', 'TT', c('A', 'T')),
             'pgs.ref.allele and pgs.effect.allele must be the same length.'
             );
 
         expect_error(
-            assess.strand.flip(c('A', 'A'), c('A', 'A'), 'A', 'TT'),
+            assess.pgs.vcf.allele.match(c('A', 'A'), c('A', 'A'), 'A', 'TT'),
             'vcf.ref.allele, vcf.alt.allele, pgs.ref.allele, and pgs.effect.allele must be the same length.'
             );
 
         # Accepted alleles
         expect_silent(
-            assess.strand.flip(
+            assess.pgs.vcf.allele.match(
                 c('A', '*', 'C', 'G', 'T'),
                 c('T', '*', 'G', 'C', 'A'),
                 c('A', 'T', 'C', 'G', 'T'),
@@ -114,8 +114,8 @@ test_that(
     );
 
 test_that(
-    'assess.strand.flip correctly formats outputs', {
-        test.output <- assess.strand.flip(c('A', 'A'), c('C', 'G'), c('A', 'A'), c('C', 'G'));
+    'assess.pgs.vcf.allele.match correctly formats outputs', {
+        test.output <- assess.pgs.vcf.allele.match(c('A', 'A'), c('C', 'G'), c('A', 'A'), c('C', 'G'));
 
         expect_equal(
             class(test.output),
@@ -147,12 +147,9 @@ vcf.alt.allele <- c('G', 'G', 'G', 'G', 'T', 'G')
 pgs.ref.allele <- c('A', 'G', 'T', 'C', 'T', 'A')
 pgs.effect.allele <- c('G', 'A', 'C', 'T', 'A', 'C')
 
-vcf.alt.multi.allele <- c('G,T', 'G,T', 'G,T', 'G,T', 'G,T', 'G,T')
-
-
 test_that(
-    'assess.strand.flip correctly handles SNP cases', {
-        test.output <- assess.strand.flip(vcf.ref.allele, vcf.alt.allele, pgs.ref.allele, pgs.effect.allele);
+    'assess.pgs.vcf.allele.match correctly handles SNP cases', {
+        test.output <- assess.pgs.vcf.allele.match(vcf.ref.allele, vcf.alt.allele, pgs.ref.allele, pgs.effect.allele);
 
         expect_equal(
             test.output$match.status,
@@ -171,33 +168,27 @@ test_that(
         }
     );
 
-vcf.ref.allele.indel.test <- c('A', 'A', 'A', 'A', 'A')
-vcf.alt.allele.indel.test <- c('G', 'G', 'G', 'G', 'T')
-pgs.ref.allele.indel.test <- c('A', 'G', 'T', 'C', 'T')
-pgs.effect.allele.indel.test <- c('G', 'A', 'C', 'T', 'A')
-
-
 
 test_that(
-    'assess.strand.flip correctly handles INDEL cases', {
+    'assess.pgs.vcf.allele.match correctly handles INDEL cases', {
         # indel mismatch case
         expect_warning(
-            assess.strand.flip('A', 'G', 'A', 'ATCG'),
+            assess.pgs.vcf.allele.match('A', 'G', 'A', 'ATCG'),
             'Mismatch detected in INDEL PGS allele. Skipping strand flip assessment.'
             );
         # indel mismatch case
         expect_warning(
-            assess.strand.flip('ATCG', 'A', 'G', 'A'),
+            assess.pgs.vcf.allele.match('ATCG', 'A', 'G', 'A'),
             'Mismatch detected in INDEL VCF allele. Skipping strand flip assessment.'
             );
         # indel but everything matches
         expect_silent(
-            assess.strand.flip('ATCG', 'A', 'ATCG', 'A')
+            assess.pgs.vcf.allele.match('ATCG', 'A', 'ATCG', 'A')
             );
 
         # check indel handling when return.indels.as.missing == FALSE
         # VCF ALT allele is an INDEL
-        test.leave.indels.vcf.alt <- assess.strand.flip(
+        test.leave.indels.vcf.alt <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'ATCG'),
             c('A', 'A'),
@@ -221,7 +212,7 @@ test_that(
             );
 
         # VCF REF allele is an INDEL
-        test.leave.indels.vcf.ref <- assess.strand.flip(
+        test.leave.indels.vcf.ref <- assess.pgs.vcf.allele.match(
             c('A', 'ATCG'),
             c('G', 'A'),
             c('A', 'A'),
@@ -245,7 +236,7 @@ test_that(
             );
 
         # PGS effect allele is an INDEL
-        test.leave.indels.pgs.effect <- assess.strand.flip(
+        test.leave.indels.pgs.effect <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'G'),
             c('A', 'A'),
@@ -269,7 +260,7 @@ test_that(
             );
 
         # PGS other allele is an INDEL
-        test.leave.indels.pgs.other <- assess.strand.flip(
+        test.leave.indels.pgs.other <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'G'),
             c('ATCG', 'A'),
@@ -294,7 +285,7 @@ test_that(
 
         # check indel handling when return.indels.as.missing == TRUE
         # VCF ALT allele is an INDEL
-        test.missing.indels.vcf.alt <- assess.strand.flip(
+        test.missing.indels.vcf.alt <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'ATCG'),
             c('A', 'A'),
@@ -318,7 +309,7 @@ test_that(
             );
 
         # VCF REF allele is an INDEL
-        test.missing.indels.vcf.ref <- assess.strand.flip(
+        test.missing.indels.vcf.ref <- assess.pgs.vcf.allele.match(
             c('A', 'ATCG'),
             c('G', 'A'),
             c('A', 'A'),
@@ -342,7 +333,7 @@ test_that(
             );
 
         # PGS effect allele is an INDEL
-        test.missing.indels.pgs.effect <- assess.strand.flip(
+        test.missing.indels.pgs.effect <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'G'),
             c('A', 'A'),
@@ -366,7 +357,7 @@ test_that(
             );
 
         # PGS other allele is an INDEL
-        test.missing.indels.pgs.other <- assess.strand.flip(
+        test.missing.indels.pgs.other <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'G'),
             c('ATCG', 'A'),
@@ -393,11 +384,11 @@ test_that(
     );
 
 test_that(
-    'assess.strand.flip correctly handles ambiguous and unresolved cases', {
+    'assess.pgs.vcf.allele.match correctly handles ambiguous and unresolved cases', {
 
         # palindromic case, return.ambiguous.as.missing == TRUE
 
-        test.ambiguous.missing <- assess.strand.flip(
+        test.ambiguous.missing <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'T'),
             c('A', 'T'),
@@ -421,7 +412,7 @@ test_that(
             );
 
         # unresolved case, return.ambiguous.as.missing == TRUE
-        test.unresolved.missing <- assess.strand.flip(
+        test.unresolved.missing <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('G', 'T'),
             c('A', 'T'),
@@ -447,10 +438,10 @@ test_that(
     );
 
 test_that(
-    'assess.strand.flip correctly handles multi-allelic cases', {
+    'assess.pgs.vcf.allele.match correctly handles multi-allelic cases', {
         # case with extra alleles that don't change the result
         vcf.alt.multi.allele <- c('G,T', 'G,T', 'G,T', 'G,T', 'G,T', 'G,T')
-        test.output.benign.multi <- assess.strand.flip(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
+        test.output.benign.multi <- assess.pgs.vcf.allele.match(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
 
         expect_equal(
             test.output.benign.multi$match.status,
@@ -469,7 +460,7 @@ test_that(
 
         # case with extra alleles that can change unresolved result
         vcf.alt.multi.allele <- c('G,T', 'G,A', 'G,C', 'G,T', 'A,T', 'G,C')
-        test.output.unresolved.multi <- assess.strand.flip(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
+        test.output.unresolved.multi <- assess.pgs.vcf.allele.match(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
 
         expect_equal(
             test.output.unresolved.multi$match.status,
@@ -488,7 +479,7 @@ test_that(
 
         # case with extra indels that don't change the result
         vcf.alt.multi.allele <- c('G,TGCA', 'G,TGCA', 'G,TGCA', 'G,TGCA', 'GTCA,T', 'G,TGCA')
-        test.output.benign.multi.indel <- assess.strand.flip(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
+        test.output.benign.multi.indel <- assess.pgs.vcf.allele.match(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
 
         expect_equal(
             test.output.benign.multi.indel$match.status,
@@ -507,7 +498,7 @@ test_that(
 
         # case with only indel multi-alleles in a mismatch
         expect_warning(
-            assess.strand.flip(
+            assess.pgs.vcf.allele.match(
                 c('A', 'A'),
                 c('TG,TGCA', 'G,TGCA'),
                 c('A', 'A'),
@@ -517,7 +508,7 @@ test_that(
             );
 
         # case with only indel multi-alleles in a match
-        test.output.indel.multi <- assess.strand.flip(
+        test.output.indel.multi <- assess.pgs.vcf.allele.match(
             c('A', 'A'),
             c('TG,TGCA', 'G,TGCA'),
             c('A', 'A'),
@@ -540,38 +531,3 @@ test_that(
             );
         }
     );
-
-assess.strand.flip(
-    vcf.ref.allele = vcf.ref.allele,
-    vcf.alt.allele = vcf.alt.multi.allele,
-    pgs.ref.allele = pgs.ref.allele,
-    pgs.effect.allele = pgs.effect.allele,
-    return.indels.as.missing = FALSE,
-    return.ambiguous.as.missing = FALSE
-    );
-
-# test data (indels):
-# 1. no strand flips insertion
-# 2. no strand flips deletion
-# 3. effect allele switch insertion
-# 4. effect allele switch deletion
-# 3. strand flip insertion
-# 4. strand flip deletion
-# strand flip and effect allele switch insertion
-
-vcf.ref.indel.allele <- c('A', 'ATCG', 'A', 'ATCG', 'A', 'ATCG', 'A');
-vcf.alt.indel.allele <- c('ATCG', 'A', 'ATCG', 'A', 'ATCG', 'A', 'ATCG');
-pgs.ref.indel.allele <- c('A', 'ATCG', 'ATCG', 'A', 'G', 'GCGA', 'CGAT');
-pgs.alt.indel.allele <- c('ATCG', 'A', 'A', 'ATCG', 'GCGA', 'G', 'A');
-
-
-# test data (multi-allelic):
-# 1. no strand flips
-# 2. effect allele switch
-# 3. strand flip
-# 4. palindromic (ambiguous) alleles
-
-vcf.ref.allele <- c('A', 'A', 'A', 'A')
-vcf.alt.allele <- c('G,T', 'G,T', 'G,T', 'T,C')
-pgs.ref.allele <- c('A', 'T', 'C', 'T')
-pgs.effect.allele <- c('G', 'C', 'T', 'A')
