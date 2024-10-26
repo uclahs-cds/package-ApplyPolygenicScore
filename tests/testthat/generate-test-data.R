@@ -111,6 +111,7 @@ simple.pgs.application.test.data <- list(
         POS = c(1, 2),
         ID = c('rs1', 'rs2'),
         effect_allele = c('T', 'T'),
+        other_allele = c('A', 'A'),
         beta = c(1.0, 1.0)
         ),
     vcf.data = data.frame(
@@ -155,6 +156,7 @@ merged.multiallelic.site.test.data <- list(
         POS = c(1, 2, 3),
         ID = c('rs1', 'rs2', 'rs3'),
         effect_allele = c('T', 'T', 'T'),
+        other_allele = c('A', 'A', 'A'),
         beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
@@ -162,6 +164,7 @@ merged.multiallelic.site.test.data <- list(
         POS = c(1, 2, 3),
         ID = c('rs1', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'A'),
+        other_allele = c('T', 'T', 'T'),
         beta = c(1.0, 1.0, 1.0)
         ),
     alt.as.two.risk.alleles.multiallelic.pgs.weight.data = data.frame(
@@ -169,6 +172,7 @@ merged.multiallelic.site.test.data <- list(
         POS = c(1, 2, 2, 3),
         ID = c('rs1', 'rs2', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'C', 'A'),
+        other_allele = c('T', 'T', 'T', 'T'),
         beta = c(1.0, 1.0, 0.5, 1.0)
         ),
     ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data = data.frame(
@@ -176,6 +180,7 @@ merged.multiallelic.site.test.data <- list(
         POS = c(1, 2, 2, 3),
         ID = c('rs1', 'rs2', 'rs2', 'rs3'),
         effect_allele = c('A', 'A', 'T', 'A'),
+        other_allele = c('T', 'T', 'A', 'T'),
         beta = c(1.0, 1.0, 0.5, 1.0)
         )
     );
@@ -204,6 +209,7 @@ missing.genotype.test.data <- list(
         POS = c(1, 2, 3, 4, 5),
         ID = c('rs1', 'rs2', 'rs3', 'rs4', 'rs5'),
         effect_allele = c('A', 'A', 'A', 'A', 'A'),
+        other_allele = c('T', 'T', 'T', 'T', 'T'),
         beta = c(1.0, 1.0, 1.0, 1.0, 1.0)
         )
     );
@@ -246,6 +252,7 @@ phenotype.test.data <- list(
         POS = 1:10,
         ID = paste0('rs', 1:10),
         effect_allele = 'A',
+        other_allele = 'T',
         beta = rnorm(10) # random beta values
         ),
 phenotype.data = data.frame(
