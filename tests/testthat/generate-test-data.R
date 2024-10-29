@@ -218,6 +218,51 @@ save(
     file = 'data/missing.genotype.test.data.Rda'
     );
 
+# create simple VCF data for testing strand flip handling
+strand.flip.test.data <- list(
+    # rs 1 is normal
+    # rs 2 is an  effect allele switch
+    # rs 3 is an is a strand flip
+    # rs 4 is a strand flip and effect allele switch
+    # rs 5 is a palindromic ambiguous mismatch
+    # rs 6 is an unresolved mismatch
+    # rs 7 is a normal indel match
+    # rs 8 is an indel mismatch
+
+    # sample 1 is always homozygous for the vcf REF allele
+    # sample 2 is always heterozygous
+    # sample 3 is always homozygous for the vcf ALT allele
+    strand.flip.pgs.weight.data = data.frame(
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1'),
+        POS = c(1, 2, 3, 4, 5, 6, 7, 8),
+        ID = c('rs1', 'rs2', 'rs3', 'rs4', 'rs5', 'rs6', 'rs7', 'rs8'),
+        other_allele = c('A', 'C', 'T', 'G', 'T', 'A', 'A', 'A'),
+        effect_allele = c('C', 'A', 'G', 'T', 'A', 'G', 'CT', 'CG'),
+        beta = c(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        ),
+    strand.flip.vcf.data = data.frame(
+        CHROM = rep(c('chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1', 'chr1'), each = 3),
+        POS = rep(c(1, 2, 3, 4, 5, 6, 7, 8), each = 3),
+        ID = rep(c('rs1', 'rs2', 'rs3', 'rs4', 'rs5', 'rs6', 'rs7', 'rs8'), each = 3),
+        REF = rep(c('A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'), each = 3),
+        ALT = rep(c('C', 'C', 'C', 'C', 'T', 'C', 'CT', 'CGG'), each = 3),
+        Indiv = rep(c('sample1', 'sample2', 'sample3'), 8),
+        gt_GT_alleles = c(
+            'A/A', 'A/C', 'C/C', # rs1
+            'A/A', 'A/C', 'C/C', # rs2
+            'A/A', 'A/C', 'C/C', # rs3
+            'A/A', 'A/C', 'C/C', # rs4
+            'A/A', 'A/T', 'T/T', # rs5
+            'A/A', 'A/C', 'C/C', # rs6
+            'A/A', 'A/CT', 'CT/CT', # rs7
+            'A/A', 'A/CGG', 'CGG/CGG' # rs8
+            )
+        )
+    );
+save(strand.flip.test.data, file = 'data/strand.flip.test.data.Rda');
+
+# dos
+
 # create data for testing phenotype related functionality
 # generate random genotype data
 set.seed(123);
