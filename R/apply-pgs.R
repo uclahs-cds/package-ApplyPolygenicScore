@@ -21,7 +21,7 @@ validate.vcf.input <- function(vcf.data) {
 
     }
 
-validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.frequency) {
+validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.frequency, correct.strand.flips, remove.ambiguous.allele.matches, remove.mismatched.indels) {
     if (!is.data.frame(pgs.weight.data)) {
         stop('pgs.weight.data must be a data.frame');
         }
@@ -30,6 +30,13 @@ validate.pgs.data.input <- function(pgs.weight.data, use.external.effect.allele.
 
     if (!all(required.pgs.columns %in% colnames(pgs.weight.data))) {
         stop('pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta');
+        }
+
+    # additional required columns if strand flip correction is enabled
+    if (correct.strand.flips || remove.ambiguous.allele.matches || remove.mismatched.indels) {
+        if (!('other_allele' %in% colnames(pgs.weight.data))) {
+            stop('pgs.weight.data must contain a column named other_allele if correct.strand.flips, remove.ambiguous.allele.matches, or remove.mismatched.indels is TRUE');
+            }
         }
 
     if (use.external.effect.allele.frequency) {
@@ -234,6 +241,9 @@ apply.polygenic.score <- function(
     pgs.weight.data,
     phenotype.data = NULL,
     phenotype.analysis.columns = NULL,
+    correct.strand.flips = TRUE,
+    remove.ambiguous.allele.matches = FALSE,
+    remove.mismatched.indels = FALSE,
     output.dir = NULL,
     file.prefix = NULL,
     missing.genotype.method = 'mean.dosage',
@@ -246,7 +256,13 @@ apply.polygenic.score <- function(
     ### Start Input Validation ###
 
     validate.vcf.input(vcf.data = vcf.data);
-    validate.pgs.data.input(pgs.weight.data = pgs.weight.data, use.external.effect.allele.frequency = use.external.effect.allele.frequency);
+    validate.pgs.data.input(
+        pgs.weight.data = pgs.weight.data,
+        use.external.effect.allele.frequency = use.external.effect.allele.frequency,
+        correct.strand.flips = correct.strand.flips,
+        remove.ambiguous.allele.matches = remove.ambiguous.allele.matches,
+        remove.mismatched.indels = remove.mismatched.indels
+        );
     validate.phenotype.data.input(phenotype.data = phenotype.data, phenotype.analysis.columns = phenotype.analysis.columns, vcf.data = vcf.data);
 
     if (validate.inputs.only) {
@@ -289,6 +305,19 @@ apply.polygenic.score <- function(
 
     # free up some memory
     rm(vcf.data);
+
+    ### Start Allele Match Check ###
+    if (remove.ambiguous.allele.matches || correct.strand.flips) {
+        match.assessment <- assess.pgs.vcf.allele.match(
+            vcf.ref.allele = merged.vcf.with.pgs.data$REF,
+            vcf.alt.allele = merged.vcf.with.pgs.data$ALT,
+            pgs.ref.allele = merged.vcf.with.pgs.data$other_allele,
+            pgs.effect.allele = merged.vcf.with.pgs.data$effect_allele,
+            return.ambiguous.as.missing = remove.ambiguous.allele.matches,
+            return.indels.as.missing = remove.mismatched.indels
+            );
+        merged.vcf.with.pgs.data$effect_allele <- match.assessment$new.pgs.effect.allele;
+        }
 
     # calculate dosage
     merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
