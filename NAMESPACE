@@ -36,6 +36,7 @@ importFrom(
 
 export(
     apply.polygenic.score,
+    assess.pgs.vcf.allele.match,
     combine.pgs.bed,
     combine.vcf.with.pgs,
     convert.alleles.to.pgs.dosage,

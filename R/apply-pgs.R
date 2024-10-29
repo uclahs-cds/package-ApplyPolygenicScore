@@ -341,7 +341,7 @@ apply.polygenic.score <- function(
 
     ### Start Allele Match Check ###
     if (remove.ambiguous.allele.matches || correct.strand.flips) {
-        match.assessment <- assess.pgs.vcf.allele.match(
+        match.assessment <- ApplyPolygenicScore::assess.pgs.vcf.allele.match(
             vcf.ref.allele = merged.vcf.with.pgs.data$REF,
             vcf.alt.allele = merged.vcf.with.pgs.data$ALT,
             pgs.ref.allele = merged.vcf.with.pgs.data$other_allele,
