@@ -9,6 +9,9 @@ apply.polygenic.score(
   pgs.weight.data,
   phenotype.data = NULL,
   phenotype.analysis.columns = NULL,
+  correct.strand.flips = TRUE,
+  remove.ambiguous.allele.matches = FALSE,
+  remove.mismatched.indels = FALSE,
   output.dir = NULL,
   file.prefix = NULL,
   missing.genotype.method = "mean.dosage",
@@ -29,6 +32,15 @@ apply.polygenic.score(
 Phenotype variables are automatically classified as continuous, binary, or neither based on data type and number of unique values. The calculated PGS is associated
 with each phenotype variable using linear or logistic regression for continuous or binary phenotypes, respectively. See \code{run.pgs.regression} for more details.
 If no phenotype.analysis.columns are provided, no regression analysis is performed.}
+
+\item{correct.strand.flips}{A logical indicating whether to check PGS weight data/VCF genotype data matches for strand flips and correct them. Default is \code{TRUE}.
+The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.}
+
+\item{remove.ambiguous.allele.matches}{A logical indicating whether to remove PGS variants with ambiguous allele matches between PGS weight data and VCF genotype data. Default is \code{FALSE}.
+The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.}
+
+\item{remove.mismatched.indels}{A logical indicating whether to remove indel variants that are mismatched between PGS weight data and VCF genotype data. Default is \code{FALSE}.
+The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.}
 
 \item{output.dir}{A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
 Files are tab-separate .txt files. Default is NULL in which case no files are written.}
@@ -92,7 +104,7 @@ Where \emph{m} is a PGS component variant out of a total \emph{M} variants.
 
 \strong{Missing Genotype Handling}
 
-VCF genotype data are matched to PGS data by chromosome, position, and effect allele. If a SNP cannot be matched by genomic coordinate,
+VCF genotype data are matched to PGS data by chromosome and position. If a SNP cannot be matched by genomic coordinate,
 an attempt is made to match by rsID (if available). If a SNP from the PGS weight data is not found in the VCF data after these two matching attempts,
 it is considered a cohort-wide missing variant.
 
@@ -119,6 +131,24 @@ An external allele frequency can be provided in the \code{pgs.weight.data} as a 
 If a PGS weight file provides weights for multiple effect alleles, the appropriate dosage is calculated for the alleles that each individual carries.
 It is assumed that multiallelic variants are encoded in the same row in the VCF data. This is known as "merged" format. Split multiallelic sites are not accepted.
 VCF data can be formatted to merged format using external tools for VCF file manipulation.
+
+\strong{Allele Mismatch Handling}
+Variants from the PGS weight data are merged with records in the VCF data by genetic coordinate.
+After the merge is complete, there may be cases where the VCF reference (REF) and alternative (ALT) alleles do not match their conventional counterparts in the
+PGS weight data (other allele and effect allele, respectively). This may be caused by a poor quality variant call, which can't be corrected.
+It could also be caused by a strand flip: the variant in question was called against opposite DNA reference strands in the PGS training data and the VCF data.
+Strand flips can be detected and corrected by flipping the affected allele to its reverse complement.
+\code{apply.polygenic.score} uses \code{assess.pgs.vcf.allele.match} to assess allele concordance, and is controlled through the following arguments:
+
+\itemize{
+\item \code{correct.strand.flips}: When \code{TRUE}, detected strand flips are corrected by flipping the affected value in the \code{effect_allele} column prior to dosage calling.
+\item \code{remove.ambiguous.allele.matches}: Corresponds to the \code{return.ambiguous.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, non-INDEL allele
+mismatches that cannot be resolved (due to palindromic alleles or causes other than strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing
+prior to dosage calling and missing genotype handling. The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
+\item \code{remove.mismatched.indels}: Corresponds to the \code{return.indels.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, INDEL allele mismatches
+(which cannot be assessed for strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing prior to dosage calling and missing genotype handling.
+The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
+}
 }
 \description{
 Apply a polygenic score to VCF data.
@@ -156,6 +186,15 @@ pgs.data <- apply.polygenic.score(
     missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
     use.external.effect.allele.frequency = TRUE
     );
+
+# Specify allele mismatch handling
+pgs.data <- apply.polygenic.score(
+   vcf.data = vcf.import$dat,
+   pgs.weight.data = pgs.import$pgs.weight.data,
+   correct.strand.flips = TRUE,
+   remove.ambiguous.allele.matches = TRUE,
+   remove.mismatched.indels = FALSE
+   );
 
 # Provide phenotype data for basic correlation analysis
 phenotype.data <- data.frame(
