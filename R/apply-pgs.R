@@ -114,6 +114,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param validate.inputs.only A logical indicating whether to only perform input data validation checks without running PGS application.
 #' If no errors are triggered, a message is printed and TRUE is returned. Default is \code{FALSE}.
 #' @return A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
+#' 
 #' \strong{Output Structure}
 #'
 #' The outputed list contains the following elements:
@@ -201,6 +202,9 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' (which cannot be assessed for strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing prior to dosage calling and missing genotype handling.
 #' The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
 #' }
+#' 
+#' Note that an allele match assessment requires the presence of both the \code{other_allele} and \code{effect_allele} in the PGS weight data.
+#' The \code{other_allele} column is not required by the PGS Catalog, and so is not always available.
 #'
 #' @examples
 #' # Example VCF

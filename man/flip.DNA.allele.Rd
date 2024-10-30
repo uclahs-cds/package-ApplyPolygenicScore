@@ -9,10 +9,10 @@ flip.DNA.allele(alleles, return.indels.as.missing = FALSE)
 \arguments{
 \item{alleles}{A character vector of DNA alleles.}
 
-\item{return.indels.as.missing}{A logical value indicating whether to return NA for INDEL alleles. Default is FALSE.}
+\item{return.indels.as.missing}{A logical value indicating whether to return NA for INDEL alleles. Default is \code{FALSE}.}
 }
 \value{
-A character vector of flipped DNA alleles. INDEL alleles are returned as is unless return.indels.as.missing is TRUE.
+A character vector of flipped DNA alleles. INDEL alleles are returned as is unless \code{return.indels.as.missing} is \code{TRUE}.
 }
 \description{
 Flip single base pair DNA alleles to their reverse complement. INDEL flipping is not supported.

@@ -22,13 +22,14 @@ assess.pgs.vcf.allele.match(
 
 \item{pgs.effect.allele}{A character vector of singular PGS effect alleles.}
 
-\item{return.indels.as.missing}{A logical value indicating whether to return NA for INDEL alleles with detected mismatches. Default is FALSE.}
+\item{return.indels.as.missing}{A logical value indicating whether to return NA for INDEL alleles with detected mismatches. Default is \code{FALSE}.}
 
 \item{return.ambiguous.as.missing}{A logical value indicating whether to return NA for ambiguous cases where both a strand flip and effect switch are possible,
-or no strand flip is detected and a mismatch cannot be resolved. Default is FALSE.}
+or no strand flip is detected and a mismatch cannot be resolved. Default is \code{FALSE}.}
 }
 \value{
 A list containing the match assessment, a new PGS effect allele, and a new PGS other allele.
+
 \strong{Output Structure}
 
 The outputed list contains the following elements:
@@ -36,7 +37,7 @@ The outputed list contains the following elements:
 \item \code{match.status}: A character vector indicating the match status for each pair of allele pairs. Possible values are \code{default_match}, \code{effect_switch}, \code{strand_flip}, \code{effect_switch_with_strand_flip}, \code{ambiguous_flip}, \code{indel_mismatch}, and \code{unresolved_mismatch}.
 \item \code{new.pgs.effect.allele}: A character vector of new PGS effect alleles based on the match status. If the match status is \code{default_match}, \code{effect_switch} or \code{missing_allele}, the original PGS effect allele is returned.
 If the match status is \code{strand_flip} or \code{effect_switch_with_strand_flip} the flipped PGS effect allele is returned. If the match status is \code{ambiguous_flip}, \code{indel_mismatch}, or \code{unresolved_mismatch},
-the return value is either the original allele or NA as dictated by the return.indels.as.missing and return.ambiguous.as.missing parameters.
+the return value is either the original allele or NA as dictated by the \code{return.indels.as.missing} and \code{return.ambiguous.as.missing} parameters.
 \item \code{new.pgs.other.allele}: A character vector of new PGS other alleles based on the match status, following the same logic as \code{new.pgs.effect.allele}.
 }
 
