@@ -80,7 +80,7 @@ flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
 #' @param return.ambiguous.as.missing A logical value indicating whether to return NA for ambiguous cases where both a strand flip and effect switch are possible,
 #' or no strand flip is detected and a mismatch cannot be resolved. Default is \code{FALSE}.
 #' @return A list containing the match assessment, a new PGS effect allele, and a new PGS other allele.
-#' 
+#'
 #' \strong{Output Structure}
 #'
 #' The outputed list contains the following elements:

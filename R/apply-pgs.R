@@ -114,7 +114,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' @param validate.inputs.only A logical indicating whether to only perform input data validation checks without running PGS application.
 #' If no errors are triggered, a message is printed and TRUE is returned. Default is \code{FALSE}.
 #' @return A list containing per-sample PGS output and per-phenotype regression output if phenotype analysis columns are provided.
-#' 
+#'
 #' \strong{Output Structure}
 #'
 #' The outputed list contains the following elements:
@@ -192,7 +192,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' It could also be caused by a strand flip: the variant in question was called against opposite DNA reference strands in the PGS training data and the VCF data.
 #' Strand flips can be detected and corrected by flipping the affected allele to its reverse complement.
 #' \code{apply.polygenic.score} uses \code{assess.pgs.vcf.allele.match} to assess allele concordance, and is controlled through the following arguments:
-#' 
+#'
 #' \itemize{
 #' \item \code{correct.strand.flips}: When \code{TRUE}, detected strand flips are corrected by flipping the affected value in the \code{effect_allele} column prior to dosage calling.
 #' \item \code{remove.ambiguous.allele.matches}: Corresponds to the \code{return.ambiguous.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, non-INDEL allele
@@ -202,7 +202,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' (which cannot be assessed for strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing prior to dosage calling and missing genotype handling.
 #' The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
 #' }
-#' 
+#'
 #' Note that an allele match assessment requires the presence of both the \code{other_allele} and \code{effect_allele} in the PGS weight data.
 #' The \code{other_allele} column is not required by the PGS Catalog, and so is not always available.
 #'

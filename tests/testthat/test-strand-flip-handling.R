@@ -5,7 +5,7 @@ test_that(
             flip.DNA.allele(1),
             'allele must be a character vector'
             );
-        
+
         expect_error(
             flip.DNA.allele(c('A', 'T', 'C', 'G', 1)),
             'Invalid allele: 1'
@@ -302,7 +302,7 @@ test_that(
             test.leave.indels.pgs.other$new.pgs.effect.allele,
             c('G', 'G')
             );
-        
+
         expect_equal(
             test.leave.indels.pgs.other$new.pgs.other.allele,
             c('ATCG', 'A')
@@ -477,7 +477,7 @@ test_that(
             test.output.benign.multi$new.pgs.effect.allele,
             c('G', 'A', 'G', 'A', 'A', 'C')
             );
-        
+
         expect_equal(
             test.output.benign.multi$new.pgs.other.allele,
             c('A', 'G', 'A', 'G', 'T', 'A')
