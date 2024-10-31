@@ -125,7 +125,7 @@ assess.pgs.vcf.allele.match <- function(
     return.indels.as.missing = FALSE,
     return.ambiguous.as.missing = FALSE
     ) {
- 
+
     # check that all inputs are one dimensional character vectors
     if (!is.character(vcf.ref.allele) | !is.character(vcf.alt.allele) | !is.character(pgs.ref.allele) | !is.character(pgs.effect.allele)) {
         stop('alleles must be character vectors');
