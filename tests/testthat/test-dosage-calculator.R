@@ -28,13 +28,6 @@ test_that(
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A/T'),
-                risk.alleles = c('A', NA)
-                ),
-            'unrecognized risk.allele format, must be capitalized letters.'
-            );
-        expect_error(
-            convert.alleles.to.pgs.dosage(
-                called.alleles = c('A/A', 'A/T'),
                 risk.alleles = c('A', '.')
                 ),
             'unrecognized risk.allele format, must be capitalized letters.'
@@ -155,10 +148,10 @@ test_that(
     'convert.alleles.to.pgs.dosage calculates dosage correctly from missing genotypes', {
         expect_equal(
             convert.alleles.to.pgs.dosage(
-                called.alleles = c('./.', './A', 'A/.', '.', NA),
-                risk.alleles = c('A', 'A', 'T', 'T', 'T')
+                called.alleles = c('./.', './A', 'A/.', '.', NA, 'A/A'),
+                risk.alleles = c('A', 'A', 'T', 'T', 'T', NA)
                 ),
-            c(NA, NA, NA, NA, NA)
+            c(NA, NA, NA, NA, NA, NA)
             );
         }
     );

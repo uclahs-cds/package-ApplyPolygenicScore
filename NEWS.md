@@ -2,6 +2,7 @@
 * Added handling of overlapping deletion allele notation
 * Added secondary PGS/VCF variant matching method using rsID after first attempt with genomic coordinates
 * Added checks for rsID as an optional column in input PGS weight files
+* Added functionality to assess allele matches and correct strand flips
 
 # ApplyPolygenicScore 2.0.0 (2024-07-31)
 

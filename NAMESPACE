@@ -36,11 +36,13 @@ importFrom(
 
 export(
     apply.polygenic.score,
+    assess.pgs.vcf.allele.match,
     combine.pgs.bed,
     combine.vcf.with.pgs,
     convert.alleles.to.pgs.dosage,
     convert.allele.frequency.to.dosage,
     convert.pgs.to.bed,
+    flip.DNA.allele,
     format.chromosome.notation,
     get.pgs.percentiles,
     import.pgs.weight.file,

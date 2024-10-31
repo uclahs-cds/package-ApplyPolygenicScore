@@ -49,7 +49,7 @@ If you wish to apply a PGS to a cohort, we recommend that genotypes for the whol
 - You could easily create your own compatible PGS weight file, simply by formatting all required columns by Catalog standards.
 - When in doubt, use our `check.pgs.weight.columns()` function to make sure any data table you import into R contains the required columns for downstream functions.
 - Required columns in text files prior to importation are: `chr_name`, `chr_position`, `effect_allele`, `effect_weight`
-- An optional column that can be used in certain functions is `rsID`.
+- Optional columns that can be used in certain functions are `rsID`, `other_allele`, and `allelefrequency_effect`.
 - The following PGS Catalog column names are converted upon importation to column names used by VCF files to facilitate PGS/VCF matching
 
 |input to `import.pgs.weight.file`| output of `import.pgs.weight.file`|

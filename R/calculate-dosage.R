@@ -14,8 +14,13 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         stop('called.alleles and risk.alleles must be the same length.');
         }
 
+    # check for missing risk alleles and warn
+    if (any(is.na(risk.alleles))) {
+        warning('risk.alleles contains missing values, NA will be returned for corresponding dosage.');
+        }
+
     # check that risk.alleles is a vector of capitalized alphabetic characters
-    if (!all(grepl('^[A-Z]+$', risk.alleles))) {
+    if (!all(grepl('^[A-Z]+$', risk.alleles[!is.na(risk.alleles)]))) { # NA risk alleles allowed
         stop('unrecognized risk.allele format, must be capitalized letters.');
         }
 
@@ -48,7 +53,9 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
 
     dosage <- rep(NA, length(called.alleles));
     for (i in 1:length(called.alleles)) {
-        if ((split.alleles$called.allele.a[i] == missing.label) & (split.alleles$called.allele.b[i] == missing.label)) {
+        if (is.na(risk.alleles[i])) {
+            dosage[i] <- NA; # if the risk allele is missing, return NA, no dosage can be calculated
+            } else if ((split.alleles$called.allele.a[i] == missing.label) & (split.alleles$called.allele.b[i] == missing.label)) {
             dosage[i] <- NA; # if both allelles are missing, no genotype was called, return NA
             } else if (split.alleles$called.allele.a[i] == missing.label | split.alleles$called.allele.b[i] == missing.label) {
                 dosage[i] <- NA; # if one of the alleles is marked as missing but the other is not, this is an unrecognized format

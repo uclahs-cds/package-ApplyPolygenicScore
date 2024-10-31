@@ -139,18 +139,21 @@ test_that(
         test.vcf.data.missing.columns$gt_GT_alleles <- NULL;
         test.pgs.weight.data.missing.columns <- test.pgs.weight.data$pgs.weight.data;
         test.pgs.weight.data.missing.columns$beta <- NULL;
+        test.pgs.weight.data.missing.columns$other_allele <- NULL;
 
         expect_error(
             apply.polygenic.score(
                 vcf.data = test.vcf.data.missing.columns,
-                pgs.weight.data = test.pgs.weight.data$pgs.weight.data
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
+                correct.strand.flips = FALSE
                 ),
             'vcf.data must contain columns named CHROM, POS, REF, ALT, Indiv, and gt_GT_alleles'
             );
         expect_error(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
-                pgs.weight.data = test.pgs.weight.data.missing.columns
+                pgs.weight.data = test.pgs.weight.data.missing.columns,
+                correct.strand.flips = FALSE
                 ),
             'pgs.weight.data must contain columns named CHROM, POS, effect_allele, and beta'
             );
@@ -160,10 +163,55 @@ test_that(
             apply.polygenic.score(
                 vcf.data = test.vcf.data$dat,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data,
-                use.external.effect.allele.frequency = TRUE
+                use.external.effect.allele.frequency = TRUE,
+                correct.strand.flips = FALSE
                 ),
             'pgs.weight.data must contain a column named allelefrequency_effect if use.external.effect.allele.frequency is TRUE'
             );
+
+        # check for other_allele column when remove.ambiguous.allele.matches, or remove.mismatched.indels are selected
+        test.pgs.weight.data.missing.other.allele <- test.pgs.weight.data$pgs.weight.data;
+        test.pgs.weight.data.missing.other.allele$other_allele <- NULL;
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data.missing.other.allele,
+                correct.strand.flips = TRUE
+                ),
+            'pgs.weight.data must contain a column named other_allele if correct.strand.flips, remove.ambiguous.allele.matches, or remove.mismatched.indels is TRUE'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data.missing.other.allele,
+                remove.ambiguous.allele.matches = TRUE,
+                correct.strand.flips = FALSE
+                ),
+            'pgs.weight.data must contain a column named other_allele if correct.strand.flips, remove.ambiguous.allele.matches, or remove.mismatched.indels is TRUE'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data.missing.other.allele,
+                remove.mismatched.indels = TRUE,
+                correct.strand.flips = FALSE
+                ),
+            'pgs.weight.data must contain a column named other_allele if correct.strand.flips, remove.ambiguous.allele.matches, or remove.mismatched.indels is TRUE'
+            );
+
+        expect_error(
+            apply.polygenic.score(
+                vcf.data = test.vcf.data$dat,
+                pgs.weight.data = test.pgs.weight.data.missing.other.allele,
+                remove.ambiguous.allele.matches = TRUE,
+                remove.mismatched.indels = TRUE,
+                correct.strand.flips = TRUE
+                ),
+            'pgs.weight.data must contain a column named other_allele if correct.strand.flips, remove.ambiguous.allele.matches, or remove.mismatched.indels is TRUE'
+            );
+
 
         # check for duplicate coordinates in PGS data
         duplicate.row <- test.pgs.weight.data$pgs.weight.data[1, ];
@@ -679,5 +727,81 @@ test_that(
             file.exists(file.path(temp.dir, test.regression.filename))
             );
 
+        }
+    );
+
+test_that(
+    'apply.polygenic.score correctly handles strand flipping', {
+        load('data/strand.flip.test.data.Rda');
+        strand.flip.raw.data <- apply.polygenic.score(
+            vcf.data = strand.flip.test.data$strand.flip.vcf.data,
+            pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
+            missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+            correct.strand.flips = FALSE
+            );
+
+        expect_equal(
+            strand.flip.raw.data$pgs.output$PGS,
+            c(4, 4, 4)
+            );
+
+        expect_equal(
+            strand.flip.raw.data$pgs.output$n.missing.genotypes,
+            c(0, 0, 0)
+            );
+
+        strand.flip.correct.flips <- apply.polygenic.score(
+            vcf.data = strand.flip.test.data$strand.flip.vcf.data,
+            pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
+            missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+            correct.strand.flips = TRUE
+            );
+
+        expect_equal(
+            strand.flip.correct.flips$pgs.output$PGS,
+            c(6, 6, 6)
+            );
+
+        expect_equal(
+            strand.flip.correct.flips$pgs.output$n.missing.genotypes,
+            c(0, 0, 0)
+            );
+
+        strand.flip.remove.ambiguous <- apply.polygenic.score(
+            vcf.data = strand.flip.test.data$strand.flip.vcf.data,
+            pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
+            correct.strand.flips = TRUE,
+            missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+            remove.ambiguous.allele.matches = TRUE
+            );
+
+        expect_equal(
+            strand.flip.remove.ambiguous$pgs.output$PGS,
+            c(4, 5, 6)
+            );
+
+        expect_equal(
+            strand.flip.remove.ambiguous$pgs.output$n.missing.genotypes,
+            c(2, 2, 2)
+            );
+
+        strand.flip.remove.indel.mismatches <- apply.polygenic.score(
+            vcf.data = strand.flip.test.data$strand.flip.vcf.data,
+            pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
+            correct.strand.flips = TRUE,
+            missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+            remove.ambiguous.allele.matches = TRUE,
+            remove.mismatched.indels = TRUE
+            );
+
+        expect_equal(
+            strand.flip.remove.indel.mismatches$pgs.output$PGS,
+            c(4, 5, 6)
+            );
+
+        expect_equal(
+            strand.flip.remove.indel.mismatches$pgs.output$n.missing.genotypes,
+            c(3, 3, 3)
+            );
         }
     );
