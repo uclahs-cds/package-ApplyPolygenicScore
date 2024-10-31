@@ -18,6 +18,6 @@ A character vector of flipped DNA alleles. INDEL alleles are returned as is unle
 Flip single base pair DNA alleles to their reverse complement. INDEL flipping is not supported.
 }
 \examples{
-alleles <- c('A', 'T', 'C', 'G', ATG, NA);
+alleles <- c('A', 'T', 'C', 'G', 'ATG', NA);
 flip.DNA.allele(alleles);
 }
