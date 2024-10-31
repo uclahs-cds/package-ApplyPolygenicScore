@@ -277,9 +277,9 @@ alt.alleles <- rep('T', length(genotypes));
 alt.alleles[genotypes == 1] <- 'A';
 alt.alleles[genotypes == 2] <- 'A';
 
-binary.phenotype <- rbinom(n.samples, size = 1, prob = 0.5); # random binary phenotype values
+binary.phenotype <- rbinom(n.samples + 1, size = 1, prob = 0.5); # random binary phenotype values
 binary.factor.phenotype <- factor(binary.phenotype, levels = c(0, 1), labels = c('control', 'case'));
-categorical.phenotype <- factor(sample(letters[1:5], n.samples, replace = TRUE)); # random categorical phenotype values
+categorical.phenotype <- factor(sample(letters[1:5], n.samples + 1, replace = TRUE)); # random categorical phenotype values
 
 phenotype.test.data <- list(
     # vcf with 10 samples and 10 variants
@@ -301,8 +301,8 @@ phenotype.test.data <- list(
         beta = rnorm(10) # random beta values
         ),
 phenotype.data = data.frame(
-        Indiv = paste0('sample', 1:n.samples),
-        continuous.phenotype = rnorm(n.samples), # random phenotype values
+        Indiv = paste0('sample', 1:(n.samples + 1)), # add an extra sample with no genotype data
+        continuous.phenotype = rnorm(n.samples + 1), # random phenotype values
         binary.phenotype = binary.phenotype,
         binary.factor.phenotype = binary.factor.phenotype,
         categorical.phenotype = categorical.phenotype
