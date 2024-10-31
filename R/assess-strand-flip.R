@@ -27,7 +27,7 @@ validate.allele.input <- function(alleles, na.allowed = TRUE) {
 #' @param return.indels.as.missing A logical value indicating whether to return NA for INDEL alleles. Default is \code{FALSE}.
 #' @return A character vector of flipped DNA alleles. INDEL alleles are returned as is unless \code{return.indels.as.missing} is \code{TRUE}.
 #' @examples
-#' alleles <- c('A', 'T', 'C', 'G', ATG, NA);
+#' alleles <- c('A', 'T', 'C', 'G', 'ATG', NA);
 #' flip.DNA.allele(alleles);
 #' @export
 flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
