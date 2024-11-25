@@ -188,8 +188,8 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' \strong{Allele Mismatch Handling}
 #' Variants from the PGS weight data are merged with records in the VCF data by genetic coordinate.
 #' After the merge is complete, there may be cases where the VCF reference (REF) and alternative (ALT) alleles do not match their conventional counterparts in the
-#' PGS weight data (other allele and effect allele, respectively). This may be caused by a poor quality variant call, which can't be corrected.
-#' It could also be caused by a strand flip: the variant in question was called against opposite DNA reference strands in the PGS training data and the VCF data.
+#' PGS weight data (other allele and effect allele, respectively).
+#' This is usually caused by a strand flip: the variant in question was called against opposite DNA reference strands in the PGS training data and the VCF data.
 #' Strand flips can be detected and corrected by flipping the affected allele to its reverse complement.
 #' \code{apply.polygenic.score} uses \code{assess.pgs.vcf.allele.match} to assess allele concordance, and is controlled through the following arguments:
 #'
