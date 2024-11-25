@@ -273,7 +273,7 @@ head(merged.vcf.pgs.data$missing.snp.data)[, 1:6]
 
 After PGS and VCF data are merged by coordinates, you may also wish to check that the alleles in the VCF data variant record match the corresponding alleles in the PGS weight data.
 By convention, the `other_allele` (non-effect allele) in the PGS weight data should match the reference (REF) allele in the VCF data, and the `effect_allele` should match the alternate (ALT) allele in the VCF data.
-Checkout our discussion on [allele matching]() for more details on the various ways in which this matching may fail.
+Checkout our discussion on [allele matching](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/68) for more details on the various ways in which this matching may fail.
 
 `apply.polygenic.score` can perform an allele match check (internally using `assess.pgs.vcf.allele.match`). This functionality can be customized with the following arguments:
 - `correct.strand.flips` to automatically correct mismatches caused by strand flips by flipping the PGS weight data alleles.
