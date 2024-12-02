@@ -1,6 +1,6 @@
 # Unreleased
 
-# ApplyPolygenicScore 3.0.0 (2024-11-02)
+# ApplyPolygenicScore 3.0.0 (2024-12-02)
 
 ## Added
 * Added handling of overlapping deletion allele notation
