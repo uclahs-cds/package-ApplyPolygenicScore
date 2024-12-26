@@ -2,7 +2,7 @@
 #' @description Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages (0, 1, 2) based on provided risk alleles from a PGS.
 #' @param called.alleles A vector of genotypes in allelic notation separated by a slash or pipe.
 #' @param risk.alleles A vector of risk alleles from a polygenic score corresponding to each genotype (by locus) in called.alleles.
-#' @return A vector of dosages corresponding to each genotype in called.alleles.
+#' @return A vector of dosages corresponding to each genotype in called.alleles. Hemizygous genotypes (one allele e.g. 'A' are counted as 1).
 #' @examples
 #' called.alleles <- c('A/A', 'A/T', 'T/T');
 #' risk.alleles <- c('T', 'T', 'T');
@@ -31,12 +31,16 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         } else {
             # check that called.alleles is a vector of genotypes in allelic notation or '.' separated by a slash or pipe
             # "*" characters represent overlapping deletions from an upstream indel and are accepted VCF format
-            allowed.pattern <- '^((([A-Z]+|\\.|\\*)[/\\|]([A-Z]+|\\.|\\*))|\\.)$' # '|' are special chars in regular expressions
+            allowed.pattern <- '^((([A-Z]+|\\.|\\*)[/\\|]([A-Z]+|\\.|\\*))|\\.|[A-Z]+)$' # '|' are special chars in regular expressions
             passing.alleles <- grepl(allowed.pattern, called.alleles);
             passing.alleles[is.na(called.alleles)] <- TRUE; # NA allowed
             if (!all(passing.alleles)) {
                 stop('unrecognized called.alleles format, must be capitalized letters, "." or "*" separated by a slash or pipe.');
                 }
+            # replace hemizygous genotypes with a placeholder for easier splitting
+            # index for non-NA alleles that are missing allele separators:
+            no.sep.index <- (!grepl('/|\\|', called.alleles) & !is.na(called.alleles) & called.alleles != '.');
+            called.alleles[no.sep.index] <- paste0(called.alleles[no.sep.index], '/-');
             split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
             }
     names(split.alleles) <- c('called.allele.a', 'called.allele.b');
