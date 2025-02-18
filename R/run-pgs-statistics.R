@@ -62,7 +62,7 @@ classify.variable.type <- function(data, continuous.threshold = 4) {
     continuous.vars.index <- sapply(
         X = data,
         FUN = function(x) {
-            'numeric' == class(x) & continuous.threshold < length(unique(na.omit(x)));
+            ('numeric' == class(x) | 'integer' == class(x)) & continuous.threshold < length(unique(na.omit(x)));
             }
         );
     binary.vars.index <- sapply(
