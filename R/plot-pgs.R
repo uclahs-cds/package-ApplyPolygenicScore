@@ -425,6 +425,13 @@ create.pgs.density.plot <- function(
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,
     phenotype.columns,
+    hexbin.threshold = 1000,
+    hexbin.colour.scheme = NULL,
+    hexbin.colourkey = TRUE,
+    hexbin.colourcut = seq(0, 1, length = 11),
+    hexbin.mincnt = 1,
+    hexbin.maxcnt = NULL,
+    hexbin.xbins = 30,
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -511,30 +518,61 @@ create.pgs.with.continuous.phenotype.plot <- function(
                 num.labels = 5,
                 include.origin = FALSE
                 );
-            pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
-                formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
-                data = pgs.data,
-                type = 'p',
-                cex = point.cex,
-                xlab.label = pgs.column.label,
-                ylab.label = phenotype,
-                main = '',
-                main.cex = 0,
-                yat = yaxis.formatting$at,
-                yaxis.lab = yaxis.formatting$axis.lab,
-                xat = xaxis.formatting$at,
-                xaxis.lab = xaxis.formatting$axis.lab,
-                # Correlation Legend
-                legend = correlation.legend,
-                ylimits = scatter.ylimits,
-                ylab.cex = titles.cex,
-                xlab.cex = titles.cex,
-                yaxis.cex = yaxes.cex,
-                xaxis.cex = xaxes.cex
-                );
-            }
 
-        }
+            sample.total <- nrow(pgs.data);
+            if (sample.total > hexbin.threshold) {
+                pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.hexbinplot(
+                    formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
+                    data = pgs.data,
+                    colour.scheme = hexbin.colour.scheme,
+                    colourkey = hexbin.colourkey,
+                    colourcut = hexbin.colourcut,
+                    mincnt = hexbin.mincnt,
+                    maxcnt = hexbin.maxcnt,
+                    xbins = hexbin.xbins,
+                    xlab.label = pgs.column.label,
+                    ylab.label = phenotype,
+                    main = '',
+                    main.cex = 0,
+                    yat = yaxis.formatting$at,
+                    yaxis.lab = yaxis.formatting$axis.lab,
+                    xat = xaxis.formatting$at,
+                    xaxis.lab = xaxis.formatting$axis.lab,
+                    # Correlation Legend
+                    legend = correlation.legend,
+                    ylimits = scatter.ylimits,
+                    ylab.cex = titles.cex,
+                    xlab.cex = titles.cex,
+                    yaxis.cex = yaxes.cex,
+                    xaxis.cex = xaxes.cex
+                    );
+                } else {
+                    pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
+                        formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
+                        data = pgs.data,
+                        type = 'p',
+                        cex = point.cex,
+                        xlab.label = pgs.column.label,
+                        ylab.label = phenotype,
+                        main = '',
+                        main.cex = 0,
+                        yat = yaxis.formatting$at,
+                        yaxis.lab = yaxis.formatting$axis.lab,
+                        xat = xaxis.formatting$at,
+                        xaxis.lab = xaxis.formatting$axis.lab,
+                        # Correlation Legend
+                        legend = correlation.legend,
+                        ylimits = scatter.ylimits,
+                        ylab.cex = titles.cex,
+                        xlab.cex = titles.cex,
+                        yaxis.cex = yaxes.cex,
+                        xaxis.cex = xaxes.cex
+                        );
+                    }
+
+                }
+
+            }
 
     # organize filename if plot writing requested
     if (!is.null(output.dir)) {
