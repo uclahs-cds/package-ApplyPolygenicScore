@@ -365,6 +365,14 @@ create.pgs.density.plot <- function(
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
 #' This function is designed to work with the output of \code{apply.polygenic.score()}.
 #' @param phenotype.columns character vector of continuous phenotype column names in pgs.data to plot
+#' @param hexbin.threshold numeric threshold (exclusive) for cohort size at which to switch from scatterplot to hexbin plot.
+#' @param hexbin.colour.scheme character vector of colors for hexbin plot bins. Default is \code{NULL} which uses gray/black.
+#' @param hexbin.colourkey logical whether a legend should be drawn for a hexbinplot, defaults to \code{TRUE}.
+#' @param hexbin.colourcut numeric vector of values covering [0, 1] that determine hexagon colour class boundaries and hexagon legend size boundaries.
+#' Alternatively, an integer (<= hexbin.maxcnt) specifying the number of equispaced colourcut values in [0,1].
+#' @param hexbin.mincnt integer, minimum count for a hexagon to be plotted. Default is 1.
+#' @param hexbin.maxcnt integer, maximum count for a hexagon to be plotted. Cells with more counts are not plotted. Default is \code{NULL}.
+#' @param hexbin.xbins integer, number of bins in the x direction for hexbin plot. Default is 30.
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
