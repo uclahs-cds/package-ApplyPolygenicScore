@@ -404,6 +404,38 @@ test_that(
     );
 
 test_that(
+    'create.pgs.with.continuous.phenotype.plot runs correctly with include.origin enabled', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # add phenotype with non-zero minimum
+        pgs.test$continuous.phenotype.shift <- pgs.test$continuous.phenotype + 10;
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype.shift',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-include-origin',
+                include.origin = TRUE
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-include-origin',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
     'create.pgs.with.continuous.phenotype.plot runs correctly with multiple phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
