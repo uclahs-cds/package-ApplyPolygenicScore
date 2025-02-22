@@ -21,6 +21,7 @@ create.pgs.with.continuous.phenotype.plot(
   compute.correlation = TRUE,
   corr.legend.corner = c(0, 1),
   corr.legend.cex = 1.5,
+  include.origin = FALSE,
   width = 10,
   height = 10,
   xaxes.cex = 1.5,
@@ -64,6 +65,8 @@ Alternatively, an integer (<= hexbin.maxcnt) specifying the number of equispaced
 \item{corr.legend.corner}{numeric vector indicating the corner of the correlation legend e.g. \code{c(0,1)} for top left}
 
 \item{corr.legend.cex}{numeric cex for correlation legend}
+
+\item{include.origin}{logical whether to include the origin (zero) in plot axes}
 
 \item{width}{numeric width of output plot in inches}
 
