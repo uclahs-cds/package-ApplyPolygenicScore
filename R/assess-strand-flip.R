@@ -216,6 +216,14 @@ assess.pgs.vcf.allele.match <- function(
         # identify insertion/deletion alleles in PGS
         if (nchar(current.pgs.ref.allele) > 1 || nchar(current.pgs.effect.allele) > 1) {
             pgs.indel <- TRUE;
+            if (effect.switch.candidate) {
+                # if an INDEL effect switch is detected, do not continue to strand flip assessment
+                # and return effect switch designation
+                flip.designation[i] <- 'effect_switch';
+                flipped.effect.allele[i] <- current.pgs.effect.allele;
+                flipped.other.allele[i] <- current.pgs.ref.allele;
+                next;
+                }
             # no INDEL flipping supported, return either NA or the original allele
             warning('Mismatch detected in INDEL PGS allele. Skipping strand flip assessment.');
             flip.designation[i] <- 'indel_mismatch';
@@ -234,6 +242,14 @@ assess.pgs.vcf.allele.match <- function(
 
         # identify insertion/deletion alleles in VCF
         if (nchar(current.vcf.ref.allele) > 1 || all(nchar(current.vcf.alt.allele.split) > 1)) {
+            if (effect.switch.candidate) {
+                # if an INDEL effect switch is detected, do not continue to strand flip assessment
+                # and return effect switch designation
+                flip.designation[i] <- 'effect_switch';
+                flipped.effect.allele[i] <- current.pgs.effect.allele;
+                flipped.other.allele[i] <- current.pgs.ref.allele;
+                next;
+                }
             # no INDEL flipping supported, return either NA or the original allele
             warning('Mismatch detected in INDEL VCF allele. Skipping strand flip assessment.');
             flip.designation[i] <- 'indel_mismatch';

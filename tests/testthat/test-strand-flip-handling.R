@@ -206,6 +206,12 @@ test_that(
             assess.pgs.vcf.allele.match('ATCG', 'A', 'G', 'A'),
             'Mismatch detected in INDEL VCF allele. Skipping strand flip assessment.'
             );
+
+        # indel effect switch case
+        expect_silent(
+            assess.pgs.vcf.allele.match('A', 'ATCG', 'ATCG', 'A')
+            );
+
         # indel but everything matches
         expect_silent(
             assess.pgs.vcf.allele.match('ATCG', 'A', 'ATCG', 'A')
@@ -214,26 +220,26 @@ test_that(
         # check indel handling when return.indels.as.missing == FALSE
         # VCF ALT allele is an INDEL
         test.leave.indels.vcf.alt <- assess.pgs.vcf.allele.match(
-            c('A', 'A'),
-            c('G', 'ATCG'),
-            c('A', 'A'),
-            c('G', 'G'),
+            c('A', 'A', 'A'),
+            c('G', 'ATCG', 'ATCG'),
+            c('A', 'A', 'ATCG'),
+            c('G', 'G', 'A'),
             return.indels.as.missing = FALSE
             );
 
         expect_equal(
             test.leave.indels.vcf.alt$match.status,
-            c('default_match', 'indel_mismatch')
+            c('default_match', 'indel_mismatch', 'effect_switch')
             );
 
         expect_equal(
             test.leave.indels.vcf.alt$new.pgs.effect.allele,
-            c('G', 'G')
+            c('G', 'G', 'A')
             );
 
         expect_equal(
             test.leave.indels.vcf.alt$new.pgs.other.allele,
-            c('A', 'A')
+            c('A', 'A', 'ATCG')
             );
 
         # VCF REF allele is an INDEL

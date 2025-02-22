@@ -36,13 +36,6 @@ test_that(
         # check for correct called.alleles format
         expect_error(
             convert.alleles.to.pgs.dosage(
-                called.alleles = c('A/A', 'A'),
-                risk.alleles = c('A', 'T')
-                ),
-            'unrecognized called.alleles format, must be capitalized letters, "." or "\\*" separated by a slash or pipe.'
-            );
-        expect_error(
-            convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A,'),
                 risk.alleles = c('A', 'T')
                 ),
@@ -101,8 +94,8 @@ test_that(
         # check that correct input is accepted
         expect_silent(
             convert.alleles.to.pgs.dosage(
-                called.alleles = c('A/A', 'A|T', 'TA/T', 'A/ATTTT', './.', '.', '*/T', 'T/*', '*/*'),
-                risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T', 'A', 'T', 'A')
+                called.alleles = c('A/A', 'A|T', 'TA/T', 'A/ATTTT', './.', '.', '*/T', 'T/*', '*/*', 'A', 'T'),
+                risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T', 'A', 'T', 'A', 'T', 'A')
                 )
             );
     }
@@ -128,6 +121,18 @@ test_that(
                 risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T')
                 ),
             c(2, 1, 0, 0, 1, 2)
+            );
+        }
+    );
+
+test_that(
+    'convert.alleles.to.pgs.dosage calculates dosage correctly from hemizygous genotypes', {
+        expect_equal(
+            convert.alleles.to.pgs.dosage(
+                called.alleles = c('A', 'T'),
+                risk.alleles = c('A', 'A')
+                ),
+            c(1, 0)
             );
         }
     );

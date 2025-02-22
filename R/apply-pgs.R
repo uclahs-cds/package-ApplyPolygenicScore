@@ -561,9 +561,12 @@ apply.polygenic.score <- function(
         ### Begin Phenotype Analysis ###
 
         if (!is.null(phenotype.analysis.columns)) {
+            # post merge data selection
+            pgs.for.phenotype.stats <- pgs.output[ , missing.method.to.colname.ref[analysis.source.pgs]];
+
             regression.output <- run.pgs.regression(
-                pgs = pgs.for.stats,
-                phenotype.data = subset(phenotype.data, select = phenotype.analysis.columns)
+                pgs = pgs.for.phenotype.stats,
+                phenotype.data = subset(pgs.output, select = phenotype.analysis.columns)
                 );
             }
         ### End Phenotype Analysis ###

@@ -1,5 +1,14 @@
 # Unreleased
 
+# ApplyPolygenicScore 3.0.1
+
+## Added
+* Added hemizygous allele handling to dosage calculation
+
+## Changed
+* Updated INDEL effect switch reporting by strand flip checker
+* Updated data structuring for automated statistical analysis in `apply.polygenic.score`
+
 # ApplyPolygenicScore 3.0.0 (2024-12-02)
 
 ## Added
