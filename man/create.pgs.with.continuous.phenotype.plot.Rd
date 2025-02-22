@@ -14,6 +14,7 @@ create.pgs.with.continuous.phenotype.plot(
   hexbin.mincnt = 1,
   hexbin.maxcnt = NULL,
   hexbin.xbins = 30,
+  hexbin.aspect = 1,
   output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
@@ -51,6 +52,8 @@ Alternatively, an integer (<= hexbin.maxcnt) specifying the number of equispaced
 \item{hexbin.maxcnt}{integer, maximum count for a hexagon to be plotted. Cells with more counts are not plotted. Default is \code{NULL}.}
 
 \item{hexbin.xbins}{integer, number of bins in the x direction for hexbin plot. Default is 30.}
+
+\item{hexbin.aspect}{numeric, aspect ratio of hexbin plot to control plot dimensions. Default is 1.}
 
 \item{output.dir}{character directory to save output plots}
 

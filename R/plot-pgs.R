@@ -373,6 +373,7 @@ create.pgs.density.plot <- function(
 #' @param hexbin.mincnt integer, minimum count for a hexagon to be plotted. Default is 1.
 #' @param hexbin.maxcnt integer, maximum count for a hexagon to be plotted. Cells with more counts are not plotted. Default is \code{NULL}.
 #' @param hexbin.xbins integer, number of bins in the x direction for hexbin plot. Default is 30.
+#' @param hexbin.aspect numeric, aspect ratio of hexbin plot to control plot dimensions. Default is 1.
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
@@ -441,6 +442,7 @@ create.pgs.with.continuous.phenotype.plot <- function(
     hexbin.mincnt = 1,
     hexbin.maxcnt = NULL,
     hexbin.xbins = 30,
+    hexbin.aspect = 1,
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -548,6 +550,7 @@ create.pgs.with.continuous.phenotype.plot <- function(
                     mincnt = hexbin.mincnt,
                     maxcnt = hexbin.maxcnt,
                     xbins = hexbin.xbins,
+                    aspect = hexbin.aspect,
                     xlab.label = pgs.column.label,
                     ylab.label = phenotype,
                     main = '',
