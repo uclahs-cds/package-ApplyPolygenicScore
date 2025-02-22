@@ -380,6 +380,7 @@ create.pgs.density.plot <- function(
 #' @param compute.correlation logical whether to compute correlation between PGS and phenotype and display in plot
 #' @param corr.legend.corner numeric vector indicating the corner of the correlation legend e.g. \code{c(0,1)} for top left
 #' @param corr.legend.cex numeric cex for correlation legend
+#' @param include.origin logical whether to include the origin (zero) in plot axes
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
 #' @param xaxes.cex numeric size for x-axis labels
@@ -447,6 +448,7 @@ create.pgs.with.continuous.phenotype.plot <- function(
     compute.correlation = TRUE,
     corr.legend.corner = c(0,1),
     corr.legend.cex = 1.5,
+    include.origin = FALSE,
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
@@ -482,6 +484,23 @@ create.pgs.with.continuous.phenotype.plot <- function(
 
         for (pgs.column in pgs.columns) {
 
+            # handle axes formatting
+            xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+                pgs.data[ , pgs.column],
+                log.scaled = FALSE,
+                num.labels = 5,
+                include.origin = include.origin
+                );
+            scatter.xlimits <- c(min(xaxis.formatting$at), max(xaxis.formatting$at));
+
+            yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+                pgs.data[ , phenotype],
+                log.scaled = FALSE,
+                num.labels = 5,
+                include.origin = include.origin
+                );
+            scatter.ylimits <- c(min(yaxis.formatting$at), max(yaxis.formatting$at));
+
             # handle tidy titles
             if (tidy.titles) {
                 pgs.column.label <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
@@ -509,23 +528,14 @@ create.pgs.with.continuous.phenotype.plot <- function(
                         )
                     );
                 # set y limits that make room for the correlation legend in the top of the plot
-                scatter.ylimits <- c(min(phenotype.data.for.plotting[ , phenotype], na.rm = TRUE) * 0.1, max(phenotype.data.for.plotting[ , phenotype], na.rm = TRUE) * 1.3);
+                scatter.ylimits[2] <- scatter.ylimits[2] * 1.3;
+
                 } else {
                     correlation.legend <- NULL;
                     scatter.ylimits <- NULL;
                 }
 
-            xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-                pgs.data[ , pgs.column],
-                log.scaled = FALSE, num.labels = 5,
-                include.origin = FALSE
-                );
-            yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-                pgs.data[ , phenotype],
-                log.scaled = FALSE,
-                num.labels = 5,
-                include.origin = FALSE
-                );
+
 
             sample.total <- nrow(pgs.data);
             if (sample.total > hexbin.threshold) {
@@ -542,13 +552,14 @@ create.pgs.with.continuous.phenotype.plot <- function(
                     ylab.label = phenotype,
                     main = '',
                     main.cex = 0,
+                    ylimits = scatter.ylimits,
                     yat = yaxis.formatting$at,
                     yaxis.lab = yaxis.formatting$axis.lab,
+                    xlimits = scatter.xlimits,
                     xat = xaxis.formatting$at,
                     xaxis.lab = xaxis.formatting$axis.lab,
                     # Correlation Legend
                     legend = correlation.legend,
-                    ylimits = scatter.ylimits,
                     ylab.cex = titles.cex,
                     xlab.cex = titles.cex,
                     yaxis.cex = yaxes.cex,
@@ -564,13 +575,14 @@ create.pgs.with.continuous.phenotype.plot <- function(
                         ylab.label = phenotype,
                         main = '',
                         main.cex = 0,
+                        ylimits = scatter.ylimits,
                         yat = yaxis.formatting$at,
                         yaxis.lab = yaxis.formatting$axis.lab,
+                        xlimits = scatter.xlimits,
                         xat = xaxis.formatting$at,
                         xaxis.lab = xaxis.formatting$axis.lab,
                         # Correlation Legend
                         legend = correlation.legend,
-                        ylimits = scatter.ylimits,
                         ylab.cex = titles.cex,
                         xlab.cex = titles.cex,
                         yaxis.cex = yaxes.cex,
