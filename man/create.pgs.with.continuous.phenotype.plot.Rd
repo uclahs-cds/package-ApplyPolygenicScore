@@ -7,6 +7,14 @@
 create.pgs.with.continuous.phenotype.plot(
   pgs.data,
   phenotype.columns,
+  hexbin.threshold = 1000,
+  hexbin.colour.scheme = NULL,
+  hexbin.colourkey = TRUE,
+  hexbin.colourcut = seq(0, 1, length = 11),
+  hexbin.mincnt = 1,
+  hexbin.maxcnt = NULL,
+  hexbin.xbins = 30,
+  hexbin.aspect = 1,
   output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
@@ -14,6 +22,7 @@ create.pgs.with.continuous.phenotype.plot(
   compute.correlation = TRUE,
   corr.legend.corner = c(0, 1),
   corr.legend.cex = 1.5,
+  include.origin = FALSE,
   width = 10,
   height = 10,
   xaxes.cex = 1.5,
@@ -29,6 +38,23 @@ This function is designed to work with the output of \code{apply.polygenic.score
 
 \item{phenotype.columns}{character vector of continuous phenotype column names in pgs.data to plot}
 
+\item{hexbin.threshold}{numeric threshold (exclusive) for cohort size at which to switch from scatterplot to hexbin plot.}
+
+\item{hexbin.colour.scheme}{character vector of colors for hexbin plot bins. Default is \code{NULL} which uses gray/black.}
+
+\item{hexbin.colourkey}{logical whether a legend should be drawn for a hexbinplot, defaults to \code{TRUE}.}
+
+\item{hexbin.colourcut}{numeric vector of values covering [0, 1] that determine hexagon colour class boundaries and hexagon legend size boundaries.
+Alternatively, an integer (<= hexbin.maxcnt) specifying the number of equispaced colourcut values in [0,1].}
+
+\item{hexbin.mincnt}{integer, minimum count for a hexagon to be plotted. Default is 1.}
+
+\item{hexbin.maxcnt}{integer, maximum count for a hexagon to be plotted. Cells with more counts are not plotted. Default is \code{NULL}.}
+
+\item{hexbin.xbins}{integer, number of bins in the x direction for hexbin plot. Default is 30.}
+
+\item{hexbin.aspect}{numeric, aspect ratio of hexbin plot to control plot dimensions. Default is 1.}
+
 \item{output.dir}{character directory to save output plots}
 
 \item{filename.prefix}{character prefix for output filenames}
@@ -42,6 +68,8 @@ This function is designed to work with the output of \code{apply.polygenic.score
 \item{corr.legend.corner}{numeric vector indicating the corner of the correlation legend e.g. \code{c(0,1)} for top left}
 
 \item{corr.legend.cex}{numeric cex for correlation legend}
+
+\item{include.origin}{logical whether to include the origin (zero) in plot axes}
 
 \item{width}{numeric width of output plot in inches}
 

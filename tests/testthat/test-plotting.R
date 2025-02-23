@@ -404,6 +404,38 @@ test_that(
     );
 
 test_that(
+    'create.pgs.with.continuous.phenotype.plot runs correctly with include.origin enabled', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # add phenotype with non-zero minimum
+        pgs.test$continuous.phenotype.shift <- pgs.test$continuous.phenotype + 10;
+
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype.shift',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-include-origin',
+                include.origin = TRUE
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-include-origin',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
     'create.pgs.with.continuous.phenotype.plot runs correctly with multiple phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
@@ -424,6 +456,39 @@ test_that(
 
         test.filename <- generate.filename(
             project.stem = 'TEST-two-continuous-phenotypes',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.with.continuous.phenotypes.plot correctly switches to hexbin plot with default parameters', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # generate large test dataset
+        large.pgs.test <- pgs.test[rep(1:nrow(pgs.test), 100), ];
+        large.pgs.test$hexbin.phenotype <- rnorm(nrow(large.pgs.test));
+
+        expect_no_error(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = large.pgs.test,
+                phenotype.columns = c('hexbin.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-hexbin',
+                width = 15,
+                height = 10
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-hexbin',
             file.core = 'pgs-scatter',
             extension = 'png'
             );

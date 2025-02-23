@@ -4,6 +4,7 @@
 
 ## Added
 * Added hemizygous allele handling to dosage calculation
+* Added toggle to hexbinplot at sample size threshold in `create.pgs.with.continuous.phenotype.plot`
 
 ## Changed
 * Updated INDEL effect switch reporting by strand flip checker
