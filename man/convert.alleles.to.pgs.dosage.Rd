@@ -12,7 +12,7 @@ convert.alleles.to.pgs.dosage(called.alleles, risk.alleles)
 \item{risk.alleles}{A vector of risk alleles from a polygenic score corresponding to each genotype (by locus) in called.alleles.}
 }
 \value{
-A vector of dosages corresponding to each genotype in called.alleles. Hemizygous genotypes (one allele e.g. 'A' are counted as 1).
+A vector of dosages corresponding to each genotype in called.alleles. Hemizygous genotypes (one allele e.g. 'A') are counted as 1.
 }
 \description{
 Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages (0, 1, 2) based on provided risk alleles from a PGS.

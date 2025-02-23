@@ -2,7 +2,7 @@
 #' @description Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages (0, 1, 2) based on provided risk alleles from a PGS.
 #' @param called.alleles A vector of genotypes in allelic notation separated by a slash or pipe.
 #' @param risk.alleles A vector of risk alleles from a polygenic score corresponding to each genotype (by locus) in called.alleles.
-#' @return A vector of dosages corresponding to each genotype in called.alleles. Hemizygous genotypes (one allele e.g. 'A' are counted as 1).
+#' @return A vector of dosages corresponding to each genotype in called.alleles. Hemizygous genotypes (one allele e.g. 'A') are counted as 1.
 #' @examples
 #' called.alleles <- c('A/A', 'A/T', 'T/T');
 #' risk.alleles <- c('T', 'T', 'T');
