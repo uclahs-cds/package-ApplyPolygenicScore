@@ -365,6 +365,15 @@ create.pgs.density.plot <- function(
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
 #' This function is designed to work with the output of \code{apply.polygenic.score()}.
 #' @param phenotype.columns character vector of continuous phenotype column names in pgs.data to plot
+#' @param hexbin.threshold numeric threshold (exclusive) for cohort size at which to switch from scatterplot to hexbin plot.
+#' @param hexbin.colour.scheme character vector of colors for hexbin plot bins. Default is \code{NULL} which uses gray/black.
+#' @param hexbin.colourkey logical whether a legend should be drawn for a hexbinplot, defaults to \code{TRUE}.
+#' @param hexbin.colourcut numeric vector of values covering [0, 1] that determine hexagon colour class boundaries and hexagon legend size boundaries.
+#' Alternatively, an integer (<= hexbin.maxcnt) specifying the number of equispaced colourcut values in [0,1].
+#' @param hexbin.mincnt integer, minimum count for a hexagon to be plotted. Default is 1.
+#' @param hexbin.maxcnt integer, maximum count for a hexagon to be plotted. Cells with more counts are not plotted. Default is \code{NULL}.
+#' @param hexbin.xbins integer, number of bins in the x direction for hexbin plot. Default is 30.
+#' @param hexbin.aspect numeric, aspect ratio of hexbin plot to control plot dimensions. Default is 1.
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
@@ -372,6 +381,7 @@ create.pgs.density.plot <- function(
 #' @param compute.correlation logical whether to compute correlation between PGS and phenotype and display in plot
 #' @param corr.legend.corner numeric vector indicating the corner of the correlation legend e.g. \code{c(0,1)} for top left
 #' @param corr.legend.cex numeric cex for correlation legend
+#' @param include.origin logical whether to include the origin (zero) in plot axes
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
 #' @param xaxes.cex numeric size for x-axis labels
@@ -425,6 +435,14 @@ create.pgs.density.plot <- function(
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,
     phenotype.columns,
+    hexbin.threshold = 1000,
+    hexbin.colour.scheme = NULL,
+    hexbin.colourkey = TRUE,
+    hexbin.colourcut = seq(0, 1, length = 11),
+    hexbin.mincnt = 1,
+    hexbin.maxcnt = NULL,
+    hexbin.xbins = 30,
+    hexbin.aspect = 1,
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -432,6 +450,7 @@ create.pgs.with.continuous.phenotype.plot <- function(
     compute.correlation = TRUE,
     corr.legend.corner = c(0,1),
     corr.legend.cex = 1.5,
+    include.origin = FALSE,
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
@@ -467,6 +486,23 @@ create.pgs.with.continuous.phenotype.plot <- function(
 
         for (pgs.column in pgs.columns) {
 
+            # handle axes formatting
+            xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+                pgs.data[ , pgs.column],
+                log.scaled = FALSE,
+                num.labels = 5,
+                include.origin = include.origin
+                );
+            scatter.xlimits <- c(min(xaxis.formatting$at), max(xaxis.formatting$at));
+
+            yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+                pgs.data[ , phenotype],
+                log.scaled = FALSE,
+                num.labels = 5,
+                include.origin = include.origin
+                );
+            scatter.ylimits <- c(min(yaxis.formatting$at), max(yaxis.formatting$at));
+
             # handle tidy titles
             if (tidy.titles) {
                 pgs.column.label <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
@@ -494,47 +530,72 @@ create.pgs.with.continuous.phenotype.plot <- function(
                         )
                     );
                 # set y limits that make room for the correlation legend in the top of the plot
-                scatter.ylimits <- c(min(phenotype.data.for.plotting[ , phenotype], na.rm = TRUE) * 0.1, max(phenotype.data.for.plotting[ , phenotype], na.rm = TRUE) * 1.3);
+                scatter.ylimits[2] <- scatter.ylimits[2] * 1.3;
+
                 } else {
                     correlation.legend <- NULL;
                     scatter.ylimits <- NULL;
                 }
 
-            xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-                pgs.data[ , pgs.column],
-                log.scaled = FALSE, num.labels = 5,
-                include.origin = FALSE
-                );
-            yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
-                pgs.data[ , phenotype],
-                log.scaled = FALSE,
-                num.labels = 5,
-                include.origin = FALSE
-                );
-            pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
-                formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
-                data = pgs.data,
-                type = 'p',
-                cex = point.cex,
-                xlab.label = pgs.column.label,
-                ylab.label = phenotype,
-                main = '',
-                main.cex = 0,
-                yat = yaxis.formatting$at,
-                yaxis.lab = yaxis.formatting$axis.lab,
-                xat = xaxis.formatting$at,
-                xaxis.lab = xaxis.formatting$axis.lab,
-                # Correlation Legend
-                legend = correlation.legend,
-                ylimits = scatter.ylimits,
-                ylab.cex = titles.cex,
-                xlab.cex = titles.cex,
-                yaxis.cex = yaxes.cex,
-                xaxis.cex = xaxes.cex
-                );
-            }
 
-        }
+
+            sample.total <- nrow(pgs.data);
+            if (sample.total > hexbin.threshold) {
+                pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.hexbinplot(
+                    formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
+                    data = pgs.data,
+                    colour.scheme = hexbin.colour.scheme,
+                    colourkey = hexbin.colourkey,
+                    colourcut = hexbin.colourcut,
+                    mincnt = hexbin.mincnt,
+                    maxcnt = hexbin.maxcnt,
+                    xbins = hexbin.xbins,
+                    aspect = hexbin.aspect,
+                    xlab.label = pgs.column.label,
+                    ylab.label = phenotype,
+                    main = '',
+                    main.cex = 0,
+                    ylimits = scatter.ylimits,
+                    yat = yaxis.formatting$at,
+                    yaxis.lab = yaxis.formatting$axis.lab,
+                    xlimits = scatter.xlimits,
+                    xat = xaxis.formatting$at,
+                    xaxis.lab = xaxis.formatting$axis.lab,
+                    # Correlation Legend
+                    legend = correlation.legend,
+                    ylab.cex = titles.cex,
+                    xlab.cex = titles.cex,
+                    yaxis.cex = yaxes.cex,
+                    xaxis.cex = xaxes.cex
+                    );
+                } else {
+                    pgs.scatterplots[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.scatterplot(
+                        formula = as.formula(paste0(phenotype, ' ~ ', pgs.column)),
+                        data = pgs.data,
+                        type = 'p',
+                        cex = point.cex,
+                        xlab.label = pgs.column.label,
+                        ylab.label = phenotype,
+                        main = '',
+                        main.cex = 0,
+                        ylimits = scatter.ylimits,
+                        yat = yaxis.formatting$at,
+                        yaxis.lab = yaxis.formatting$axis.lab,
+                        xlimits = scatter.xlimits,
+                        xat = xaxis.formatting$at,
+                        xaxis.lab = xaxis.formatting$axis.lab,
+                        # Correlation Legend
+                        legend = correlation.legend,
+                        ylab.cex = titles.cex,
+                        xlab.cex = titles.cex,
+                        yaxis.cex = yaxes.cex,
+                        xaxis.cex = xaxes.cex
+                        );
+                    }
+
+                }
+
+            }
 
     # organize filename if plot writing requested
     if (!is.null(output.dir)) {
