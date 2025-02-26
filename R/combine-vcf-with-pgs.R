@@ -1,3 +1,4 @@
+utils::globalVariables(c("ID", "new.ID", ".")); # data table syntax work-around for CRAN legitimacy
 #' @title Combine VCF with PGS
 #' @description Match PGS SNPs to corresponding VCF information by genomic coordinates or rsID using a merge operation.
 #' @param vcf.data A data.frame containing VCF data. Required columns: \code{CHROM, POS}.
@@ -111,8 +112,8 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
             split.rsid.vcf.data <- merge(
                 x = vcf.data,
                 # split only entries with multiple rsIDs, save in new column, and merge back with the original data
-                y = vcf.data[grepl(';', ID), unique(unlist(strsplit(as.character(ID), ';', fixed = TRUE))), by = .(Indiv, CHROM, POS)
-                    ][,.(new.ID = V1, Indiv, CHROM, POS)],
+                y = vcf.data[grepl(';', get('ID')), unique(unlist(strsplit(as.character(get('ID')), ';', fixed = TRUE))), by = .(get('Indiv'), get('CHROM'), get('POS'))
+                    ][,.(new.ID = get('V1'), get('Indiv'), get('CHROM'), get('POS'))],
                 by = c('CHROM', 'POS', 'Indiv'),
                 all = TRUE
                 );
