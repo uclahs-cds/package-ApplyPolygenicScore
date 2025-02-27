@@ -2,7 +2,8 @@ import('vcfR');
 importFrom(
     'data.table',
     'tstrsplit',
-    'setDT'
+    'setDT',
+    ':='
     );
 import('reshape2');
 import('BoutrosLab.plotting.general');
