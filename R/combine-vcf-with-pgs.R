@@ -1,4 +1,4 @@
-utils::globalVariables(c("ID", "new.ID", ".")); # data table syntax work-around for CRAN legitimacy
+utils::globalVariables(c('ID', 'new.ID', '.')); # data table syntax work-around for CRAN legitimacy
 #' @title Combine VCF with PGS
 #' @description Match PGS SNPs to corresponding VCF information by genomic coordinates or rsID using a merge operation.
 #' @param vcf.data A data.frame containing VCF data. Required columns: \code{CHROM, POS}.
