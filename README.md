@@ -9,12 +9,21 @@
 
 
 ## Description
-This R package provides a set of utilities to simply and transparently parse genotype/dosage data from an input VCF, match genotype coordinates to the component SNPs of an existing polygenic score, and apply SNP weights to dosages to calculate a polygenic score for each individual in accordance with the additive weighted sum of dosages model.
+This R package provides a set of utilities to simply and transparently parse genotype/dosage data from an input VCF, match genotype coordinates to the component SNPs of an existing polygenic score model, and apply SNP weights to dosages to calculate a polygenic score for each individual in accordance with the additive weighted sum of dosages method.
 
 ## Installation
+
+To install the last release on CRAN:
+
+```
+# In an R session
+install.packages("ApplyPolygenicScore")
+```
+
 To install the latest development version from GitHub:
 
 ```
+# In an R session
 # install.packages("devtools")
 
 devtools::install_github("uclahs-cds/package-ApplyPolygenicScore")
@@ -83,10 +92,12 @@ If you wish to apply a PGS to a cohort, we recommend that genotypes for the whol
 
     ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data.
 
-For more step-by-step instructions, check out our vignettes.
+For more step-by-step instructions, check out our [vignettes](https://CRAN.R-project.org/package=ApplyPolygenicScore).
 
 ## Resources
-This package is in the process of being submitted to CRAN, where the manual and vignettes will be readily available. In the meantime, if you have installed the package from GitHub with `build_vignettes = TRUE`, you may view the vignette by running the following:
+This package is hosted on CRAN. The manual of all functions and the User Guide vignette can be accessed on the [ApplyPolygenicScore CRAN page](https://CRAN.R-project.org/package=ApplyPolygenicScore).
+
+If you have installed the package from GitHub with `build_vignettes = TRUE`, you may view the vignette by running the following:
 
 ```
 vignette('UserGuide', package = 'ApplyPolygenicScore')
