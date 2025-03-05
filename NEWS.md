@@ -1,5 +1,10 @@
 # Unreleased
 
+# ApplyPolygenicScore 3.0.2
+
+## Changed
+* ApplyPolygenicScore released on CRAN! Updated README with CRAN links.
+
 # ApplyPolygenicScore 3.0.1
 
 ## Added
