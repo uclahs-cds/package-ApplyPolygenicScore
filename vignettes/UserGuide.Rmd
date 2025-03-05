@@ -116,14 +116,14 @@ phenotype.data <- data.frame(
 head(phenotype.data)
 ```
 
-## Creating a BED coordinate file
+## Creating a BED-formatted coordinate file
 
 VCF files can be very large. Sometimes they are too large to be imported into R. In these cases, it is useful to first filter the VCF file to just the variants
 that are included in the PGS you wish to calculate and reduce file size. This is best done using command line tools designed for VCF file manipulation. For filtering, they typically 
 require a BED file containing the coordinates of the variants you wish to keep. To simplify this process, ApplyPolygenicScore provides functions for converting PGS weight files
-to BED coordinate files.
+to BED-formatted coordinate files.
 
-### Conversion of PGS weight files to BED coordinate format
+### Conversion of PGS weight files to a coordinate file in BED format
 
 BED format requires the following first three columns: chromosome name, start position, and end position.
 PGS weight files only contain the chromosome name and end position of each variant, so must be reformatted
@@ -133,7 +133,7 @@ with an additional column for the start position, and with the correct column or
 Additionally, most tools do not accept BED files with column names. If you wish to maintain a header, you may need to add
 a comment character to the first line of the file: `# chr start end`
 
-Use the `convert.pgs.to.bed` function to convert a PGS weight file to a BED coordinate data frame.
+Use the `convert.pgs.to.bed` function to convert a PGS weight file to a BED-formatted coordinate data frame.
 
 ```{r convert-pgs-to-bed}
 
@@ -156,7 +156,7 @@ format the X and Y chromosomes as 'X' and 'Y' respectively, and `numeric.sex.chr
 
 The `slop` option imitates `bedtools` nomenclature for adding base pairs to the start and end of a set of coordinates. `slop = 10` adds 10 base pairs to the start and end of each variant coordinate.
 
-Here is an example of BED coordinates for a variant on chromosome 1 at the 20th base pair.
+Here is an example of genomic coordinates in BED file format for a variant on chromosome 1 at the 20th base pair.
 
 No slop:
 
@@ -173,7 +173,7 @@ With slop of 10 base pairs:
 ### Merging coordinates from multiple polygenic scores
 
 What if you want to apply multiple polygenic scores to the same VCF file?
-Instead of filtering the VCF file multiple times, you can use the `combine.pgs.bed` function to merge multiple BED data frames
+Instead of filtering the VCF file multiple times, you can use the `combine.pgs.bed` function to merge multiple BED-formatted data frames
 into a single set of coordinates, and filter your VCF just once for the union of all variants in multiple PGSs.
 
 ```{r merge-pgs-bed}
