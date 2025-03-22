@@ -115,24 +115,6 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
             split.rsid.vcf.data <- vcf.data
         }
 
-        # # Split VCF$ID column into separate rows for each rsID (multiple rsIDs are separated by ;)
-        # # most efficient way to do this is to use the data.table package
-        # if (any(grepl(';', vcf.data$ID))) {
-        #     data.table::setDT(vcf.data);
-        #     split.rsid.vcf.data <- merge(
-        #         x = vcf.data,
-        #         # split only entries with multiple rsIDs, save in new column, and merge back with the original data
-        #         y = vcf.data[grepl(';', get('ID')), unique(unlist(strsplit(as.character(get('ID')), ';', fixed = TRUE))), by = .(get('Indiv'), get('CHROM'), get('POS'))
-        #             ][,.(new.ID = get('V1'), get('Indiv'), get('CHROM'), get('POS'))],
-        #         by = c('CHROM', 'POS', 'Indiv'),
-        #         all = TRUE
-        #         );
-        #     # replace entries with multiple rsIDs with the new, split, rsID
-        #     split.rsid.vcf.data <- split.rsid.vcf.data[!is.na(new.ID), ID := new.ID][, new.ID := NULL];
-        #     } else {
-        #     split.rsid.vcf.data <- vcf.data;
-        #     }
-
         # merge missing SNP data on split rsID
         merged.vcf.with.missing.pgs.data <- merge(
             x = missing.snp.pgs.weight.data,
