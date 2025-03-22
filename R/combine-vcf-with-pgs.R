@@ -107,7 +107,11 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
         # Split VCF$ID column into separate rows for each rsID (multiple rsIDs separated by ;)
         if (any(grepl(';', vcf.data$ID))) {
-            split.rows <- strsplit(as.character(vcf.data$ID), ';', fixed = TRUE)
+            split.rows <- strsplit(
+                as.character(vcf.data$ID),
+                ';',
+                fixed = TRUE
+                );
             expanded.vcf <- vcf.data[rep(seq_len(nrow(vcf.data)), lengths(split.rows)), ]
             expanded.vcf$ID <- unlist(split.rows)
             split.rsid.vcf.data <- expanded.vcf

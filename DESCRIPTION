@@ -5,7 +5,8 @@ Version: 3.0.2
 Authors@R: c(
     person('Paul', 'Boutros', role = 'cre', email = 'PBoutros@mednet.ucla.edu'),
     person('Nicole', 'Zeltser', role = 'aut', comment = c(ORCID = '0000-0001-7246-2771')),
-    person('Rachel', 'Dang', role = 'ctb'))
+    person('Rachel', 'Dang', role = 'ctb'),
+    person('Raag', 'Agrawal', role = 'ctb'))
 Description: Simple and transparent parsing of genotype/dosage data
     from an input Variant Call Format (VCF) file, matching of genotype
     coordinates to the component Single Nucleotide Polymorphisms (SNPs)
@@ -14,7 +15,7 @@ Description: Simple and transparent parsing of genotype/dosage data
     in accordance with the additive weighted sum of dosages model. Methods
     are designed in reference to best practices described by
     Collister, Liu, and Clifton (2022) <doi:10.3389/fgene.2022.818574>.
-Depends: 
+Depends:
     R (>= 4.2.0)
 Imports:
     vcfR,
@@ -23,7 +24,7 @@ Imports:
     reshape2,
     BoutrosLab.plotting.general,
     lattice
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

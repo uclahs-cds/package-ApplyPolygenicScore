@@ -1,5 +1,10 @@
 # Unreleased
 
+# ApplyPolygenicScore unreleased
+## Changed
+* Fixed regression of combine.vcf.with.pgs() function that prevented it from handling multiple rsIDs on the same line.
+* added new contributor
+
 # ApplyPolygenicScore 3.0.2
 
 ## Changed
