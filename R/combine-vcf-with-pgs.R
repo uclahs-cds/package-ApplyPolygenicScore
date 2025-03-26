@@ -105,30 +105,31 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         missing.snp.pgs.weight.data <- subset(missing.snp.merged.data, select = colnames(pgs.weight.data));
         rm(missing.snp.merged.data);
 
-    # Expand the VCF$ID column to a row-per-rsID format.
-    # Some variants have multiple rsIDs in the ID column separated by semicolons.
-    # We detect such cases using grepl, split them, and expand the data so that each rsID has its own row.
-    # we create a new data frame with the expanded rsID data
-    if (any(grepl(';', vcf.data$ID))) {
-        split.rows <- strsplit(
-            x           = as.character(vcf.data$ID),
-            split       = ';',
-            fixed       = TRUE
-            );
+        # Expand the VCF$ID column to a row-per-rsID format.
+        # Some variants have multiple rsIDs in the ID column separated by semicolons.
+        # We detect such cases using grepl, split them, and expand the data so that each rsID has its own row.
+        # we create a new data frame with the expanded rsID data
+        if (any(grepl(';', vcf.data$ID))) {
+            split.rows <- strsplit(
+                x           = as.character(vcf.data$ID),
+                split       = ';',
+                fixed       = TRUE
+                );
 
-        row.indices <- rep(
-            x           = seq_len(nrow(vcf.data)),
-            times       = lengths(split.rows)
-            );
+            row.indices <- rep(
+                x           = seq_len(nrow(vcf.data)),
+                times       = lengths(split.rows)
+                );
 
-        expanded.vcf <- vcf.data[row.indices, ];
+            split.rsid.vcf.data <- vcf.data[row.indices, ];
 
-        expanded.vcf$ID <- unlist(split.rows);
+            split.rsid.vcf.data$ID.vcf.unsplit <- split.rsid.vcf.data$ID; # save original rsID names for final output
+            split.rsid.vcf.data$ID <- unlist(split.rows);
 
-        split.rsid.vcf.data <- expanded.vcf;
-    } else {
-        split.rsid.vcf.data <- vcf.data;
-    }
+        } else {
+            vcf.data$ID.vcf.unsplit <- vcf.data$ID; # save an ID.vcf.unsplit column for consistency
+            split.rsid.vcf.data <- vcf.data;
+        }
 
         # merge missing SNP data on split rsID
         merged.vcf.with.missing.pgs.data <- merge(
@@ -162,7 +163,8 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
         # add columns to match original merge
         merged.vcf.with.missing.pgs.data$ID.pgs <- merged.vcf.with.missing.pgs.data$ID;
-        merged.vcf.with.missing.pgs.data$ID.vcf <- merged.vcf.with.missing.pgs.data$ID;
+        merged.vcf.with.missing.pgs.data$ID.vcf <- merged.vcf.with.missing.pgs.data$ID.vcf.unsplit;
+        merged.vcf.with.missing.pgs.data$ID.vcf.unsplit <- NULL;
         merged.vcf.with.missing.pgs.data$merge.strategy <- 'rsID';
 
         # subset columns to match original merge
