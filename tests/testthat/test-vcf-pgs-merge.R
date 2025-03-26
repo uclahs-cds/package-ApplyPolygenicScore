@@ -284,8 +284,17 @@ test_that(
             );
         test.vcf.data.missing.locus.matching.rsid <- data.frame(
             CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
-            POS = c(1, 3, 3, 6),
+            POS = c(1, 3, 3, 6), #rs2/chr2:3 is missing by POS but present by rsID, #rs5/chr4:6 is missing by rsID AND by POS
             ID = c('rs1', 'rs3', 'rs2', 'rs5'),
+            REF = c('A', 'T', 'C', 'G'),
+            ALT = c('T', 'A', 'G', 'C'),
+            Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
+            gt_GT_alleles = c('A/T', 'T/A', 'C/G', 'G/C')
+            );
+        test.vcf.data.missing.locus.matching.rsid.with.semicolons <- data.frame(
+            CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
+            POS = c(1, 3, 3, 6),
+            ID = c('rs1;rsA', 'rs3', 'rs2;rsB', 'rs5;rsC'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C'),
             Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
@@ -316,6 +325,14 @@ test_that(
             'PGS is missing 1 SNPs from VCF'
             );
 
+        expect_warning(
+            combine.vcf.with.pgs(
+                vcf.data = test.vcf.data.missing.locus.matching.rsid.with.semicolons,
+                pgs.weight.data = test.pgs.weight.data
+                ),
+            'PGS is missing 1 SNPs from VCF'
+            );
+
         test.combine.vcf.with.pgs.no.missing <- combine.vcf.with.pgs(
             vcf.data = test.vcf.data.no.missing,
             pgs.weight.data = test.pgs.weight.data
@@ -328,6 +345,11 @@ test_that(
 
         test.combine.vcf.with.pgs.missing.locus.matching.rsid <- combine.vcf.with.pgs(
             vcf.data = test.vcf.data.missing.locus.matching.rsid,
+            pgs.weight.data = test.pgs.weight.data
+            );
+
+        test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons <- combine.vcf.with.pgs(
+            vcf.data = test.vcf.data.missing.locus.matching.rsid.with.semicolons,
             pgs.weight.data = test.pgs.weight.data
             );
 
@@ -344,6 +366,10 @@ test_that(
             nrow(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data),
             4
             );
+        expect_equal(
+            nrow(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data),
+            4
+            );
 
         expect_equal(
             nrow(test.combine.vcf.with.pgs.missing$missing.snp.data),
@@ -355,6 +381,10 @@ test_that(
             );
         expect_equal(
             nrow(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data),
+            1
+            );
+        expect_equal(
+            nrow(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data),
             1
             );
 
@@ -371,6 +401,10 @@ test_that(
             ncol(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data),
             11
             );
+        expect_equal(
+            ncol(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data),
+            11
+            );
 
         # check that combine.vcf.with.pgs returns the correct columns
         expect_true(
@@ -381,6 +415,9 @@ test_that(
             );
         expect_true(
             all(c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data))
+            );
+        expect_true(
+            all(c('CHROM', 'POS', 'REF', 'ALT', 'Indiv', 'gt_GT_alleles', 'effect_allele', 'beta', 'ID.pgs', 'ID.vcf', 'merge.strategy') %in% colnames(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data))
             );
 
         # check that combine.vcf.with.pgs returns the correct values
@@ -396,7 +433,10 @@ test_that(
             test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$CHROM,
             c('chr1', 'chr3', 'chr2', 'chr4')
             );
-
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data$CHROM,
+            c('chr1', 'chr3', 'chr2', 'chr4')
+            );
 
         expect_equal(
             test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data$POS,
@@ -408,6 +448,10 @@ test_that(
             );
         expect_equal(
             test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$POS,
+            c(1, 3, 3, 4)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data$POS,
             c(1, 3, 3, 4)
             );
 
@@ -423,7 +467,44 @@ test_that(
             test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$ID.pgs,
             c('rs1', 'rs3', 'rs2', 'rs4')
             );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data$ID.pgs,
+            c('rs1', 'rs3', 'rs2', 'rs4')
+            );
 
+        expect_equal(
+            test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data$ID.pgs,
+            test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data$ID.vcf
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data$ID.vcf,
+            c('rs1', 'rs2', 'rs3', NA)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$ID.vcf,
+            c('rs1', 'rs3', 'rs2', NA)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data$ID.vcf,
+            c('rs1;rsA', 'rs3', 'rs2;rsB', NA)
+            );
+
+        expect_equal(
+            test.combine.vcf.with.pgs.no.missing$merged.vcf.with.pgs.data$merge.strategy,
+            rep('genomic coordinate', 4)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing$merged.vcf.with.pgs.data$merge.strategy,
+            c(rep('genomic coordinate', 3), 'rsID')
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$merged.vcf.with.pgs.data$merge.strategy,
+            c('genomic coordinate', 'genomic coordinate', 'rsID','rsID')
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data$merge.strategy,
+            c('genomic coordinate', 'genomic coordinate', 'rsID','rsID')
+            );
 
         # check that combine.vcf.with.pgs returns the correct values for missing SNPs
         expect_equal(
@@ -510,6 +591,45 @@ test_that(
             );
         expect_true(
             is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$gt_GT_alleles)
+            );
+
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$CHROM.pgs,
+            'chr4'
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$CHROM.vcf)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$POS.pgs,
+            4
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$POS.vcf)
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$ID,
+            'rs4'
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$effect_allele,
+            'G'
+            );
+        expect_equal(
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$beta,
+            4
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$REF)
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$ALT)
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$Indiv)
+            );
+        expect_true(
+            is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$gt_GT_alleles)
             );
 
         }
