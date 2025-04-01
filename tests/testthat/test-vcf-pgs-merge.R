@@ -294,7 +294,7 @@ test_that(
         test.vcf.data.missing.locus.matching.rsid.with.semicolons <- data.frame(
             CHROM = c('chr1', 'chr3', 'chr2', 'chr4'),
             POS = c(1, 3, 3, 6),
-            ID = c('rs1;rsA', 'rs3', 'rs2;rsB', 'rs5;rsC'),
+            ID = c('rs1;rs1', 'rs3', 'rs2;rsB', 'rs5;rsC'),
             REF = c('A', 'T', 'C', 'G'),
             ALT = c('T', 'A', 'G', 'C'),
             Indiv = c('sample1', 'sample2', 'sample3', 'sample4'),
@@ -486,7 +486,7 @@ test_that(
             );
         expect_equal(
             test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$merged.vcf.with.pgs.data$ID.vcf,
-            c('rs1;rsA', 'rs3', 'rs2;rsB', NA)
+            c('rs1;rs1', 'rs3', 'rs2;rsB', NA)
             );
 
         expect_equal(

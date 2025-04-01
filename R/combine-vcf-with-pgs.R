@@ -116,6 +116,9 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
                 fixed       = TRUE
                 );
 
+            # remove duplicate IDs
+            split.rows <- lapply(split.rows, function(x) unique(x));
+
             row.indices <- rep(
                 x           = seq_len(nrow(vcf.data)),
                 times       = lengths(split.rows)
