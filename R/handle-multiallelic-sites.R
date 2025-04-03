@@ -8,6 +8,14 @@ get.non.risk.multiallelic.site.row <- function(single.sample.multialellic.pgs.wi
         return(data.frame());
         }
 
+    # handle cases where this variant is missing in this individual sample
+    if (all(single.sample.multialellic.pgs.with.vcf.data$gt_GT_alleles == '.') | all(is.na(single.sample.multialellic.pgs.with.vcf.data$gt_GT_alleles))) { #standard importation marks missing genotypes with '.'
+        # if all alleles are missing (variant not called for this sample), the first entry of the multiallelic site
+        # is arbitrarily chosen to represent the sample (any choice would be NA regardless)
+        risk.allele.site.row.index <- 1;
+        return(single.sample.multialellic.pgs.with.vcf.data[-risk.allele.site.row.index, ]);
+        }
+
     # split genotyped alleles into separate columns
     GT.alleles <- data.table::tstrsplit(single.sample.multialellic.pgs.with.vcf.data$gt_GT_alleles, split = c('/|\\|'), keep = c(1,2));
     names(GT.alleles) <- c('called.allele.a', 'called.allele.b');

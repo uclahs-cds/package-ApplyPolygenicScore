@@ -392,21 +392,23 @@ test_that(
         # test case with VCF multiallelic site with no extra beta, REF allele is the risk allele
         ref.as.single.risk.allele.test <- apply.polygenic.score(
             vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
-            pgs.weight.data = merged.multiallelic.site.test.data$ref.as.single.risk.allele.multiallelic.pgs.weight.data
+            pgs.weight.data = merged.multiallelic.site.test.data$ref.as.single.risk.allele.multiallelic.pgs.weight.data,
+            missing.genotype.method = 'none'
             );
         expect_equal(
             ref.as.single.risk.allele.test[[PGS.OUTPUT.INDEX]]$PGS,
-            c(4, 3, 0)
+            c(4, 3, 0, 0)
             );
 
         # test case with VCF multiallelic sites with no extra beta, ALT allele is the risk allele
         alt.as.single.risk.allele.test <- apply.polygenic.score(
             vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
-            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data
+            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.single.risk.allele.multiallelic.pgs.weight.data,
+            missing.genotype.method = 'none'
             );
         expect_equal(
             alt.as.single.risk.allele.test[[PGS.OUTPUT.INDEX]]$PGS,
-            c(2, 1, 2)
+            c(2, 1, 2, 0)
             );
         expect_no_warning(
             apply.polygenic.score(
@@ -418,11 +420,12 @@ test_that(
         # test case with a VCF multiallelic site that also has an extra beta, both ALT alleles are risk alleles
         alt.as.two.risk.alleles.test <- apply.polygenic.score(
             vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
-            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data
+            pgs.weight.data = merged.multiallelic.site.test.data$alt.as.two.risk.alleles.multiallelic.pgs.weight.data,
+            missing.genotype.method = 'none'
             );
         expect_equal(
             alt.as.two.risk.alleles.test[[PGS.OUTPUT.INDEX]]$PGS,
-            c(2, 1.5, 3)
+            c(2, 1.5, 3, 0)
             );
         expect_warning(
             apply.polygenic.score(
@@ -435,11 +438,12 @@ test_that(
         # test case with a VCF multiallelic site that also has an extra beta, one REF and one ALT allele are risk alleles
         ref.and.alt.as.two.risk.alleles.test <- apply.polygenic.score(
             vcf.data = merged.multiallelic.site.test.data$merged.multiallelic.vcf.data,
-            pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
+            pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data,
+            missing.genotype.method = 'none'
             );
         expect_equal(
             ref.and.alt.as.two.risk.alleles.test[[PGS.OUTPUT.INDEX]]$PGS,
-            c(2, 1.5, 2)
+            c(2, 1.5, 2, 0)
             );
         expect_warning(
             apply.polygenic.score(
