@@ -7,6 +7,7 @@
 
 ## Added
 * Added new contributor
+* Added minimum sample size check for grouped density curves
 
 # ApplyPolygenicScore 3.0.2
 
