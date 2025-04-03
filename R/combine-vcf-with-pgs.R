@@ -1,4 +1,3 @@
-utils::globalVariables(c('ID', 'new.ID', '.')); # data table syntax work-around for CRAN legitimacy
 #' @title Combine VCF with PGS
 #' @description Match PGS SNPs to corresponding VCF information by genomic coordinates or rsID using a merge operation.
 #' @param vcf.data A data.frame containing VCF data. Required columns: \code{CHROM, POS}.
@@ -105,23 +104,34 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         missing.snp.pgs.weight.data <- subset(missing.snp.merged.data, select = colnames(pgs.weight.data));
         rm(missing.snp.merged.data);
 
-        # Split VCF$ID column into separate rows for each rsID (multiple rsIDs are separated by ;)
-        # most efficient way to do this is to use the data.table package
+        # Expand the VCF$ID column to a row-per-rsID format.
+        # Some variants have multiple rsIDs in the ID column separated by semicolons.
+        # We detect such cases using grepl, split them, and expand the data so that each rsID has its own row.
+        # we create a new data frame with the expanded rsID data
         if (any(grepl(';', vcf.data$ID))) {
-            data.table::setDT(vcf.data);
-            split.rsid.vcf.data <- merge(
-                x = vcf.data,
-                # split only entries with multiple rsIDs, save in new column, and merge back with the original data
-                y = vcf.data[grepl(';', get('ID')), unique(unlist(strsplit(as.character(get('ID')), ';', fixed = TRUE))), by = .(get('Indiv'), get('CHROM'), get('POS'))
-                    ][,.(new.ID = get('V1'), get('Indiv'), get('CHROM'), get('POS'))],
-                by = c('CHROM', 'POS', 'Indiv'),
-                all = TRUE
+            split.rows <- strsplit(
+                x           = as.character(vcf.data$ID),
+                split       = ';',
+                fixed       = TRUE
                 );
-            # replace entries with multiple rsIDs with the new, split, rsID
-            split.rsid.vcf.data <- split.rsid.vcf.data[!is.na(new.ID), ID := new.ID][, new.ID := NULL];
-            } else {
+
+            # remove duplicate IDs
+            split.rows <- lapply(split.rows, function(x) unique(x));
+
+            row.indices <- rep(
+                x           = seq_len(nrow(vcf.data)),
+                times       = lengths(split.rows)
+                );
+
+            split.rsid.vcf.data <- vcf.data[row.indices, ];
+
+            split.rsid.vcf.data$ID.vcf.unsplit <- split.rsid.vcf.data$ID; # save original rsID names for final output
+            split.rsid.vcf.data$ID <- unlist(split.rows);
+
+        } else {
+            vcf.data$ID.vcf.unsplit <- vcf.data$ID; # save an ID.vcf.unsplit column for consistency
             split.rsid.vcf.data <- vcf.data;
-            }
+        }
 
         # merge missing SNP data on split rsID
         merged.vcf.with.missing.pgs.data <- merge(
@@ -155,7 +165,8 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
         # add columns to match original merge
         merged.vcf.with.missing.pgs.data$ID.pgs <- merged.vcf.with.missing.pgs.data$ID;
-        merged.vcf.with.missing.pgs.data$ID.vcf <- merged.vcf.with.missing.pgs.data$ID;
+        merged.vcf.with.missing.pgs.data$ID.vcf <- merged.vcf.with.missing.pgs.data$ID.vcf.unsplit;
+        merged.vcf.with.missing.pgs.data$ID.vcf.unsplit <- NULL;
         merged.vcf.with.missing.pgs.data$merge.strategy <- 'rsID';
 
         # subset columns to match original merge
