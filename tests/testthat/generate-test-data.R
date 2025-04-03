@@ -132,24 +132,26 @@ save(
 # create simple VCF data for testing multiallelic site handling
 merged.multiallelic.site.test.data <- list(
     merged.multiallelic.vcf.data = data.frame(
-        CHROM = c('chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3'),
+        CHROM = c('chr1', 'chr1', 'chr1', 'chr1', 'chr2', 'chr2', 'chr2', 'chr2', 'chr3', 'chr3', 'chr3', 'chr3'),
         # merged multiallelic site at chr2:2 with betas provided
         # merged multiallelic site at chr3:3 with no betas provided
-        POS = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
-        ID = c('rs1', 'rs1', 'rs1', 'rs2', 'rs2', 'rs2', 'rs3', 'rs3', 'rs3'),
-        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
+        POS = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
+        ID = c('rs1', 'rs1', 'rs1', 'rs1', 'rs2', 'rs2', 'rs2', 'rs2', 'rs3', 'rs3', 'rs3', 'rs3'),
+        REF = c('T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T'),
         # three possible alleles at chr2:2 (T, A, C)
-        ALT = c('A', 'A', 'A', 'A,C', 'A,C', 'A,C', 'A,G', 'A,G', 'A,G'),
-        Indiv = c('sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3', 'sample1', 'sample2', 'sample3'),
+        ALT = c('A', 'A', 'A', 'A', 'A,C', 'A,C', 'A,C', 'A,C', 'A,G', 'A,G', 'A,G', 'A,G'),
+        Indiv = c('sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4', 'sample1', 'sample2', 'sample3', 'sample4'),
         # multiallelic genotypes at chr2:2
         # sample 1 is heterozygous for alt allele A
         # sample 2 is heterozygous for alt allele C
         # sample 3 is homozygous for alt allele C
+        # sample 4 is missing this variant call
         # multiallelic genotypes at chr3:3
         # sample 1 is heterozygous for alt allele A
         # sample 2 is homozygous for alt allele G
         # sample 3 is homozygous for alt allele G
-        gt_GT_alleles = c('T/T', 'T/A', 'A/A', 'T/A', 'T/C', 'C/C', 'T/A', 'T/G', 'G/G')
+        # sample 4 is missing this variant call
+        gt_GT_alleles = c('T/T', 'T/A', 'A/A', NA, 'T/A', 'T/C', 'C/C', NA, 'T/A', 'T/G', 'G/G', NA)
         ),
     ref.as.single.risk.allele.multiallelic.pgs.weight.data = data.frame(
         CHROM = c('chr1', 'chr2', 'chr3'),
