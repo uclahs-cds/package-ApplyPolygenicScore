@@ -191,6 +191,15 @@ create.pgs.density.plot <- function(
             for (phenotype in names(pgs.by.phenotype)) {
                 pgs.data.for.plotting <- pgs.by.phenotype[[phenotype]];
 
+                # count non-NA values per phenotype category
+                n.samples.per.category <- sapply(pgs.data.for.plotting, function(x) {length(x[!is.na(x)])});
+                if (any(n.samples.per.category < 5)) {
+                    # remove phenotype categories containing fewer than 5 samples
+                    pgs.data.for.plotting <- pgs.data.for.plotting[n.samples.per.category >= 5];
+                    # issue a warning
+                    warning(paste0(names(n.samples.per.category)[n.samples.per.category < 5], ' category has fewer than 5 samples, density curves will not be plotted'));
+                    }
+
                 # color handling
                 max.colors <- 12;
                 max.lty <- 6;
