@@ -190,7 +190,7 @@ test_that(
             create.pgs.density.plot(
                 pgs.data = pgs.test,
                 phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
-                output.dir = '.',#temp.dir,
+                output.dir = temp.dir,
                 filename.prefix = 'TEST-all-phenotypes'
                 )
             );
