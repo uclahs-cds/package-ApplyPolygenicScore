@@ -195,7 +195,7 @@ test_that(
                 )
             );
 
-        # check handling of only continuous phenotype (not supposed to be plotted
+        # check handling of only continuous phenotype (not supposed to be plotted)
         expect_no_error(
             create.pgs.density.plot(
                 pgs.data = pgs.test,
