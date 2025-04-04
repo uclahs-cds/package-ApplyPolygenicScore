@@ -195,7 +195,7 @@ test_that(
                 )
             );
 
-        # check handling of only continuous phenotype (not supposed to be plotted, how can I test for multipanel dimensions over a multipanel object?)
+        # check handling of only continuous phenotype (not supposed to be plotted)
         expect_no_error(
             create.pgs.density.plot(
                 pgs.data = pgs.test,
@@ -221,6 +221,19 @@ test_that(
             );
         expect_true(
             file.exists(file.path(temp.dir, test.filename.continuous.phenotype))
+            );
+
+
+        # check handling of categorical phenotype with fewer than 2 samples in all categories
+        low.n.test.data <- pgs.test;
+        low.n.test.data$categorical.phenotype <- paste0('cat', 1:nrow(low.n.test.data));
+        expect_warning(
+            create.pgs.density.plot(
+                pgs.data = low.n.test.data,
+                phenotype.columns = c('categorical.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-all-small-categories'
+                )
             );
 
         }
