@@ -183,7 +183,13 @@ create.pgs.density.plot <- function(
             pgs.by.phenotype <- lapply(
                 X = pgs.by.phenotype,
                 FUN = function(x) {
-                    x <- x[sapply(x, length) > 1];
+                    large.categories <- sapply(
+                        X = x,
+                        function(y) {
+                            length(y[!is.na(y)]) > 1
+                            }
+                        );
+                    x <- x[large.categories];
                     }
                 );
 
@@ -191,13 +197,12 @@ create.pgs.density.plot <- function(
             for (phenotype in names(pgs.by.phenotype)) {
                 pgs.data.for.plotting <- pgs.by.phenotype[[phenotype]];
 
-                # count non-NA values per phenotype category
-                n.samples.per.category <- sapply(pgs.data.for.plotting, function(x) {length(x[!is.na(x)])});
-                if (any(n.samples.per.category < 5)) {
-                    # remove phenotype categories containing fewer than 5 samples
-                    pgs.data.for.plotting <- pgs.data.for.plotting[n.samples.per.category >= 5];
+                # handle case where all categories have fewer than 2 samples
+                if (length(pgs.data.for.plotting) == 0) {
                     # issue a warning
-                    warning(paste0(names(n.samples.per.category)[n.samples.per.category < 5], ' category has fewer than 5 samples, density curves will not be plotted'));
+                    warning(paste0('No ', phenotype, ' categories with more than 2 samples, plotting aggregated density instead'));
+                    pgs.density.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- pgs.density.plots[[pgs.column]];
+                    next;
                     }
 
                 # color handling
@@ -205,7 +210,7 @@ create.pgs.density.plot <- function(
                 max.lty <- 6;
                 max.categories <- max.colors * max.lty;
                 if (length(pgs.data.for.plotting) > max.categories) {
-                    # Issue a warning that plot is not bein color-coded
+                    # Issue a warning that plot is not being color-coded
                     warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
                     # plot all lines in black
                     group.xaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
