@@ -1,0 +1,25 @@
+---
+name: R-CMD-check
+'on':
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * MON'
+jobs:
+  R-CMD-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libjpeg-dev \
+            libpng-dev \
+            libcairo2-dev
+      - uses: r-lib/actions/setup-tinytex@v2
+      - uses: uclahs-cds/tool-R-CMD-check-action@v2
