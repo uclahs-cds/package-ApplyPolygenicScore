@@ -4,6 +4,7 @@
 ## Changed
 * Fixed regression of combine.vcf.with.pgs() function that prevented it from handling multiple rsIDs on the same line.
 * Fixed bug caused by the case of a sample-specific missing variant at a multiallelic site
+* Use updated `R CMD check` CI/CD action with `renv` dependency management
 
 ## Added
 * Added new contributor
