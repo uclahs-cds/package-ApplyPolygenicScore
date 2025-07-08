@@ -392,6 +392,7 @@ create.pgs.boxplot <- function(
     pgs.data,
     pgs.columns = NULL,
     phenotype.columns = NULL,
+    add.stripplot = TRUE,
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -427,6 +428,7 @@ create.pgs.boxplot <- function(
         }
 
     # Plotting
+    pgs.by.phenotype <- NULL;
     pgs.boxplots <- list();
     pgs.boxplots.by.phenotype <- list();
     # iterate over PGS inputs
@@ -452,11 +454,13 @@ create.pgs.boxplot <- function(
         pgs.boxplots[[pgs.column]] <- BoutrosLab.plotting.general::create.boxplot(
             formula = as.formula(paste0(pgs.column, ' ~ placeholder')),
             data = pgs.data,
+            add.stripplot = add.stripplot,
             xlab.label = NULL,
-            main = pgs.column.main,
-            main.cex = titles.cex,
+            ylab.label = pgs.column.main,
+            # main = NULL,
+            # main.cex = titles.cex,
             yaxis.cex = yaxes.cex,
-            xaxis.cex = xaxes.cex,
+            xaxis.cex = 0,
             yat = basic.yaxis.formatting$at,
             yaxis.lab = basic.yaxis.formatting$axis.lab
             );
@@ -511,9 +515,9 @@ create.pgs.boxplot <- function(
                 pgs.boxplots.by.phenotype[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.boxplot(
                     formula = as.formula(paste0(pgs.column, ' ~ ', phenotype)),
                     data = pgs.data,
+                    add.stripplot = add.stripplot,
                     xlab.label = phenotype,
-                    main = pgs.column.main,
-                    main.cex = titles.cex,
+                    ylab.label = pgs.column.main,
                     xlab.cex = titles.cex,
                     yaxis.cex = yaxes.cex,
                     xaxis.cex = xaxes.cex,
@@ -543,22 +547,55 @@ create.pgs.boxplot <- function(
         }
 
     # assemble multipanel plot
-    boxplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
-        plot.objects = c(pgs.boxplots, pgs.boxplots.by.phenotype),
-        filename = output.path,
-        layout.height = 1 + length(pgs.by.phenotype),
-        layout.width = length(pgs.columns),
-        main = '',
-        main.cex = 0,
-        width = width,
-        height = height,
-        x.spacing = 1.5,
-        y.spacing = 0,
-        left.padding = border.padding,
-        right.padding = border.padding,
-        bottom.padding = border.padding,
-        top.padding = border.padding
-        );
+    if (length(pgs.boxplots.by.phenotype) != 0) {
+        # phenotype plots are in column-wise order, but need to be in row-wise order to match multipanelplot layout
+        phenotype.grid.height <- length(pgs.by.phenotype);
+        phenotype.grid.width <- length(pgs.boxplots);
+        phenotype.plot.indices <- matrix(1:(phenotype.grid.height * phenotype.grid.width), nrow = phenotype.grid.width, byrow = TRUE);
+        phenotype.plot.indices <- as.vector(phenotype.plot.indices);
+
+        pgs.boxplots.by.phenotype <- pgs.boxplots.by.phenotype[phenotype.plot.indices];
+
+        boxplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+            plot.objects = c(pgs.boxplots, pgs.boxplots.by.phenotype),
+            filename = output.path,
+            layout.height = 1 + length(pgs.by.phenotype),
+            layout.width = length(pgs.columns),
+            main = '',
+            main.cex = 0,
+            # ylab.label = 'PGS',
+            ylab.cex = titles.cex,
+            ylab.axis.padding = 0,
+            width = width,
+            height = height,
+            x.spacing = 1.5,
+            y.spacing = 0,
+            left.padding = border.padding,
+            right.padding = border.padding,
+            bottom.padding = border.padding,
+            top.padding = border.padding
+            );
+        } else {
+
+        boxplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+            plot.objects = pgs.boxplots,
+            filename = output.path,
+            layout.height = 1,
+            layout.width = length(pgs.columns),
+            main = '',
+            main.cex = 0,
+            ylab.cex = titles.cex,
+            ylab.axis.padding = 0,
+            width = width,
+            height = height,
+            x.spacing = 1.5,
+            y.spacing = 0,
+            left.padding = border.padding,
+            right.padding = border.padding,
+            bottom.padding = border.padding,
+            top.padding = border.padding
+            );
+        }
 
         return(boxplot.multipanel); # this returns null when filename is provided to create.multipanelplot
     }
