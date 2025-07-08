@@ -113,6 +113,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @export
 create.pgs.density.plot <- function(
     pgs.data,
+    pgs.columns = NULL,
     phenotype.columns = NULL,
     output.dir = NULL,
     filename.prefix = NULL,
@@ -130,8 +131,16 @@ create.pgs.density.plot <- function(
     pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
     # identify PGS columns
-    recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
-    pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+    if (!is.null(pgs.columns)) {
+        # If user-provided pgs columns, check that they exist in data
+        if (!all(pgs.columns %in% colnames(pgs.data))) {
+            stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        } else {
+            # If no pgs columns provided, default to recognized PGS columns
+            recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+            pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+        }
 
     # identify categorical phenotype variables for plotting
     if (!is.null(phenotype.columns)) {
@@ -448,6 +457,7 @@ create.pgs.density.plot <- function(
 #' @export
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,
+    pgs.columns = NULL,
     phenotype.columns,
     hexbin.threshold = 1000,
     hexbin.colour.scheme = NULL,
@@ -481,8 +491,16 @@ create.pgs.with.continuous.phenotype.plot <- function(
         return(NULL);
         }
 
-    recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
-    pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+    if (!is.null(pgs.columns)) {
+        # If user-provided pgs columns, check that they exist in data
+        if (!all(pgs.columns %in% colnames(pgs.data))) {
+            stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        } else {
+            # If no pgs columns provided, default to recognized PGS columns
+            recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+            pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+        }
 
     # identify continuous phenotype variables for plotting
     phenotype.data <- subset(pgs.data, select = phenotype.columns);
