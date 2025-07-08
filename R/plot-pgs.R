@@ -388,6 +388,70 @@ create.pgs.density.plot <- function(
 
     }
 
+#' @title Plot PGS Boxplots
+#' @description Plot boxplots of PGS data outputted by \code{apply.polygenic.score}.
+#' If phenotype columns are provided, multiple boxplots are plotted for automatically detected categories for each categorical variable.
+#' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
+#' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
+#' @param phenotype.columns character vector of phenotype columns in \code{pgs.data} to plot (optional)
+#' @param add.stripplot logical whether to add a stripplot to the boxplot, defaults to \code{TRUE}
+#' @param output.dir character directory to save output plots
+#' @param filename.prefix character prefix for output filenames
+#' @param file.extension character file extension for output plots
+#' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
+#' @param width numeric width of output plot in inches
+#' @param height numeric height of output plot in inches
+#' @param xaxes.cex numeric size for all x-axis labels
+#' @param yaxes.cex numeric size for all y-axis labels
+#' @param titles.cex numeric size for all plot titles
+#' @param key.cex numeric size of color key legend
+#' @param border.padding numeric padding for plot borders
+#' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
+#' @examples
+#' set.seed(100);
+#' pgs.data <- data.frame(
+#'     PGS = rnorm(100, 0, 1)
+#'     );
+#'  temp.dir <- tempdir();
+#'
+#' # Basic Plot
+#' create.pgs.boxplot(
+#'    pgs.data,
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'basic-plot',
+#'    width = 6,
+#'    height = 6
+#'    );
+#'
+#' # Plot multiple PGS outputs
+#' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
+#' \donttest{create.pgs.boxplot(pgs.data, output.dir = temp.dir);}
+#' 
+#' # Plot non-default PGS columns
+#' pgs.data$PGS.custom <- rnorm(100, 2, 1);
+#' \donttest{create.pgs.boxplot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
+#' # Plot phenotype categories
+#' \donttest{
+#' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
+#' create.pgs.boxplot(
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'multiple-pgs',
+#'     phenotype.columns = 'sex'
+#'     );
+#' }
+#' # Plot multiple phenotypes
+#' \donttest{
+#' pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
+#' create.pgs.boxplot(
+#'    pgs.data,
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'multiple-phenotypes',
+#'    phenotype.columns = c('sex', 'letters')
+#'    );
+#' }
+#' @export
 create.pgs.boxplot <- function(
     pgs.data,
     pgs.columns = NULL,
