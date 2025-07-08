@@ -396,6 +396,7 @@ create.pgs.density.plot <- function(
 #' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
 #' @param phenotype.columns character vector of phenotype columns in \code{pgs.data} to plot (optional)
 #' @param add.stripplot logical whether to add a stripplot to the boxplot, defaults to \code{TRUE}
+#' @param jitter.factor numeric factor by which to scale the jitter (noise) applied to stripplot points, defaults to 1
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
@@ -405,7 +406,6 @@ create.pgs.density.plot <- function(
 #' @param xaxes.cex numeric size for all x-axis labels
 #' @param yaxes.cex numeric size for all y-axis labels
 #' @param titles.cex numeric size for all plot titles
-#' @param key.cex numeric size of color key legend
 #' @param border.padding numeric padding for plot borders
 #' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
 #' @examples
@@ -413,7 +413,7 @@ create.pgs.density.plot <- function(
 #' pgs.data <- data.frame(
 #'     PGS = rnorm(100, 0, 1)
 #'     );
-#'  temp.dir <- tempdir();
+#' temp.dir <- tempdir();
 #'
 #' # Basic Plot
 #' create.pgs.boxplot(
@@ -432,8 +432,8 @@ create.pgs.density.plot <- function(
 #' pgs.data$PGS.custom <- rnorm(100, 2, 1);
 #' \donttest{create.pgs.boxplot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
 #' # Plot phenotype categories
+#' pgs.data$sex <- sample(c('male', 'female'), 100, replace = TRUE));
 #' \donttest{
-#' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
 #' create.pgs.boxplot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
@@ -442,8 +442,8 @@ create.pgs.density.plot <- function(
 #'     );
 #' }
 #' # Plot multiple phenotypes
-#' \donttest{
 #' pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
+#' \donttest{
 #' create.pgs.boxplot(
 #'    pgs.data,
 #'    output.dir = temp.dir,
@@ -457,6 +457,7 @@ create.pgs.boxplot <- function(
     pgs.columns = NULL,
     phenotype.columns = NULL,
     add.stripplot = TRUE,
+    jitter.factor = 1,
     output.dir = NULL,
     filename.prefix = NULL,
     file.extension = 'png',
@@ -519,6 +520,7 @@ create.pgs.boxplot <- function(
             formula = as.formula(paste0(pgs.column, ' ~ placeholder')),
             data = pgs.data,
             add.stripplot = add.stripplot,
+            jitter.factor = jitter.factor,
             xlab.label = NULL,
             ylab.label = pgs.column.main,
             # main = NULL,
@@ -580,6 +582,7 @@ create.pgs.boxplot <- function(
                     formula = as.formula(paste0(pgs.column, ' ~ ', phenotype)),
                     data = pgs.data,
                     add.stripplot = add.stripplot,
+                    jitter.factor = jitter.factor,
                     xlab.label = phenotype,
                     ylab.label = pgs.column.main,
                     xlab.cex = titles.cex,

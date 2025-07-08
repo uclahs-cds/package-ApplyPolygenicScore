@@ -9,6 +9,7 @@ create.pgs.boxplot(
   pgs.columns = NULL,
   phenotype.columns = NULL,
   add.stripplot = TRUE,
+  jitter.factor = 1,
   output.dir = NULL,
   filename.prefix = NULL,
   file.extension = "png",
@@ -31,6 +32,8 @@ This function is designed to work with the output of \code{apply.polygenic.score
 
 \item{add.stripplot}{logical whether to add a stripplot to the boxplot, defaults to \code{TRUE}}
 
+\item{jitter.factor}{numeric factor by which to scale the jitter (noise) applied to stripplot points, defaults to 1}
+
 \item{output.dir}{character directory to save output plots}
 
 \item{filename.prefix}{character prefix for output filenames}
@@ -50,8 +53,6 @@ This function is designed to work with the output of \code{apply.polygenic.score
 \item{titles.cex}{numeric size for all plot titles}
 
 \item{border.padding}{numeric padding for plot borders}
-
-\item{key.cex}{numeric size of color key legend}
 }
 \value{
 If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
@@ -65,7 +66,7 @@ set.seed(100);
 pgs.data <- data.frame(
     PGS = rnorm(100, 0, 1)
     );
- temp.dir <- tempdir();
+temp.dir <- tempdir();
 
 # Basic Plot
 create.pgs.boxplot(
@@ -84,8 +85,8 @@ pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 pgs.data$PGS.custom <- rnorm(100, 2, 1);
 \donttest{create.pgs.boxplot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
 # Plot phenotype categories
+pgs.data$sex <- sample(c('male', 'female'), 100, replace = TRUE));
 \donttest{
-pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
 create.pgs.boxplot(
     pgs.data,
     output.dir = temp.dir,
@@ -94,8 +95,8 @@ create.pgs.boxplot(
     );
 }
 # Plot multiple phenotypes
-\donttest{
 pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
+\donttest{
 create.pgs.boxplot(
    pgs.data,
    output.dir = temp.dir,
