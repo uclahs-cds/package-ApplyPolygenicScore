@@ -83,8 +83,8 @@ pgs.data$PGS.custom <- rnorm(100, 2, 1);
 \donttest{create.pgs.density.plot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
 
 # Plot phenotype categories
-\donttest{
 pgs.data$sex <- sample(c('male', 'female'), size = 100, replace = TRUE);
+\donttest{
 create.pgs.density.plot(
     pgs.data,
     output.dir = temp.dir,
@@ -94,8 +94,8 @@ create.pgs.density.plot(
 }
 
 # Plot multiple phenotypes
-\donttest{
 pgs.data$letters <- sample(letters[1:5], size = 100, replace = TRUE);
+\donttest{
 create.pgs.density.plot(
     pgs.data,
     output.dir = temp.dir,

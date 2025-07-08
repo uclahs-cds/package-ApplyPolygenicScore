@@ -134,6 +134,7 @@ create.pgs.with.continuous.phenotype.plot(
    output.dir = temp.dir,
    filename.prefix = 'custom-pgs',
    phenotype.columns = 'continuous.phenotype'
+   );
 }
 
 # Plot multiple phenotypes
@@ -141,9 +142,11 @@ create.pgs.with.continuous.phenotype.plot(
 pgs.data$continuous.phenotype2 <- rnorm(100, 10, 1);
 create.pgs.with.continuous.phenotype.plot(
     pgs.data,
+    pgs.columns = 'PGS',
     output.dir = temp.dir,
     filename.prefix = 'multiple-phenotypes',
     phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
     );
 }
+
 }

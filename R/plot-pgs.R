@@ -96,8 +96,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' \donttest{create.pgs.density.plot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
 #'
 #' # Plot phenotype categories
-#' \donttest{
 #' pgs.data$sex <- sample(c('male', 'female'), size = 100, replace = TRUE);
+#' \donttest{
 #' create.pgs.density.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
@@ -107,8 +107,8 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' }
 #'
 #' # Plot multiple phenotypes
-#' \donttest{
 #' pgs.data$letters <- sample(letters[1:5], size = 100, replace = TRUE);
+#' \donttest{
 #' create.pgs.density.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
@@ -739,6 +739,7 @@ create.pgs.boxplot <- function(
 #'    output.dir = temp.dir,
 #'    filename.prefix = 'custom-pgs',
 #'    phenotype.columns = 'continuous.phenotype'
+#'    );
 #' }
 #'
 #' # Plot multiple phenotypes
@@ -746,11 +747,13 @@ create.pgs.boxplot <- function(
 #' pgs.data$continuous.phenotype2 <- rnorm(100, 10, 1);
 #' create.pgs.with.continuous.phenotype.plot(
 #'     pgs.data,
+#'     pgs.columns = 'PGS',
 #'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-phenotypes',
 #'     phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
 #'     );
 #' }
+#'
 #' @export
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,
