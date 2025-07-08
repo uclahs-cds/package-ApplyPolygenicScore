@@ -97,7 +97,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #'
 #' # Plot phenotype categories
 #' \donttest{
-#' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
+#' pgs.data$sex <- sample(c('male', 'female'), 100, replace = TRUE);
 #' create.pgs.density.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,

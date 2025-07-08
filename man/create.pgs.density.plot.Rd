@@ -84,7 +84,7 @@ pgs.data$PGS.custom <- rnorm(100, 2, 1);
 
 # Plot phenotype categories
 \donttest{
-pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
+pgs.data$sex <- sample(c('male', 'female'), 100, replace = TRUE);
 create.pgs.density.plot(
     pgs.data,
     output.dir = temp.dir,
