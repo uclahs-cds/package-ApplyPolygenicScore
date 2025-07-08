@@ -388,6 +388,181 @@ create.pgs.density.plot <- function(
 
     }
 
+create.pgs.boxplot <- function(
+    pgs.data,
+    pgs.columns = NULL,
+    phenotype.columns = NULL,
+    output.dir = NULL,
+    filename.prefix = NULL,
+    file.extension = 'png',
+    tidy.titles = FALSE,
+    width = 10,
+    height = 10,
+    xaxes.cex = 1.5,
+    yaxes.cex = 1.5,
+    titles.cex = 1.5,
+    border.padding = 1
+    ) {
+
+    # check input
+    pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
+
+    # identify PGS columns
+    if (!is.null(pgs.columns)) {
+        # If user-provided pgs columns, check that they exist in data
+        if (!all(pgs.columns %in% colnames(pgs.data))) {
+            stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        } else {
+            # If no pgs columns provided, default to recognized PGS columns
+            recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+            pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+        }
+
+    # identify categorical phenotype variables for plotting
+    if (!is.null(phenotype.columns)) {
+        phenotype.data <- subset(pgs.data, select = phenotype.columns);
+        phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
+        phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$binary | phenotype.index.by.type$other);
+        }
+
+    # Plotting
+    pgs.boxplots <- list();
+    pgs.boxplots.by.phenotype <- list();
+    # iterate over PGS inputs
+    for (pgs.column in pgs.columns) {
+        ### Single Boxplots ###
+        # tidy titles
+        if (tidy.titles) {
+            pgs.column.main <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
+            } else {
+                pgs.column.main <- pgs.column;
+            }
+
+        # prettify x-axis labels (handle exponential notation)
+        basic.yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+            pgs.data[ , pgs.column],
+            log.scaled = FALSE,
+            num.labels = 5,
+            include.origin = FALSE
+            );
+        pgs.data$placeholder <- 1; # add a placeholder column for single boxplot x-axis
+        pgs.data$placeholder <- factor(pgs.data$placeholder);
+
+        pgs.boxplots[[pgs.column]] <- BoutrosLab.plotting.general::create.boxplot(
+            formula = as.formula(paste0(pgs.column, ' ~ placeholder')),
+            data = pgs.data,
+            xlab.label = NULL,
+            main = pgs.column.main,
+            main.cex = titles.cex,
+            yaxis.cex = yaxes.cex,
+            xaxis.cex = xaxes.cex,
+            yat = basic.yaxis.formatting$at,
+            yaxis.lab = basic.yaxis.formatting$axis.lab
+            );
+
+        ### Boxplots by Phenotype ###
+        if (!is.null(phenotype.columns)) {
+            pgs.by.phenotype <- split.pgs.by.phenotype(pgs = pgs.data[ , pgs.column], phenotype.data = phenotype.data.for.plotting);
+
+            # remove phenotype categories containing fewer than 2 samples
+            pgs.by.phenotype <- lapply(
+                X = pgs.by.phenotype,
+                FUN = function(x) {
+                    large.categories <- sapply(
+                        X = x,
+                        function(y) {
+                            length(y[!is.na(y)]) > 1
+                            }
+                        );
+                    x <- x[large.categories];
+                    }
+                );
+
+            # iterate over phenotype variables
+            for (phenotype in names(pgs.by.phenotype)) {
+                pgs.data.split.by.phenotype <- pgs.by.phenotype[[phenotype]];
+
+                # handle case where all categories have fewer than 2 samples
+                if (length(pgs.data.split.by.phenotype) == 0) {
+                    # issue a warning
+                    warning(paste0('No ', phenotype, ' categories with more than 2 samples, plotting aggregated boxplot instead'));
+                    pgs.boxplots.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- pgs.boxplots[[pgs.column]];
+                    next;
+                    }
+
+                # add factors if not already present
+                if (!is.factor(pgs.data[, phenotype])) {
+                    pgs.data[ , phenotype] <- factor(pgs.data[ , phenotype]);
+                    }
+
+                # color handling
+                max.colors <- 12;
+                max.categories <- max.colors;
+                if (length(levels(pgs.data[ , phenotype])) > max.categories) {
+                    # Issue a warning that plot is not being color-coded
+                    warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
+                    boxplot.colors <- 'black';
+                    } else {
+                        boxplot.colors <- suppressWarnings(BoutrosLab.plotting.general::default.colours(length(levels(pgs.data[ , phenotype]))));
+                    }
+                # plot boxplot
+                group.yaxis.formatting <- basic.yaxis.formatting;
+                pgs.boxplots.by.phenotype[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.boxplot(
+                    formula = as.formula(paste0(pgs.column, ' ~ ', phenotype)),
+                    data = pgs.data,
+                    xlab.label = phenotype,
+                    main = pgs.column.main,
+                    main.cex = titles.cex,
+                    xlab.cex = titles.cex,
+                    yaxis.cex = yaxes.cex,
+                    xaxis.cex = xaxes.cex,
+                    yat = group.yaxis.formatting$at,
+                    yaxis.lab = group.yaxis.formatting$axis.lab,
+                    col = boxplot.colors
+                    );
+                }
+            }
+        }
+    # organize filename if plot writing requested
+    if (!is.null(output.dir)) {
+
+        if (is.null(filename.prefix)) {
+            filename.prefix <- 'ApplyPolygenicScore-Plot';
+            }
+        # construct multipanel plot
+        filename.for.boxplot.multiplot <- generate.filename(
+            project.stem = filename.prefix,
+            file.core = 'pgs-boxplot',
+            extension = file.extension
+            );
+
+        output.path <- file.path(output.dir, filename.for.boxplot.multiplot);
+        } else {
+            output.path <- NULL;
+        }
+
+    # assemble multipanel plot
+    boxplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+        plot.objects = c(pgs.boxplots, pgs.boxplots.by.phenotype),
+        filename = output.path,
+        layout.height = 1 + length(pgs.by.phenotype),
+        layout.width = length(pgs.columns),
+        main = '',
+        main.cex = 0,
+        width = width,
+        height = height,
+        x.spacing = 1.5,
+        y.spacing = 0,
+        left.padding = border.padding,
+        right.padding = border.padding,
+        bottom.padding = border.padding,
+        top.padding = border.padding
+        );
+
+        return(boxplot.multipanel); # this returns null when filename is provided to create.multipanelplot
+    }
+
 #' @title Plot PGS Scatterplots
 #' @description Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
