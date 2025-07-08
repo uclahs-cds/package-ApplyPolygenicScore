@@ -6,6 +6,7 @@
 \usage{
 create.pgs.density.plot(
   pgs.data,
+  pgs.columns = NULL,
   phenotype.columns = NULL,
   output.dir = NULL,
   filename.prefix = NULL,
@@ -23,6 +24,8 @@ create.pgs.density.plot(
 \arguments{
 \item{pgs.data}{data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
 This function is designed to work with the output of \code{apply.polygenic.score()}.}
+
+\item{pgs.columns}{character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.}
 
 \item{phenotype.columns}{character vector of phenotype columns in \code{pgs.data} to plot (optional)}
 
@@ -74,6 +77,10 @@ create.pgs.density.plot(
 # Plot multiple PGS outputs
 pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 \donttest{create.pgs.density.plot(pgs.data, output.dir = temp.dir);}
+
+# Plot non-default PGS columns
+pgs.data$PGS.custom <- rnorm(100, 2, 1);
+\donttest{create.pgs.density.plot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
 
 # Plot phenotype categories
 \donttest{

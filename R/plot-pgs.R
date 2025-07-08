@@ -57,6 +57,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
 #' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
 #' @param phenotype.columns character vector of phenotype columns in \code{pgs.data} to plot (optional)
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
@@ -90,6 +91,10 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 #' \donttest{create.pgs.density.plot(pgs.data, output.dir = temp.dir);}
 #'
+#' # Plot non-default PGS columns
+#' pgs.data$PGS.custom <- rnorm(100, 2, 1);
+#' \donttest{create.pgs.density.plot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
+#' 
 #' # Plot phenotype categories
 #' \donttest{
 #' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
@@ -387,6 +392,7 @@ create.pgs.density.plot <- function(
 #' @description Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
 #' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
 #' @param phenotype.columns character vector of continuous phenotype column names in pgs.data to plot
 #' @param hexbin.threshold numeric threshold (exclusive) for cohort size at which to switch from scatterplot to hexbin plot.
 #' @param hexbin.colour.scheme character vector of colors for hexbin plot bins. Default is \code{NULL} which uses gray/black.
@@ -443,6 +449,17 @@ create.pgs.density.plot <- function(
 #'     phenotype.columns = 'continuous.phenotype'
 #'     );
 #'}
+#'
+#' # Plot non-default PGS columns
+#' \donttest{
+#' pgs.data$PGS.custom <- rnorm(100, 2, 1);
+#' create.pgs.with.continuous.phenotype.plot(
+#'    pgs.data,
+#'    pgs.columns = 'PGS.custom',
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'custom-pgs',
+#'    phenotype.columns = 'continuous.phenotype'
+#' }
 #'
 #' # Plot multiple phenotypes
 #' \donttest{

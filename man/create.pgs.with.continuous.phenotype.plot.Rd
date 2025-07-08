@@ -6,6 +6,7 @@
 \usage{
 create.pgs.with.continuous.phenotype.plot(
   pgs.data,
+  pgs.columns = NULL,
   phenotype.columns,
   hexbin.threshold = 1000,
   hexbin.colour.scheme = NULL,
@@ -35,6 +36,8 @@ create.pgs.with.continuous.phenotype.plot(
 \arguments{
 \item{pgs.data}{data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
 This function is designed to work with the output of \code{apply.polygenic.score()}.}
+
+\item{pgs.columns}{character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.}
 
 \item{phenotype.columns}{character vector of continuous phenotype column names in pgs.data to plot}
 
@@ -120,6 +123,17 @@ create.pgs.with.continuous.phenotype.plot(
     filename.prefix = 'multiple-pgs',
     phenotype.columns = 'continuous.phenotype'
     );
+}
+
+# Plot non-default PGS columns
+\donttest{
+pgs.data$PGS.custom <- rnorm(100, 2, 1);
+create.pgs.with.continuous.phenotype.plot(
+   pgs.data,
+   pgs.columns = 'PGS.custom',
+   output.dir = temp.dir,
+   filename.prefix = 'custom-pgs',
+   phenotype.columns = 'continuous.phenotype'
 }
 
 # Plot multiple phenotypes
