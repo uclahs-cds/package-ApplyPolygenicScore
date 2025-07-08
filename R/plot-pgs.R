@@ -94,7 +94,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' # Plot non-default PGS columns
 #' pgs.data$PGS.custom <- rnorm(100, 2, 1);
 #' \donttest{create.pgs.density.plot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
-#' 
+#'
 #' # Plot phenotype categories
 #' \donttest{
 #' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
@@ -427,7 +427,7 @@ create.pgs.density.plot <- function(
 #' # Plot multiple PGS outputs
 #' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 #' \donttest{create.pgs.boxplot(pgs.data, output.dir = temp.dir);}
-#' 
+#'
 #' # Plot non-default PGS columns
 #' pgs.data$PGS.custom <- rnorm(100, 2, 1);
 #' \donttest{create.pgs.boxplot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
