@@ -868,3 +868,248 @@ test_that(
 
         }
     );
+
+test_that(
+    'create.pgs.boxplot correctly validates inputs', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        # check that input data is a data frame
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = list()
+                ),
+            'pgs.data must be a data.frame'
+            );
+
+        # check that the required columns are present
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = data.frame(not.recognized.PGS.column = 1:10)
+                ),
+            'No recognized PGS columns found in pgs.data'
+            );
+
+        # check that phenotype.columns is a character vector
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                phenotype.columns = c(1,2,3)
+                ),
+            'phenotype.columns must be a character vector'
+            );
+        # check that phenotype.columns are present in pgs.data
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                phenotype.columns = c('missing.phenotype')
+                ),
+            'phenotype.columns must be a subset of the column names in pgs.data'
+            );
+        # check that phenotype.columns do not contain recognized PGS columns
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                phenotype.columns = c('PGS.with.replaced.missing')
+                ),
+            'phenotype.columns cannot contain recognized PGS column names'
+            );
+        # check that output.dir is a real directory
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                output.dir = 'not/a/real/directory'
+                ),
+            'not/a/real/directory does not exist'
+            );
+        # check that user-provided pgs.columns exist
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                pgs.columns = c('not.a.pgs.column')
+                ),
+            'pgs.columns must be a subset of the column names in pgs.data, please check your input'
+            );
+        }
+    );
+
+test_that(
+    'create.pgs.boxplot runs with no error with basic inputs', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # plot pgs boxplot
+        expect_no_error(
+            create.pgs.boxplot(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
+                phenotype.columns = NULL,
+                output.dir = temp.dir,
+                filename.prefix = 'TEST'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST',
+            file.core = 'pgs-boxplot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        # check returned object
+        test.plot.object <- create.pgs.boxplot(
+            pgs.data = pgs.test,
+            filename.prefix = 'TEST',
+            output.dir = NULL
+            );
+        expect_equal(
+            class(test.plot.object),
+            'multipanel'
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.boxplot runs correctly with tidy titles enabled', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # plot pgs boxplot
+        expect_no_error(
+            create.pgs.boxplot(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
+                phenotype.columns = NULL,
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-tidy-titles',
+                tidy.titles = TRUE
+                )
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.boxplot runs correctly with user provided phenotypes', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # check handling of many phenotypes
+        expect_no_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                phenotype.columns = c('continuous.phenotype', 'binary.phenotype', 'categorical.phenotype'),
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-all-phenotypes'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-all-phenotypes',
+            file.core = 'pgs-boxplot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.boxplot runs correctly with large number of phenotype categories', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # extend test data data frame by repeating itself a bunch of times
+        very.categorical.pgs.test <- pgs.test[rep(1:nrow(pgs.test), 73 * 4), ];
+        # simulate a PGS column
+        very.categorical.pgs.test$PGS <- rnorm(nrow(very.categorical.pgs.test));
+        # add more categories to categorical phenotype
+        very.categorical.pgs.test$very.categorical.phenotype <- as.character(rep(1:73, each = nrow(pgs.test)));
+
+        expect_warning(
+            create.pgs.boxplot(
+                pgs.data = very.categorical.pgs.test,
+                phenotype.columns = 'very.categorical.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-many-categories'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-many-categories',
+            file.core = 'pgs-boxplot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.boxplot runs correctly with user provided pgs columns', {
+        skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
+
+        temp.dir <- tempdir();
+
+        # test data with non-standard PGS column names
+        pgs.test.custom.columns <- pgs.test;
+        pgs.test.custom.columns$custom.pgs.name <- pgs.test.custom.columns$PGS.with.replaced.missing;
+        # plot pgs boxplot
+        expect_no_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test.custom.columns,
+                pgs.columns = c('custom.pgs.name'),
+                phenotype.columns = NULL,
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-custom-pgs'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-custom-pgs',
+            file.core = 'pgs-boxplot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
+    'create.pgs.boxplot runs correctly with toggled stripplot option', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # plot pgs boxplot with stripplot
+        expect_no_error(
+            create.pgs.boxplot(
+                pgs.data = subset(pgs.test, select = -c(PGS.with.replaced.missing, PGS.with.normalized.missing)),
+                phenotype.columns = NULL,
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-stripplot',
+                add.stripplot = FALSE
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-stripplot',
+            file.core = 'pgs-boxplot',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
