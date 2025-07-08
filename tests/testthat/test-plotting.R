@@ -82,6 +82,14 @@ test_that(
                 ),
             'not/a/real/directory does not exist'
             );
+        # check that user-provided pgs.columns exist
+        expect_error(
+            create.pgs.density.plot(
+                pgs.data = pgs.test,
+                pgs.columns = c('not.a.pgs.column')
+                ),
+            'pgs.columns must be a subset of the column names in pgs.data, please check your input'
+            );
         }
     );
 
@@ -180,7 +188,7 @@ test_that(
 
 
 test_that(
-    'create.pgs.density.plot runs correctily with user provided phenotypes', {
+    'create.pgs.density.plot runs correctly with user provided phenotypes', {
         skip.plotting.tests(skip.plots = SKIP.COMPREHENSIVE.CASES || SKIP.PLOTS);
 
         temp.dir <- tempdir();
@@ -240,6 +248,38 @@ test_that(
     );
 
 test_that(
+    'create.pgs.density.plot runs correctly with user provided pgs columns', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # test data with non-standard PGS column names
+        pgs.test.custom.columns <- pgs.test;
+        pgs.test.custom.columns$custom.pgs.name <- pgs.test.custom.columns$PGS.with.replaced.missing;
+        # plot pgs density
+        expect_no_error(
+            create.pgs.density.plot(
+                pgs.data = pgs.test.custom.columns,
+                pgs.columns = c('custom.pgs.name'),
+                phenotype.columns = NULL,
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-custom-pgs'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-custom-pgs',
+            file.core = 'pgs-density',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+test_that(
     'create.pgs.with.continuous.phenotype.plot correctly validates inputs', {
         skip.plotting.tests(skip.plots = SKIP.PLOTS);
 
@@ -259,6 +299,15 @@ test_that(
                 phenotype.columns = 'continuous.phenotype'
                 ),
             'No recognized PGS columns found in pgs.data'
+            );
+
+        expect_error(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                pgs.columns = c('not.a.pgs.column'),
+                ),
+            'pgs.columns must be a subset of the column names in pgs.data, please check your input'
             );
 
         # check that phenotype.column is a character vector
@@ -502,6 +551,39 @@ test_that(
 
         test.filename <- generate.filename(
             project.stem = 'TEST-hexbin',
+            file.core = 'pgs-scatter',
+            extension = 'png'
+            );
+        expect_true(
+            file.exists(file.path(temp.dir, test.filename))
+            );
+
+        }
+    );
+
+
+test_that(
+    'create.pgs.with.continuous.phenotype.plot works correctly with user provided pgs columns', {
+        skip.plotting.tests(skip.plots = SKIP.PLOTS || SKIP.COMPREHENSIVE.CASES);
+
+        temp.dir <- tempdir();
+
+        # test data with non-standard PGS column names
+        pgs.test.custom.columns <- pgs.test;
+        pgs.test.custom.columns$custom.pgs.name <- pgs.test.custom.columns$PGS.with.replaced.missing;
+        # plot pgs with continuous phenotype
+        expect_no_error(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test.custom.columns,
+                pgs.columns = c('custom.pgs.name'),
+                phenotype.columns = 'continuous.phenotype',
+                output.dir = temp.dir,
+                filename.prefix = 'TEST-custom-pgs'
+                )
+            );
+
+        test.filename <- generate.filename(
+            project.stem = 'TEST-custom-pgs',
             file.core = 'pgs-scatter',
             extension = 'png'
             );
