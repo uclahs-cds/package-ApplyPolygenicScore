@@ -737,6 +737,7 @@ test_that(
 test_that(
     'apply.polygenic.score correctly handles strand flipping', {
         load('data/strand.flip.test.data.Rda');
+        # no strand flip correction
         strand.flip.raw.data <- apply.polygenic.score(
             vcf.data = strand.flip.test.data$strand.flip.vcf.data,
             pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
@@ -754,6 +755,7 @@ test_that(
             c(0, 0, 0)
             );
 
+        # strand flip correction
         strand.flip.correct.flips <- apply.polygenic.score(
             vcf.data = strand.flip.test.data$strand.flip.vcf.data,
             pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
@@ -771,6 +773,7 @@ test_that(
             c(0, 0, 0)
             );
 
+        # ambiguous allele matches removed
         strand.flip.remove.ambiguous <- apply.polygenic.score(
             vcf.data = strand.flip.test.data$strand.flip.vcf.data,
             pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
@@ -789,6 +792,28 @@ test_that(
             c(2, 2, 2)
             );
 
+        # ambiguous allele matches not removed due to threshold
+        strand.flip.threshold.ambiguous <- apply.polygenic.score(
+            vcf.data = strand.flip.test.data$strand.flip.vcf.data,
+            pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
+            correct.strand.flips = TRUE,
+            missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
+            remove.ambiguous.allele.matches = TRUE,
+            max.strand.flips = 3 # there are two unambiguous strand flips in the test data, setting threshold above that
+            );
+
+        # expect equal to not removing ambiguous allele matches
+        expect_equal(
+            strand.flip.threshold.ambiguous$pgs.output$PGS, # dosage is unaffected because unresolved mismatch does not contain an effect allele so dosage is 0
+            strand.flip.correct.flips$pgs.output$PGS
+            );
+
+        expect_equal(
+            strand.flip.threshold.ambiguous$pgs.output$n.missing.genotypes,
+            c(1, 1, 1) # the unresolved mismatch is marked missing
+            );
+
+        # indels removed
         strand.flip.remove.indel.mismatches <- apply.polygenic.score(
             vcf.data = strand.flip.test.data$strand.flip.vcf.data,
             pgs.weight.data = strand.flip.test.data$strand.flip.pgs.weight.data,
