@@ -100,6 +100,8 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.
 #' @param remove.ambiguous.allele.matches A logical indicating whether to remove PGS variants with ambiguous allele matches between PGS weight data and VCF genotype data. Default is \code{FALSE}.
 #' The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.
+#' @param max.strand.flips An integer indicating the number of unambiguous strand flips that need to be detected in order to discard all variants with ambiguous allele matches. Only applies if {return.ambiguous.as.missing == TRUE}.
+#' Default is \code{0} which means that all ambiguous variants are removed regardless of the status of any other variant.
 #' @param remove.mismatched.indels A logical indicating whether to remove indel variants that are mismatched between PGS weight data and VCF genotype data. Default is \code{FALSE}.
 #' The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.
 #' @param output.dir A character string indicating the directory to write output files. Separate files are written for per-sample pgs results and optional regression results.
@@ -198,6 +200,9 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' \item \code{remove.ambiguous.allele.matches}: Corresponds to the \code{return.ambiguous.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, non-INDEL allele
 #' mismatches that cannot be resolved (due to palindromic alleles or causes other than strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing
 #' prior to dosage calling and missing genotype handling. The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
+#' \item \code{max.strand.flips}: This argument only applies when \code{remove.ambiguous.allele.matches} is on and modifies its behavior. In cases where none or very few unambiguous strand flips are detected,
+#' it is likely that all ambiguous allele matches are simply palindromic effect size flips. This option facilitates handling of ambiguous allele matches conditional on a maximum number of unambiguous strand flips.
+#' Variants with ambiguous strand flips will be marked as missing only if the number of unambiguous strand flips is greater than or equal to \code{max.strand.flips}.
 #' \item \code{remove.mismatched.indels}: Corresponds to the \code{return.indels.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, INDEL allele mismatches
 #' (which cannot be assessed for strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing prior to dosage calling and missing genotype handling.
 #' The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
@@ -280,6 +285,7 @@ apply.polygenic.score <- function(
     phenotype.analysis.columns = NULL,
     correct.strand.flips = TRUE,
     remove.ambiguous.allele.matches = FALSE,
+    max.strand.flips = 0,
     remove.mismatched.indels = FALSE,
     output.dir = NULL,
     file.prefix = NULL,
@@ -345,12 +351,16 @@ apply.polygenic.score <- function(
 
     ### Start Allele Match Check ###
     if (remove.ambiguous.allele.matches || correct.strand.flips) {
+        # adjust max.strand.flips threshold to account for the long-form of the variant x sample matrix
+        # each allele match appears once per sample, so the threshold is multiplied by the number of samples
+        adjusted.max.strand.flips <- max.strand.flips * length(unique(merged.vcf.with.pgs.data$Indiv));
         match.assessment <- ApplyPolygenicScore::assess.pgs.vcf.allele.match(
             vcf.ref.allele = merged.vcf.with.pgs.data$REF,
             vcf.alt.allele = merged.vcf.with.pgs.data$ALT,
             pgs.ref.allele = merged.vcf.with.pgs.data$other_allele,
             pgs.effect.allele = merged.vcf.with.pgs.data$effect_allele,
             return.ambiguous.as.missing = remove.ambiguous.allele.matches,
+            max.strand.flips = adjusted.max.strand.flips,
             return.indels.as.missing = remove.mismatched.indels
             );
         merged.vcf.with.pgs.data$effect_allele <- match.assessment$new.pgs.effect.allele;
