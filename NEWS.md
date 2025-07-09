@@ -11,6 +11,7 @@
 * Added minimum sample size check for grouped density curves
 * Added new plotting function `create.pgs.boxplot`
 * Added option for user to provide custom PGS source column(s) for plotting functions
+* Added option to `assess.pgs.vcf.allele.match` to condition the handling of ambiguous strand flips on the total number of unambiguous strand flips.
 
 # ApplyPolygenicScore 3.0.2
 
