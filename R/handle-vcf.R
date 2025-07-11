@@ -12,13 +12,13 @@ check.for.no.info.fields <- function(vcf.vcfR) {
     return(vcf.vcfR);
     }
 
-check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
+# site coordinates should be CHROM:POS format
+check.vcf.for.split.multiallelic.sites <- function(site.coordinates) {
     # check for duplicate CHROM:POS entries
-    site.coordinates <- paste(vcf.vcfR@fix[ ,'CHROM'], vcf.vcfR@fix[ ,'POS'], sep = ':');
-    split.site.coordinates.index <- duplicated(site.coordinates);
-    if (any(split.site.coordinates.index)) {
+    if (anyDuplicated(site.coordinates)) {
+        dupes <- duplicated(site.coordinates);
         stop(
-            paste0('Split multiallelic site detected at ', site.coordinates[split.site.coordinates.index], '. Please merge multiallelic sites before importing.')
+            paste0('Split multiallelic site detected at ', site.coordinates[dupes], '. Please merge multiallelic sites before importing.')
             );
         }
     }
@@ -47,21 +47,18 @@ import.vcf <- function(vcf.path, long.format = FALSE, info.fields = NULL, format
         stop(paste0(vcf.path, ' does not exist.'));
         }
 
+    # check file size and throw warning if very large
+    file.size.gb <- file.size(vcf.path) / (1024^3); # convert to GB
+    if (file.size.gb > 2) {
+        warning('input VCF file is large, which may cause memory issues during import.')
+        }
+
     # import VCF file with vcfR
     vcf.vcfR <- vcfR::read.vcfR(file = vcf.path, convertNA = TRUE, verbose = verbose);
 
     # check for split multiallelic sites
-    check.vcf.for.split.multiallelic.sites(vcf.vcfR);
-
-    # Create a sample by allele matrix
-    gt.alleles <- vcfR::extract.gt(vcf.vcfR, return.alleles = TRUE);
-
-    # Save VCF row-wise fixed information
-    extraction.cols <- c('CHROM', 'POS', 'ID', 'REF', 'ALT');
-    # Convert to data frame due to future merging compatibility
-    vcf.fixed <- data.frame(vcf.vcfR@fix[ , extraction.cols, drop = FALSE]);
-    # add column that stores corresponding row numbers in allele matrix
-    vcf.fixed$allele.matrix.row.index <- seq_len(nrow(vcf.fixed));
+    site.coordinates <- paste0(vcf.vcfR@fix[, 'CHROM'], ':', vcf.vcfR@fix[, 'POS']);
+    check.vcf.for.split.multiallelic.sites(site.coordinates);
 
     if (long.format == TRUE) {
         # check for no INFO fields vcfR bug
@@ -77,6 +74,21 @@ import.vcf <- function(vcf.path, long.format = FALSE, info.fields = NULL, format
         } else {
             long.vcf = NULL;
         }
+
+    # Create a sample by allele matrix
+    gt.alleles <- vcfR::extract.gt(vcf.vcfR, return.alleles = TRUE);
+
+    # Save VCF row-wise fixed information
+    extraction.cols <- c('CHROM', 'POS', 'ID', 'REF', 'ALT');
+    # Convert to data table due to future merging compatibility
+    vcf.fixed <- data.table::as.data.table(vcf.vcfR@fix[ , extraction.cols, drop = FALSE]);
+
+    # remove vcfR object to free memory
+    rm(vcf.vcfR);
+
+    # add column that stores corresponding row numbers in allele matrix
+    vcf.fixed$allele.matrix.row.index <- seq_len(nrow(vcf.fixed));
+
 
     # assemble output object
     output <- list(
