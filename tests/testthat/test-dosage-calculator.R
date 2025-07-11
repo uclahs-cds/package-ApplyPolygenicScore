@@ -187,14 +187,30 @@ test_that(
 
 test_that(
     'convert.alleles.to.pgs.dosage works on real data', {
-        test.vcf <- ApplyPolygenicScore::import.vcf('data/HG001_GIAB.vcf.gz')
+        vcf.import.split.name <- 'split.wide.vcf.matrices';
+        vcf.import.long.name <- 'combined.long.vcf.df';
+
+        test.vcf <- ApplyPolygenicScore::import.vcf('data/HG001_GIAB.vcf.gz', long.format = TRUE);
 
         expect_silent(
             convert.alleles.to.pgs.dosage(
-                called.alleles = test.vcf$dat$gt_GT_alleles,
-                risk.alleles = test.vcf$dat$ALT
+                called.alleles = test.vcf[[vcf.import.long.name]]$dat$gt_GT_alleles,
+                risk.alleles = test.vcf[[vcf.import.long.name]]$dat$ALT
                 )
             );
+
+        expect_silent(
+            apply(
+                X = test.vcf[[vcf.import.split.name]]$genotyped.alleles,
+                MARGIN = 2,
+                FUN = function(x) {
+                    convert.alleles.to.pgs.dosage(
+                        called.alleles = x,
+                        risk.alleles = test.vcf[[vcf.import.split.name]]$vcf.fixed.fields$ALT
+                        )
+                    }
+                )
+            )
         }
     );
 
