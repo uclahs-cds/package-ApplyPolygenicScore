@@ -82,8 +82,12 @@ calculate.missing.genotype.dosage <- function(dosage.matrix) {
         X = dosage.matrix,
         MARGIN = 1,
         FUN = function(x) {
-            # simple mean
-            mean(x, na.rm = TRUE)
+            if (all(is.na(x))){
+                NA
+                } else {
+                # simple mean
+                mean(x, na.rm = TRUE)
+                }
             }
         );
     return(mean.dosage);
