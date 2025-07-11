@@ -705,12 +705,23 @@ test_that(
 
 test_that(
     'combine.vcf.with.pgs works correctly with real data', {
-        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz');
+        vcf.import.split.name <- 'split.wide.vcf.matrices';
+        vcf.import.long.name <- 'combined.long.vcf.df';
+
+        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz', long.format = TRUE);
+        vcf.long.format <- test.vcf.data[[vcf.import.long.name]]$dat;
+        vcf.wide.format <- test.vcf.data[[vcf.import.split.name]];
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
 
         expect_no_error(
             combine.vcf.with.pgs(
-                vcf.data = test.vcf.data$dat,
+                vcf.data = vcf.long.format,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data
+                )
+            );
+        expect_no_error(
+            combine.vcf.with.pgs(
+                vcf.data = vcf.wide.format$vcf.fixed.fields,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data
                 )
             );
