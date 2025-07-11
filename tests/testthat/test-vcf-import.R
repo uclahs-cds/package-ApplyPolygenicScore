@@ -119,9 +119,8 @@ test_that(
             c('matrix', 'array')
             );
 
-        expect_equal(
-            class(split.wide.vcf.matrices$vcf.fixed.fields),
-            'data.frame'
+        expect_true(
+            'data.frame' %in% class(split.wide.vcf.matrices$vcf.fixed.fields)
             );
 
         }

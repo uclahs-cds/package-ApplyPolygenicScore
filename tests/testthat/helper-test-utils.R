@@ -5,6 +5,8 @@ convert.long.vcf.to.wide.vcf <- function(long.vcf) {
     fixed.data <- long.vcf[, fixed.colnames];
     fixed.data$variant.id <- paste0(fixed.data$CHROM, ':', fixed.data$POS);
     fixed.data <- unique(fixed.data); # remove duplicates
+    # convert to data.table
+    fixed.data <- data.table::as.data.table(fixed.data);
     #fixed.data$allele.matrix.row.index <- seq_len(nrow(fixed.data));
 
     variant.id <- paste0(long.vcf$CHROM, ':', long.vcf$POS);

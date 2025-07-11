@@ -522,7 +522,7 @@ test_that(
             is.na(test.combine.vcf.with.pgs.missing$missing.snp.data$POS.vcf)
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing$missing.snp.data$ID,
+            test.combine.vcf.with.pgs.missing$missing.snp.data$ID.pgs,
             'rs4'
             );
         expect_equal(
@@ -569,7 +569,7 @@ test_that(
             is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$POS.vcf)
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$ID,
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$ID.pgs,
             'rs4'
             );
         expect_equal(
@@ -608,7 +608,7 @@ test_that(
             is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$POS.vcf)
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$ID,
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$ID.pgs,
             'rs4'
             );
         expect_equal(
