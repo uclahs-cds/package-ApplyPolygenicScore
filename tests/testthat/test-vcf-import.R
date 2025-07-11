@@ -37,10 +37,13 @@ test_that(
         }
     );
 
+vcf.import.split.name <- 'split.wide.vcf.matrices';
+vcf.import.long.name <- 'combined.long.vcf.df';
 test_that(
-    'import.vcf outputs a vcfR tidy object', {
+    'import.vcf outputs a named list', {
         test.vcf <- import.vcf(
             vcf.path = 'data/HG001_GIAB.vcf.gz',
+            long.format = TRUE,
             info.fields = NULL,
             format.fields = NULL
             );
@@ -52,16 +55,40 @@ test_that(
 
         expect_equal(
             names(test.vcf),
+            c(vcf.import.split.name, vcf.import.long.name)
+            );
+
+        }
+    );
+
+test_that(
+    'import.vcf outputs a vcfR tidy object when in long form mode', {
+        test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
+            info.fields = NULL,
+            format.fields = NULL,
+            long.format = TRUE
+            );
+
+        long.vcf <- test.vcf[[vcf.import.long.name]];
+
+        expect_equal(
+            class(long.vcf),
+            'list'
+            );
+
+        expect_equal(
+            names(long.vcf),
             c('dat', 'meta')
             );
 
         expect_s3_class(
-            test.vcf$dat,
+            long.vcf$dat,
             'data.frame'
             );
 
         expect_s3_class(
-            test.vcf$meta,
+            long.vcf$meta,
             'data.frame'
             );
 
@@ -69,12 +96,45 @@ test_that(
     );
 
 test_that(
-    'import.vcf accurately imports VCF fields', {
+    'import.vcf outputs a data frame of vcf info and a matrix of alleles', {
         test.vcf <- import.vcf(
             vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
             );
+
+        split.wide.vcf.matrices <- test.vcf[[vcf.import.split.name]];
+
+        expect_equal(
+            class(split.wide.vcf.matrices),
+            'list'
+            );
+
+        expect_true(
+            all(c('genotyped.alleles', 'vcf.fixed.fields') %in% names(split.wide.vcf.matrices))
+            );
+
+        expect_equal(
+            class(split.wide.vcf.matrices$genotyped.alleles),
+            c('matrix', 'array')
+            );
+
+        expect_equal(
+            class(split.wide.vcf.matrices$vcf.fixed.fields),
+            'data.frame'
+            );
+
+        }
+    );
+
+test_that(
+    'import.vcf accurately imports VCF fields into long format', {
+        test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
+            long.format = TRUE,
+            info.fields = NULL,
+            format.fields = NULL
+            )[[vcf.import.long.name]];
 
         # check that the correct number of variants were imported
         n.variants <- 63;
@@ -124,18 +184,65 @@ test_that(
     );
 
 test_that(
-    'import.vcf accurately imports INFO fields', {
-        all.info.test.vcf <- import.vcf(
+    'import.vcf accurately imports VCF fields into wide format', {
+        test.vcf <- import.vcf(
             vcf.path = 'data/HG001_GIAB.vcf.gz',
             info.fields = NULL,
             format.fields = NULL
+            )[[vcf.import.split.name]];
+
+        # check that the correct number of variants were imported
+        n.variants <- 63;
+        n.samples <- 2;
+        expect_equal(
+            nrow(test.vcf$vcf.fixed.fields),
+            n.variants
             );
+
+        expect_equal(
+            nrow(test.vcf$genotyped.alleles),
+            n.variants
+            );
+
+        # check that standard VCF columns were imported
+        expect_true(
+            all(c('CHROM', 'POS', 'ID', 'REF', 'ALT') %in% colnames(test.vcf$vcf.fixed.fields))
+            );
+
+        # check that the allele matrix has the correct dimensions
+        expect_equal(
+            dim(test.vcf$genotyped.alleles),
+            c(n.variants, n.samples)
+            );
+
+        # check the first three variants for correct coordinates
+        expect_equal(
+            test.vcf$vcf.fixed.fields$CHROM[1:3],
+            rep('chr1', 3)
+            );
+        expect_equal(
+            test.vcf$vcf.fixed.fields$POS[1:3],
+            c('87734095', '111721652', '154895579')
+            );
+
+        }
+    );
+
+test_that(
+    'import.vcf accurately imports INFO fields', {
+        all.info.test.vcf <- import.vcf(
+            vcf.path = 'data/HG001_GIAB.vcf.gz',
+            long.format = TRUE,
+            info.fields = NULL,
+            format.fields = NULL
+            )[[vcf.import.long.name]];
 
         select.info.test.vcf <- import.vcf(
             vcf.path = 'data/HG001_GIAB.vcf.gz',
+            long.format = TRUE,
             info.fields = c('DPSum', 'platforms', 'arbitrated'),
             format.fields = NULL
-            );
+            )[[vcf.import.long.name]];
 
         # check that all requested INFO columns are present
         expect_true(
@@ -180,15 +287,17 @@ test_that(
     'import.vcf accurately imports FORMAT fields', {
         all.format.test.vcf <- import.vcf(
             vcf.path = 'data/HG001_GIAB.vcf.gz',
+            long.format = TRUE,
             info.fields = NULL,
             format.fields = NULL
-            );
+            )[[vcf.import.long.name]];
 
         select.format.test.vcf <- import.vcf(
             vcf.path = 'data/HG001_GIAB.vcf.gz',
+            long.format = TRUE,
             info.fields = NULL,
             format.fields = c('DP', 'GQ', 'GT')
-            );
+            )[[vcf.import.long.name]];
 
         # check that all requested FORMAT columns are present
         expect_true(
