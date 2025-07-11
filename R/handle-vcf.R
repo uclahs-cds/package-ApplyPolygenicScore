@@ -40,7 +40,7 @@ check.vcf.for.split.multiallelic.sites <- function(vcf.vcfR) {
 #'     );
 #' vcf.data <- import.vcf(vcf.path = vcf);
 #' @export
-import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE) {
+import.vcf <- function(vcf.path, long.format = FALSE, info.fields = NULL, format.fields = NULL, verbose = FALSE) {
 
     # check that vcf.path exists
     if (!file.exists(vcf.path)) {
@@ -50,20 +50,42 @@ import.vcf <- function(vcf.path, info.fields = NULL, format.fields = NULL, verbo
     # import VCF file with vcfR
     vcf.vcfR <- vcfR::read.vcfR(file = vcf.path, convertNA = TRUE, verbose = verbose);
 
-    # check for no INFO fields vcfR bug
-    vcf.vcfR <- check.for.no.info.fields(vcf.vcfR);
-
     # check for split multiallelic sites
     check.vcf.for.split.multiallelic.sites(vcf.vcfR);
 
-    # convert to long form tibble dataframe w/ vcfR
-    long.vcf <- vcfR::vcfR2tidy(
-        x = vcf.vcfR,
-        single_frame = TRUE,
-        info_fields = info.fields,
-        format_fields = format.fields,
-        verbose = verbose
+    # Create a sample by allele matrix
+    gt.alleles <- vcfR::extract.gt(vcf.vcfR, return.alleles = TRUE);
+
+    # Save VCF row-wise fixed information
+    extraction.cols <- c('CHROM', 'POS', 'ID', 'REF', 'ALT');
+    # Convert to data frame due to future merging compatibility
+    vcf.fixed <- data.frame(vcf.vcfR@fix[ , extraction.cols, drop = FALSE]);
+    # add column that stores corresponding row numbers in allele matrix
+    vcf.fixed$allele.matrix.row.index <- seq_len(nrow(vcf.fixed));
+
+    if (long.format == TRUE) {
+        # check for no INFO fields vcfR bug
+        vcf.vcfR <- check.for.no.info.fields(vcf.vcfR);
+        # convert to long form tibble dataframe w/ vcfR
+        long.vcf <- vcfR::vcfR2tidy(
+            x = vcf.vcfR,
+            single_frame = TRUE,
+            info_fields = info.fields,
+            format_fields = format.fields,
+            verbose = verbose
+            );
+        } else {
+            long.vcf = NULL;
+        }
+
+    # assemble output object
+    output <- list(
+        split.wide.vcf.matrices = list(
+            genotyped.alleles = gt.alleles,
+            vcf.fixed.fields = vcf.fixed
+            ),
+        combined.long.vcf.df = long.vcf
         );
 
-    return(long.vcf);
+    return(output);
     }
