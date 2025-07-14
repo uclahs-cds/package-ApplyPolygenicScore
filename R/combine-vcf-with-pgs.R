@@ -129,7 +129,7 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         by = c('CHROM', 'POS'),
         suffixes = c('.pgs', '.vcf'),
         all.x = TRUE
-    );
+        );
     merged.vcf.with.pgs.data[, merge.strategy := 'genomic coordinate'];
 
     # check for pgs SNPs missing from the VCF data
@@ -156,16 +156,21 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         # Subset merged data corresponding to missing PGS SNPs (data.table does this by reference)
         missing.snp.merged.data <- merged.vcf.with.pgs.data[which(missing.pgs.snp.index)];
 
-        # Drop NA-filled REF/ALT columns from first merge result
-        missing.snp.merged.data[, c('REF', 'ALT') := NULL];
-
         # Expand the VCF ID column (HIGHLY OPTIMIZED)
-        # This is a key optimization that avoids creating a massive new data frame
-        split.rsid.vcf.data <- vcf.data[, .(
-            ID = unlist(strsplit(ID, ';', fixed = TRUE))
-        ), by = .(
-            CHROM, POS, REF, ALT, ID.vcf.unsplit = ID
-        )];
+        cols.to.keep <- setdiff(colnames(vcf.data), 'ID');
+        # Expand the VCF ID column programmatically, preserving all other columns
+        split.rsid.vcf.data <- vcf.data[, {
+            # Store the original ID before unlisting
+            original.id <- ID;
+            # Unlist the split IDs
+            split.ids <- unlist(strsplit(ID, ';', fixed = TRUE));
+            # Return a list of the new ID and the preserved original ID
+            list(ID = split.ids, ID.vcf.unsplit = original.id);
+        }, by = cols.to.keep];
+
+        # Drop NA-filled unmatched VCF columns from first merge
+        cols.to.drop.from.missing.data <- setdiff(cols.to.keep, c('CHROM', 'POS'));
+        missing.snp.merged.data[, (cols.to.drop.from.missing.data) := NULL]
 
         # Merge missing SNP data on rsID using data.table::merge()
         merged.vcf.with.missing.pgs.data <- data.table::merge.data.table(
