@@ -7,16 +7,16 @@ test_that(
             );
         test.variant.by.sample.matrix <- get.variant.by.sample.matrix(
             long.data = test.long.data,
-            variant.id = test.long.data$variant.id,
-            value.var = 'dosage'
+            row.id.cols = 'variant.id',
+            value.col = 'dosage'
             );
         expect_equal(
             test.variant.by.sample.matrix,
-            data.frame(
+            as.matrix(data.frame(
                 sample1 = c(1, 3, NA),
                 sample2 = c(2, 4, NA),
                 row.names = c('variant1', 'variant2', 'variant3')
-                )
+                ))
             );
         }
     );
@@ -52,11 +52,11 @@ test_that(
             );
         expect_equal(
             test.variant.by.sample.matrix,
-            data.frame(
+            as.matrix(data.frame(
                 sample1 = c(1, 3, NA),
                 sample2 = c(2, 4, NA),
                 row.names = c('variant1', 'variant2', 'variant3')
-                )
+                ))
             );
         }
     );
@@ -86,11 +86,11 @@ test_that(
             );
         expect_equal(
             test.variant.by.sample.matrix,
-            data.frame(
+            as.matrix(data.frame(
                 sample1 = c(3 / 2, 3, NA),
                 sample2 = c(NA, 4, NA),
                 row.names = c('variant1', 'variant2', 'variant3')
-                )
+                ))
             );
 
         test.variant.by.sample.matrix.one.missing.duplicate <- get.combined.multiallelic.variant.by.sample.matrix(
@@ -100,11 +100,11 @@ test_that(
             );
         expect_equal(
             test.variant.by.sample.matrix.one.missing.duplicate,
-            data.frame(
+            as.matrix(data.frame(
                 sample1 = c(1, 3, NA),
                 sample2 = c(NA, 4, NA),
                 row.names = c('variant1', 'variant2', 'variant3')
-                )
+                ))
             );
 
         test.variant.by.sample.matrix.two.missing.duplicates <- get.combined.multiallelic.variant.by.sample.matrix(
@@ -114,11 +114,11 @@ test_that(
             );
         expect_equal(
             test.variant.by.sample.matrix.two.missing.duplicates,
-            data.frame(
+            as.matrix(data.frame(
                 sample1 = c(NA, 3, NA),
                 sample2 = c(NA, 4, NA),
                 row.names = c('variant1', 'variant2', 'variant3')
-                )
+                ))
             );
         }
     );
