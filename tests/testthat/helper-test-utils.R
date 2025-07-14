@@ -1,6 +1,7 @@
 # function that converts test data in long format into wide format
 
 convert.long.vcf.to.wide.vcf <- function(long.vcf) {
+    long.vcf <- as.data.frame(long.vcf);
     fixed.colnames <- c('CHROM', 'POS', 'ID', 'REF', 'ALT');
     fixed.data <- long.vcf[, fixed.colnames];
     fixed.data$variant.id <- paste0(fixed.data$CHROM, ':', fixed.data$POS);
@@ -12,8 +13,8 @@ convert.long.vcf.to.wide.vcf <- function(long.vcf) {
     variant.id <- paste0(long.vcf$CHROM, ':', long.vcf$POS);
     allele.matrix <- as.matrix(get.variant.by.sample.matrix(
         long.data = long.vcf,
-        variant.id = variant.id,
-        value.var = 'gt_GT_alleles'
+        row.id.cols = c('CHROM', 'POS'),
+        value.col = 'gt_GT_alleles'
         ));
 
     # sort allele matrix in order of corresponding fixed data variant id
