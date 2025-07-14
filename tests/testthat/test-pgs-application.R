@@ -481,6 +481,7 @@ test_that(
 test_that(
     'apply.polygenic.score correctly calculates pgs', {
         load('data/simple.pgs.application.test.data.Rda')
+        simple.pgs.application.test.data$wide.vcf.data <- convert.long.vcf.to.wide.vcf(simple.pgs.application.test.data$vcf.data);
         test.pgs.per.sample <- apply.polygenic.score(
             vcf.data = simple.pgs.application.test.data$vcf.data,
             vcf.long.format = TRUE,
@@ -495,6 +496,17 @@ test_that(
         expect_equal(
             test.pgs.per.sample[[PGS.OUTPUT.INDEX]]$PGS,
             c(1, 3)
+            );
+
+        # wide format equivalence check
+        test.pgs.per.sample.wide.format <- apply.polygenic.score(
+            vcf.data = simple.pgs.application.test.data$wide.vcf.data,
+            vcf.long.format = FALSE,
+            pgs.weight.data = simple.pgs.application.test.data$pgs.weight.data
+            );
+        expect_equal(
+            test.pgs.per.sample,
+            test.pgs.per.sample.wide.format
             );
         }
     );
