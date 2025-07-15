@@ -1,3 +1,9 @@
+# Handling CRAN warnings for data.table syntax:
+if (getRversion() >= '2.15.1') utils::globalVariables(c(
+    'model', 'phenotype', 'se', 'p.value',
+    'r.squared', 'AUC'
+    ));
+
 #' @title get.pgs.percentiles
 #' @description Calculate percentiles and report decile and quartile ranks for a vector of polygenic scores
 #' @param pgs numeric vector of polygenic scores

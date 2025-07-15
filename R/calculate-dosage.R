@@ -1,3 +1,6 @@
+# Handling CRAN warnings for data.table syntax:
+if (getRversion() >= '2.15.1') utils::globalVariables(c('dosage'));
+
 #' @title Convert alleles to dosage
 #' @description Convert genotype calls in the form of witten out alleles (e.g. 'A/T') to dosages (0, 1, 2) based on provided risk alleles from a PGS.
 #' @param called.alleles A vector of genotypes in allelic notation separated by a slash or pipe.

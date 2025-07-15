@@ -1,3 +1,6 @@
+# Handling CRAN warnings for data.table syntax:
+if (getRversion() >= '2.15.1') utils::globalVariables(c('Indiv', 'N'));
+
 type_stable_na <- function(x) {
   if (is.integer(x)) return(NA_integer_);
   if (is.numeric(x)) return(NA_real_);

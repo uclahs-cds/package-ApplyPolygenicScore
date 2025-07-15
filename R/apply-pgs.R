@@ -1,3 +1,9 @@
+# Handling CRAN warnings for data.table syntax:
+if (getRversion() >= '2.15.1') utils::globalVariables(c(
+    'allele.matrix.row.index', 'dosage.with.replaced.missing', 'dosage', 'PGS',
+    'PGS.with.normalized.missing', 'PGS.with.replaced.missing', 'n.pgm.sites', 'n.missing.genotypes',
+    'percent.missing.genotype', 'n.non.missing.alleles'
+    ));
 
 validate.vcf.input <- function(vcf.data, vcf.long.format) {
     if (vcf.long.format) {
