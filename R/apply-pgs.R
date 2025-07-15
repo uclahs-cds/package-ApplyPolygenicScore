@@ -391,35 +391,7 @@ apply.polygenic.score <- function(
                 vcf.data = vcf.data$vcf.fixed.fields,
                 pgs.weight.data = pgs.weight.data
                 )$merged.vcf.with.pgs.data;
-            # # sort merged vcf data by allele.matrix.row.index with NAs last
-            # merged.vcf.with.pgs.data <- merged.vcf.with.pgs.data[order(merged.vcf.with.pgs.data$allele.matrix.row.index, na.last = TRUE), ];
-            # # match allele matrix to merged VCF data using allele.matrix.row.index
-            # non.missing.variant.index <- merged.vcf.with.pgs.data$allele.matrix.row.index[!is.na(merged.vcf.with.pgs.data$allele.matrix.row.index)];
-            # merged.vcf.allele.matrix <- vcf.data$genotyped.alleles[as.numeric(non.missing.variant.index), ];
-            # # add matrix rows for missing variants
-            # missing.variant.count <- sum(is.na(merged.vcf.with.pgs.data$allele.matrix.row.index));
-            # # new matrix filled with NAs:
-            # missing.variant.matrix <- matrix(
-            #     data = NA,
-            #     nrow = missing.variant.count,
-            #     ncol = ncol(vcf.data$genotyped.alleles),
-            #     dimnames = list(NULL, colnames(vcf.data$genotyped.alleles))
-            #     );
-            # # add missing variant rows to allele matrix
-            # merged.vcf.allele.matrix <- rbind(
-            #     merged.vcf.allele.matrix,
-            #     missing.variant.matrix
-            #     );
-            # # update row names of allele matrix to unique variant identifiers from merged data
-            # unique.var.id <- paste(
-            #     merged.vcf.with.pgs.data$CHROM,
-            #     merged.vcf.with.pgs.data$POS,
-            #     merged.vcf.with.pgs.data$effect_allele,
-            #     sep = ':'
-            #     );
-            # rownames(merged.vcf.allele.matrix) <- unique.var.id;
-            # # save sample names from matrix
-            # sample.names <- colnames(merged.vcf.allele.matrix);
+
             # Sort merged VCF data by allele.matrix.row.index with NAs last (in-place for efficiency)
             data.table::setorder(merged.vcf.with.pgs.data, allele.matrix.row.index, na.last = TRUE);
 

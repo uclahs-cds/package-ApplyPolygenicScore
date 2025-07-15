@@ -138,20 +138,6 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
     # attempt additional merge for missing SNPs, this time on rsID
     if (any(missing.pgs.snp.index) & rsid.available) {
-        # # extract merged rows corresponding to missing PGS SNPs
-        # missing.snp.merged.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
-        # # rename ID column to match pre-merge pgs weight data
-        # missing.snp.merged.data$ID <- missing.snp.merged.data$ID.pgs;
-        # missing.snp.merged.data$ID.vcf <- NULL;
-        # missing.snp.merged.data$ID.pgs <- NULL;
-        # # extract only original pgs weight columns from merged missing SNP data (for neater second merge)
-        # missing.snp.pgs.weight.data <- subset(missing.snp.merged.data, select = colnames(pgs.weight.data));
-        # rm(missing.snp.merged.data);
-
-        # # Expand the VCF$ID column to a row-per-rsID format.
-        # # Some variants have multiple rsIDs in the ID column separated by semicolons.
-        # # We detect such cases using grepl, split them, and expand the data so that each rsID has its own row.
-        # # we create a new data frame with the expanded rsID data
 
         # Subset merged data corresponding to missing PGS SNPs (data.table does this by reference)
         missing.snp.merged.data <- merged.vcf.with.pgs.data[which(missing.pgs.snp.index)];
@@ -185,54 +171,6 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         # Update missing SNP index
         second.merge.missing.pgs.snp.index <- is.na(merged.vcf.with.missing.pgs.data$REF);
 
-
-        # if (any(grepl(';', vcf.data$ID))) {
-        #     split.rows <- strsplit(
-        #         x           = as.character(vcf.data$ID),
-        #         split       = ';',
-        #         fixed       = TRUE
-        #         );
-
-        #     # remove duplicate IDs
-        #     split.rows <- lapply(split.rows, function(x) unique(x));
-
-        #     row.indices <- rep(
-        #         x           = seq_len(nrow(vcf.data)),
-        #         times       = lengths(split.rows)
-        #         );
-
-        #     split.rsid.vcf.data <- vcf.data[row.indices, ];
-
-        #     split.rsid.vcf.data$ID.vcf.unsplit <- split.rsid.vcf.data$ID; # save original rsID names for final output
-        #     split.rsid.vcf.data$ID <- unlist(split.rows);
-
-        # } else {
-        #     vcf.data$ID.vcf.unsplit <- vcf.data$ID; # save an ID.vcf.unsplit column for consistency
-        #     split.rsid.vcf.data <- vcf.data;
-        # }
-
-        # # merge missing SNP data on split rsID
-        # merged.vcf.with.missing.pgs.data <- merge(
-        #     x = missing.snp.pgs.weight.data,
-        #     y = split.rsid.vcf.data,
-        #     suffixes = c('.pgs', '.vcf'),
-        #     by = 'ID',
-        #     all.x = TRUE
-        #     );
-        # rm(split.rsid.vcf.data);
-
-        # # update missing SNP index
-        # second.merge.missing.pgs.snp.index <- is.na(merged.vcf.with.missing.pgs.data$REF);
-
-        # if (all(missing.pgs.snp.index) & (sum(missing.pgs.snp.index) == sum(second.merge.missing.pgs.snp.index))) {
-        #     stop('All PGS SNPs are missing from the VCF, terminating merge.');
-        #     } else if (any(second.merge.missing.pgs.snp.index)) {
-        #         warning(paste('PGS is missing', sum(second.merge.missing.pgs.snp.index)), ' SNPs from VCF');
-        #         missing.snp.data <- merged.vcf.with.missing.pgs.data[second.merge.missing.pgs.snp.index, ];
-        #     } else {
-        #     missing.snp.data <- NULL;
-        #     }
-
         if (all(missing.pgs.snp.index) & (sum(missing.pgs.snp.index) == sum(second.merge.missing.pgs.snp.index))) {
             stop('All PGS SNPs are missing from the VCF, terminating merge.');
         } else if (any(second.merge.missing.pgs.snp.index)) {
@@ -242,32 +180,15 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
             missing.snp.data <- NULL;
         }
 
-        # # keep coordinates from VCF data for matched SNPs with coordinate mismatch
-        # merged.vcf.with.missing.pgs.data[!is.na(merged.vcf.with.missing.pgs.data$REF), 'CHROM'] <- merged.vcf.with.missing.pgs.data[!is.na(merged.vcf.with.missing.pgs.data$REF), 'CHROM.vcf'];
-        # merged.vcf.with.missing.pgs.data[!is.na(merged.vcf.with.missing.pgs.data$REF), 'POS'] <- merged.vcf.with.missing.pgs.data[!is.na(merged.vcf.with.missing.pgs.data$REF), 'POS.vcf'];
-
         # Keep coordinates from VCF data for matched SNPs
         # Keep coordinates from PGS data for unmatched (missing) SNPs
         merged.vcf.with.missing.pgs.data[, `:=`(
             CHROM = fifelse(is.na(REF), CHROM.pgs, CHROM.vcf),
             POS = fifelse(is.na(REF), POS.pgs, POS.vcf)
-        )];
-        
+            )];
+
         # Unconditionally update the ID.vcf column with the VCF's original unsplit ID
         merged.vcf.with.missing.pgs.data[, ID.vcf := ID.vcf.unsplit];
-
-        # # keep coordinates from PGS data for unmatched (missing) SNPs
-        # merged.vcf.with.missing.pgs.data[is.na(merged.vcf.with.missing.pgs.data$REF), 'CHROM'] <- merged.vcf.with.missing.pgs.data[is.na(merged.vcf.with.missing.pgs.data$REF), 'CHROM.pgs'];
-        # merged.vcf.with.missing.pgs.data[is.na(merged.vcf.with.missing.pgs.data$REF), 'POS'] <- merged.vcf.with.missing.pgs.data[is.na(merged.vcf.with.missing.pgs.data$REF), 'POS.pgs'];
-
-        # # add columns to match original merge
-        # merged.vcf.with.missing.pgs.data$ID.pgs <- merged.vcf.with.missing.pgs.data$ID;
-        # merged.vcf.with.missing.pgs.data$ID.vcf <- merged.vcf.with.missing.pgs.data$ID.vcf.unsplit;
-        # merged.vcf.with.missing.pgs.data$ID.vcf.unsplit <- NULL;
-        # merged.vcf.with.missing.pgs.data$merge.strategy <- 'rsID';
-
-        # # subset columns to match original merge
-        # merged.vcf.with.missing.pgs.data <- subset(merged.vcf.with.missing.pgs.data, select = colnames(merged.vcf.with.pgs.data));
 
         # Add and rename columns to match original merge
         # add columns to match original merge
@@ -282,15 +203,7 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
             merged.vcf.with.missing.pgs.data
             ));
 
-        # # combine merged data
-        # merged.vcf.with.pgs.data <- rbind(merged.vcf.with.pgs.data[!missing.pgs.snp.index, ], merged.vcf.with.missing.pgs.data);
-        # rm(merged.vcf.with.missing.pgs.data);
-
-
         } else if (any(missing.pgs.snp.index)) {
-
-        # warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
-        # missing.snp.data <- merged.vcf.with.pgs.data[missing.pgs.snp.index, ];
 
         warning(paste('PGS is missing', sum(missing.pgs.snp.index)), ' SNPs from VCF');
         missing.snp.data <- merged.vcf.with.pgs.data[which(missing.pgs.snp.index)];

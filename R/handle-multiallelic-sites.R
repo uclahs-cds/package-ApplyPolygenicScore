@@ -53,19 +53,6 @@ get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.
                 output.matrix <- NULL;
                 return(output.matrix);
                 }
-            # # Chat GPT suggestion
-            # test.df <- data.frame(
-            #     CHROM = c('chr1', 'chr1'),
-            #     POS = c(100, 100),
-            #     effect_allele = c('A', 'C'),
-            #     beta = c(1,2)
-            #     );
-            # test.allele.matrix <- matrix(
-            #     c('C/A', 'C/A', 'T/C', 'T/C'),
-            #     nrow = 2,
-            #     ncol = 2
-            #     );
-            # merged.vcf.with.pgs.data = list(fixed.data = test.df, allele.matrix = test.allele.matrix);
 
             # Extract effect alleles from the fixed data
             effect.alleles <- merged.vcf.with.pgs.data$effect_allele;

@@ -93,33 +93,6 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         rep(risk.alleles, times = ncol(called.alleles.matrix)),
         nrow = nrow(called.alleles.matrix)
         );
-    # # replace 'NA' with '.' for easier comparisons
-    # missing.label <- '.';
-    # split.alleles <- lapply(
-    #     X = split.alleles,
-    #     FUN = function(x) {
-    #     x[is.na(x)] <- missing.label;
-    #     return(x);
-    #     }
-    #     );
-
-    # dosage <- rep(NA, length(called.alleles));
-    # for (i in 1:length(called.alleles)) {
-    #     if (is.na(risk.alleles[i])) {
-    #         dosage[i] <- NA; # if the risk allele is missing, return NA, no dosage can be calculated
-    #         } else if ((split.alleles$called.allele.a[i] == missing.label) & (split.alleles$called.allele.b[i] == missing.label)) {
-    #         dosage[i] <- NA; # if both allelles are missing, no genotype was called, return NA
-    #         } else if (split.alleles$called.allele.a[i] == missing.label | split.alleles$called.allele.b[i] == missing.label) {
-    #             dosage[i] <- NA; # if one of the alleles is marked as missing but the other is not, this is an unrecognized format
-    #             warning('one of two alleles is marked as missing at index ', i, ', this is an unrecognized format, returning NA for dosage.');
-    #         } else if (split.alleles$called.allele.a[i] == risk.alleles[i] & split.alleles$called.allele.b[i] == risk.alleles[i]) {
-    #             dosage[i] <- 2; # if both alleles are the risk allele, the genotype is homozygous for the effect allele and the dosage is 2.
-    #         } else if (split.alleles$called.allele.a[i] == risk.alleles[i] | split.alleles$called.allele.b[i] == risk.alleles[i]) {
-    #             dosage[i] <- 1; # if only one of the alleles is the risk allele, the genotype is heterozygous and the dosage is 1.
-    #         } else {
-    #             dosage[i] <- 0; # if neither allele is the risk allele, the genotype is homozygous for the non-effect allele and the dosage is 0.
-    #         }
-    #     }
 
     # Compute dosage (0, 1, 2)
     # Initialize dosage matrix with zeros
