@@ -1,6 +1,5 @@
 import('vcfR');
 import('data.table');
-import('reshape2');
 import('BoutrosLab.plotting.general');
 importFrom(
     'lattice',

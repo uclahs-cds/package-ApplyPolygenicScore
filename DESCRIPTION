@@ -21,7 +21,6 @@ Imports:
     vcfR,
     pROC,
     data.table,
-    reshape2,
     BoutrosLab.plotting.general,
     lattice
 Suggests:
