@@ -4,19 +4,52 @@
 \alias{import.vcf}
 \title{Import VCF file}
 \usage{
-import.vcf(vcf.path, info.fields = NULL, format.fields = NULL, verbose = FALSE)
+import.vcf(
+  vcf.path,
+  long.format = FALSE,
+  info.fields = NULL,
+  format.fields = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{vcf.path}{A character string indicating the path to the VCF file to be imported.}
 
-\item{info.fields}{A character vector indicating the INFO fields to be imported.}
+\item{long.format}{A logical indicating whether the VCF import should be converted into long format (one row per sample-variant combination)}
 
-\item{format.fields}{A character vector indicating the FORMAT fields to be imported.}
+\item{info.fields}{A character vector indicating the INFO fields to be imported, only applicable when long format is \code{TRUE}.}
+
+\item{format.fields}{A character vector indicating the FORMAT fields to be imported, only applicable when long format is \code{TRUE}.}
 
 \item{verbose}{A logical indicating whether verbose output should be printed by vcfR.}
 }
 \value{
-A list containing a tibble of VCF meta data and a tibble data.frame containing the parsed VCF data in long form.
+A list of two elements containing imported VCF information in wide format and in long format if requested.
+
+\strong{Output Structure}
+
+The outputed list contains the following elements:
+\itemize{
+\item split.wide.vcf.matrices: A list with two elements: a \code{data.table} of fixed VCF fields and a \code{matrix} of genotyped alleles.
+\item combined.long.vcf.df: Default is \code{NULL} otherwise if \code{long.format == TRUE} a list with two elements inherited from vcfR: a data frame meta data from the VCF header and a data frame of all requested VCF fields (including INFO and FORMAT fields) in long format. Number of rows is equal to the number of samples times the number of sites in the VCF.
+}
+
+The \code{split.wide.vcf.matrices} list contains the following elements:
+\itemize{
+\item genotyped.alleles: A matrix of genotyped alleles (e.g. "A/C"). Rows are unique sites and columns are unique samples in the input VCF.
+\item vcf.fixed.fields: A data table of the following fixed (not varying by sample) VCF fields: CHROM, POS, ID, REF, ALT. Also one additional column \code{allele.matrix.row.index} indicating the corresponding row in \code{genotyped.alleles}
+}
+
+The \code{combined.long.vcf.df} list contains the following elements:
+\itemize{
+\item meta: A data frame of meta data parsed from the VCF header
+\item dat: A data frame of all default VCF fields and all requested INFO and FORMAT fields in long format. Number of rows is equal to the number of unique samples times the number of unique sites in the VCF.
+}
+
+The wide format is intended to efficiently contain the bare minimum information required for PGS application.
+It intentionally excludes much of the additional information included in a typical VCF.
+If users wish to maintain additional information in the INFO and FORMAT fields for e.g. variant filtering, the long format allows this.
+However, the long format requires substantially more memory to store, and is not recommended for large input files.
 }
 \description{
 A wrapper for the VCF import function in the vcfR package that formats VCF data for PGS application with \code{apply.polygenic.score()}.
@@ -29,5 +62,5 @@ vcf <- system.file(
     package = 'ApplyPolygenicScore',
     mustWork = TRUE
     );
-vcf.data <- import.vcf(vcf.path = vcf);
+vcf.data <- import.vcf(vcf.path = vcf, long.format = TRUE);
 }

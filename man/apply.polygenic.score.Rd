@@ -6,6 +6,7 @@
 \usage{
 apply.polygenic.score(
   vcf.data,
+  vcf.long.format = FALSE,
   pgs.weight.data,
   phenotype.data = NULL,
   phenotype.analysis.columns = NULL,
