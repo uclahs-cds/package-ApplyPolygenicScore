@@ -104,7 +104,7 @@ and must contain a column named `Indiv` corresponding to the individual IDs in t
 ```{r import-phenotype}
 
 # Isolating the individual IDs from the VCF data
-vcf.individuals <- unique(vcf.data$dat$Indiv)
+vcf.individuals <- unique(vcf.data$combined.long.vcf.df$dat$Indiv)
 
 # Simulating phenotype data
 set.seed(123)
@@ -215,7 +215,7 @@ configured to just run the validation step to check your inputs first.
 ```{r check-pgs-columns}
 
 apply.polygenic.score(
-    vcf.data = vcf.data$dat,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
     vcf.long.format = TRUE,
     pgs.weight.data = pgs.data$pgs.weight.data,
     phenotype.data = phenotype.data,
@@ -235,8 +235,8 @@ to handle missing genotypes.
 ```{r apply-pgs}
 
 pgs.results <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
-    long.format = TRUE,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
+    vcf.long.format = TRUE,
     pgs.weight.data = pgs.data$pgs.weight.data,
     correct.strand.flips = FALSE, # no strand flip check to avoid warnings
     missing.genotype.method = 'none'
@@ -264,7 +264,7 @@ which may be useful for troubleshooting missing genotype data.
 ```{r merge-vcf-with-pgs}
 
 merged.vcf.pgs.data <- combine.vcf.with.pgs(
-    vcf.data = vcf.data$dat,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
     pgs.weight.data = pgs.data$pgs.weight.data
     )
 
@@ -288,7 +288,7 @@ Checkout our discussion on [allele matching](https://github.com/uclahs-cds/packa
 
 # Most strict allele match handling
 strict.allele.match.result <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
     vcf.long.format = TRUE,
     pgs.weight.data = pgs.data$pgs.weight.data,
     missing.genotype.method = 'none',
@@ -299,7 +299,7 @@ strict.allele.match.result <- apply.polygenic.score(
 
 # Less strict allele match handling
 less.strict.allele.match.result <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
     vcf.long.format = TRUE,
     pgs.weight.data = pgs.data$pgs.weight.data,
     missing.genotype.method = 'none',
@@ -327,7 +327,7 @@ Briefly:
 ```{r missing-genotype-methods}
 
 all.missing.methods.pgs.results <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
     vcf.long.format = TRUE,
     pgs.weight.data = pgs.data$pgs.weight.data,
     correct.strand.flips = FALSE, # no strand flip check to avoid warnings
@@ -363,7 +363,7 @@ Curious to see how your PGS values distribute among quintiles? No problem. Speci
 ```{r custom-percentiles}
 
 custom.percentiles.pgs.results <- apply.polygenic.score(
-    vcf.data = vcf.data$dat,
+    vcf.data = vcf.data$combined.long.vcf.df$dat,
     vcf.long.format = TRUE,
     pgs.weight.data = pgs.data$pgs.weight.data,
     correct.strand.flips = FALSE, # no strand flip check to avoid warnings
