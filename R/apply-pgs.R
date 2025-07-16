@@ -2,7 +2,7 @@
 if (getRversion() >= '2.15.1') utils::globalVariables(c(
     'allele.matrix.row.index', 'dosage.with.replaced.missing', 'dosage', 'PGS',
     'PGS.with.normalized.missing', 'PGS.with.replaced.missing', 'n.pgm.sites', 'n.missing.genotypes',
-    'percent.missing.genotype', 'n.non.missing.alleles'
+    'percent.missing.genotypes', 'n.non.missing.alleles'
     ));
 
 validate.vcf.input <- function(vcf.data, vcf.long.format) {
@@ -27,7 +27,7 @@ validate.vcf.input <- function(vcf.data, vcf.long.format) {
 
         } else {
             # check that vcf.data is a list of two matrices
-            if (class(vcf.data) != 'list') {
+            if (!is.list(vcf.data)) {
                 stop('vcf.data must be a list of a data.frame and a matrix');
                 }
 
@@ -133,8 +133,9 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
     }
 
 #' @title Apply polygenic score to VCF data
-#' @description Apply a polygenic score to VCF data.
-#' @param vcf.data A data.frame containing VCF genotype data as formatted by \code{import.vcf()}.
+#' @description Apply a polygenic score model to VCF data.
+#' @param vcf.data VCF genotype data as formatted by \code{import.vcf()}. Two formats are accepted: wide format (a list of elements named \code{genotyped.alleles} and \code{vcf.fixed.fields}) or long format(a data frame). See \code{vcf.import} for more details.
+#' @param vcf.long.format A logical indicating whether \code{vcf.data} is provided in long format. Default is \code{FALSE}.
 #' @param pgs.weight.data A data.frame containing PGS weight data as formatted by \code{import.pgs.weight.file()}.
 #' @param phenotype.data A data.frame containing phenotype data. Must have an Indiv column matching vcf.data. Default is \code{NULL}.
 #' @param phenotype.analysis.columns A character vector of phenotype columns from phenotype.data to analyze in a regression analsyis. Default is \code{NULL}.
@@ -264,7 +265,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'     package = 'ApplyPolygenicScore',
 #'     mustWork = TRUE
 #'     );
-#' vcf.import <- import.vcf(vcf.path);
+#' vcf.import <- import.vcf(vcf.path, long.format = TRUE);
 #'
 #' # Example pgs weight file
 #' pgs.weight.path <- system.file(
@@ -276,7 +277,15 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' pgs.import <- import.pgs.weight.file(pgs.weight.path);
 #'
 #' pgs.data <- apply.polygenic.score(
-#'     vcf.data = vcf.import$dat,
+#'     vcf.data = vcf.import$split.wide.vcf.matrices,
+#'     pgs.weight.data = pgs.import$pgs.weight.data,
+#'     missing.genotype.method = 'none'
+#'     );
+#'
+#' # Use long format
+#' pgs.data <- apply.polygenic.score(
+#'     vcf.data = vcf.import$combined.long.vcf.df$dat,
+#'     vcf.long.format = TRUE,
 #'     pgs.weight.data = pgs.import$pgs.weight.data,
 #'     missing.genotype.method = 'none'
 #'     );
@@ -284,7 +293,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #' # Specify different methods for handling missing genotypes
 #' pgs.import$pgs.weight.data$allelefrequency_effect <- rep(0.5, nrow(pgs.import$pgs.weight.data));
 #' pgs.data <- apply.polygenic.score(
-#'     vcf.data = vcf.import$dat,
+#'     vcf.data = vcf.import$split.wide.vcf.matrices,
 #'     pgs.weight.data = pgs.import$pgs.weight.data,
 #'     missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
 #'     use.external.effect.allele.frequency = TRUE
@@ -292,7 +301,7 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'
 #' # Specify allele mismatch handling
 #' pgs.data <- apply.polygenic.score(
-#'    vcf.data = vcf.import$dat,
+#'    vcf.data = vcf.import$split.wide.vcf.matrices,
 #'    pgs.weight.data = pgs.import$pgs.weight.data,
 #'    correct.strand.flips = TRUE,
 #'    remove.ambiguous.allele.matches = TRUE,
@@ -300,25 +309,26 @@ validate.phenotype.data.input <- function(phenotype.data, phenotype.analysis.col
 #'    );
 #'
 #' # Provide phenotype data for basic correlation analysis
+#' n.samples <- length(colnames(vcf.import$split.wide.vcf.matrices$genotyped.alleles))
 #' phenotype.data <- data.frame(
-#'     Indiv = unique(vcf.import$dat$Indiv),
-#'     continuous.phenotype = rnorm(length(unique(vcf.import$dat$Indiv))),
+#'     Indiv = colnames(vcf.import$split.wide.vcf.matrices$genotyped.alleles),
+#'     continuous.phenotype = rnorm(n.samples),
 #'     binary.phenotype = sample(
 #'         c('a', 'b'),
-#'         length(unique(vcf.import$dat$Indiv)),
+#'         n.samples,
 #'         replace = TRUE
 #'         )
 #'     );
 #'
 #' pgs.data <- apply.polygenic.score(
-#'     vcf.data = vcf.import$dat,
+#'     vcf.data = vcf.import$split.wide.vcf.matrices,
 #'     pgs.weight.data = pgs.import$pgs.weight.data,
 #'     phenotype.data = phenotype.data
 #'     );
 #'
 #' # Only run validation checks on input data and report back
 #' apply.polygenic.score(
-#'     vcf.data = vcf.import$dat,
+#'     vcf.data = vcf.import$split.wide.vcf.matrices,
 #'     pgs.weight.data = pgs.import$pgs.weight.data,
 #'     validate.inputs.only = TRUE
 #'     );

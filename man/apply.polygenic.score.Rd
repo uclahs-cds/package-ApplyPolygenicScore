@@ -24,7 +24,9 @@ apply.polygenic.score(
 )
 }
 \arguments{
-\item{vcf.data}{A data.frame containing VCF genotype data as formatted by \code{import.vcf()}.}
+\item{vcf.data}{VCF genotype data as formatted by \code{import.vcf()}. Two formats are accepted: wide format (a list of elements named \code{genotyped.alleles} and \code{vcf.fixed.fields}) or long format(a data frame). See \code{vcf.import} for more details.}
+
+\item{vcf.long.format}{A logical indicating whether \code{vcf.data} is provided in long format. Default is \code{FALSE}.}
 
 \item{pgs.weight.data}{A data.frame containing PGS weight data as formatted by \code{import.pgs.weight.file()}.}
 
@@ -163,7 +165,7 @@ Note that an allele match assessment requires the presence of both the \code{oth
 The \code{other_allele} column is not required by the PGS Catalog, and so is not always available.
 }
 \description{
-Apply a polygenic score to VCF data.
+Apply a polygenic score model to VCF data.
 }
 \examples{
 # Example VCF
@@ -173,7 +175,7 @@ vcf.path <- system.file(
     package = 'ApplyPolygenicScore',
     mustWork = TRUE
     );
-vcf.import <- import.vcf(vcf.path);
+vcf.import <- import.vcf(vcf.path, long.format = TRUE);
 
 # Example pgs weight file
 pgs.weight.path <- system.file(
@@ -185,7 +187,15 @@ pgs.weight.path <- system.file(
 pgs.import <- import.pgs.weight.file(pgs.weight.path);
 
 pgs.data <- apply.polygenic.score(
-    vcf.data = vcf.import$dat,
+    vcf.data = vcf.import$split.wide.vcf.matrices,
+    pgs.weight.data = pgs.import$pgs.weight.data,
+    missing.genotype.method = 'none'
+    );
+
+# Use long format
+pgs.data <- apply.polygenic.score(
+    vcf.data = vcf.import$combined.long.vcf.df$dat,
+    vcf.long.format = TRUE,
     pgs.weight.data = pgs.import$pgs.weight.data,
     missing.genotype.method = 'none'
     );
@@ -193,7 +203,7 @@ pgs.data <- apply.polygenic.score(
 # Specify different methods for handling missing genotypes
 pgs.import$pgs.weight.data$allelefrequency_effect <- rep(0.5, nrow(pgs.import$pgs.weight.data));
 pgs.data <- apply.polygenic.score(
-    vcf.data = vcf.import$dat,
+    vcf.data = vcf.import$split.wide.vcf.matrices,
     pgs.weight.data = pgs.import$pgs.weight.data,
     missing.genotype.method = c('none', 'mean.dosage', 'normalize'),
     use.external.effect.allele.frequency = TRUE
@@ -201,7 +211,7 @@ pgs.data <- apply.polygenic.score(
 
 # Specify allele mismatch handling
 pgs.data <- apply.polygenic.score(
-   vcf.data = vcf.import$dat,
+   vcf.data = vcf.import$split.wide.vcf.matrices,
    pgs.weight.data = pgs.import$pgs.weight.data,
    correct.strand.flips = TRUE,
    remove.ambiguous.allele.matches = TRUE,
@@ -209,25 +219,26 @@ pgs.data <- apply.polygenic.score(
    );
 
 # Provide phenotype data for basic correlation analysis
+n.samples <- length(colnames(vcf.import$split.wide.vcf.matrices$genotyped.alleles))
 phenotype.data <- data.frame(
-    Indiv = unique(vcf.import$dat$Indiv),
-    continuous.phenotype = rnorm(length(unique(vcf.import$dat$Indiv))),
+    Indiv = colnames(vcf.import$split.wide.vcf.matrices$genotyped.alleles),
+    continuous.phenotype = rnorm(n.samples),
     binary.phenotype = sample(
         c('a', 'b'),
-        length(unique(vcf.import$dat$Indiv)),
+        n.samples,
         replace = TRUE
         )
     );
 
 pgs.data <- apply.polygenic.score(
-    vcf.data = vcf.import$dat,
+    vcf.data = vcf.import$split.wide.vcf.matrices,
     pgs.weight.data = pgs.import$pgs.weight.data,
     phenotype.data = phenotype.data
     );
 
 # Only run validation checks on input data and report back
 apply.polygenic.score(
-    vcf.data = vcf.import$dat,
+    vcf.data = vcf.import$split.wide.vcf.matrices,
     pgs.weight.data = pgs.import$pgs.weight.data,
     validate.inputs.only = TRUE
     );

@@ -53,7 +53,7 @@ check.vcf.for.split.multiallelic.sites <- function(site.coordinates) {
 #' }
 #'
 #' The wide format is intended to efficiently contain the bare minimum information required for PGS application.
-#' It intentionally excludes much of the additional information included in a typical VCF.
+#' It intentionally excludes much of the additional information included in a typical VCF, and splits off genotypes into a separate matrix for easy manipulation.
 #' If users wish to maintain additional information in the INFO and FORMAT fields for e.g. variant filtering, the long format allows this.
 #' However, the long format requires substantially more memory to store, and is not recommended for large input files.
 #' 
