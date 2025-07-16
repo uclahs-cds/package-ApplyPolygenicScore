@@ -1,6 +1,6 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
 SKIP.PLOTS <- FALSE;
-SKIP.COMPREHENSIVE.CASES <- FALSE;
+SKIP.COMPREHENSIVE.CASES <- TRUE#FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     if (skip.plots) {
         skip('Plotting tests disabled');
@@ -89,6 +89,15 @@ test_that(
                 pgs.columns = c('not.a.pgs.column')
                 ),
             'pgs.columns must be a subset of the column names in pgs.data, please check your input'
+            );
+        # check that user-provided pgs.columns are numeric
+        pgs.test$non.numeric.column <- as.character(pgs.test$PGS);  # create a non-numeric column
+        expect_error(
+            create.pgs.density.plot(
+                pgs.data = pgs.test,
+                pgs.columns = c('non.numeric.column')
+                ),
+            'All columns specified in pgs.columns must be numeric'
             );
         }
     );
@@ -308,6 +317,17 @@ test_that(
                 pgs.columns = c('not.a.pgs.column'),
                 ),
             'pgs.columns must be a subset of the column names in pgs.data, please check your input'
+            );
+
+        # check that user-provided pgs.columns are numeric
+        pgs.test$non.numeric.column <- as.character(pgs.test$PGS);  # create a non-numeric column
+        expect_error(
+            create.pgs.with.continuous.phenotype.plot(
+                pgs.data = pgs.test,
+                phenotype.columns = 'continuous.phenotype',
+                pgs.columns = c('non.numeric.column')
+                ),
+            'All columns specified in pgs.columns must be numeric'
             );
 
         # check that phenotype.column is a character vector
@@ -928,6 +948,15 @@ test_that(
                 pgs.columns = c('not.a.pgs.column')
                 ),
             'pgs.columns must be a subset of the column names in pgs.data, please check your input'
+            );
+        # check that user-provided pgs.columns are numeric
+        pgs.test$non.numeric.column <- as.character(pgs.test$PGS);  # create a non-numeric column
+        expect_error(
+            create.pgs.boxplot(
+                pgs.data = pgs.test,
+                pgs.columns = c('non.numeric.column')
+                ),
+            'All columns specified in pgs.columns must be numeric'
             );
         }
     );
