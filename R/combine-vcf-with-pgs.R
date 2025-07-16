@@ -7,9 +7,9 @@ if (getRversion() >= '2.15.1') utils::globalVariables(c(
 
 #' @title Combine VCF with PGS
 #' @description Match PGS SNPs to corresponding VCF information by genomic coordinates or rsID using a merge operation.
-#' @param vcf.data A data.frame containing VCF data. Required columns: \code{CHROM, POS}.
-#' @param pgs.weight.data A data.frame containing PGS data. Required columns: \code{CHROM, POS}.
-#' @return A list containing a data.frame of merged VCF and PGS data and a data.frame of PGS SNPs missing from the VCF.
+#' @param vcf.data A data frame/table containing VCF data. Required columns: \code{CHROM, POS}.
+#' @param pgs.weight.data A data frame/table containing PGS data. Required columns: \code{CHROM, POS}.
+#' @return A list containing a data.table of merged VCF and PGS data and a data.table of PGS SNPs missing from the VCF.
 #'
 #' A primary merge is first performed on chromosome and base pair coordinates. For SNPs that could not be matched in the first mergs, a second merge is attempted by rsID if available.
 #' This action can account for short INDELs that can have coordinate mismatches between the PGS and VCF data.
@@ -35,7 +35,7 @@ if (getRversion() >= '2.15.1') utils::globalVariables(c(
 #' pgs.import <- import.pgs.weight.file(pgs.weight.path);
 #'
 #' merge.data <- combine.vcf.with.pgs(
-#'     vcf.data = vcf.import$dat,
+#'     vcf.data = vcf.import$split.wide.vcf.matrices$vcf.fixed.fields,
 #'     pgs.weight.data = pgs.import$pgs.weight.data
 #'     );
 #' @export

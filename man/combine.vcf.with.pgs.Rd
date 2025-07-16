@@ -7,12 +7,12 @@
 combine.vcf.with.pgs(vcf.data, pgs.weight.data)
 }
 \arguments{
-\item{vcf.data}{A data.frame containing VCF data. Required columns: \code{CHROM, POS}.}
+\item{vcf.data}{A data frame/table containing VCF data. Required columns: \code{CHROM, POS}.}
 
-\item{pgs.weight.data}{A data.frame containing PGS data. Required columns: \code{CHROM, POS}.}
+\item{pgs.weight.data}{A data frame/table containing PGS data. Required columns: \code{CHROM, POS}.}
 }
 \value{
-A list containing a data.frame of merged VCF and PGS data and a data.frame of PGS SNPs missing from the VCF.
+A list containing a data.table of merged VCF and PGS data and a data.table of PGS SNPs missing from the VCF.
 
 A primary merge is first performed on chromosome and base pair coordinates. For SNPs that could not be matched in the first mergs, a second merge is attempted by rsID if available.
 This action can account for short INDELs that can have coordinate mismatches between the PGS and VCF data.
@@ -42,7 +42,7 @@ pgs.weight.path <- system.file(
 pgs.import <- import.pgs.weight.file(pgs.weight.path);
 
 merge.data <- combine.vcf.with.pgs(
-    vcf.data = vcf.import$dat,
+    vcf.data = vcf.import$split.wide.vcf.matrices$vcf.fixed.fields,
     pgs.weight.data = pgs.import$pgs.weight.data
     );
 }
