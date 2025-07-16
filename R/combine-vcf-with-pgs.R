@@ -65,14 +65,14 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
 
     # Ensure POS columns are of a consistent type for the merge
     if (typeof(vcf.data$POS) != 'integer') {
-      #warning('Converting VCF POS column from ', typeof(vcf.data$POS), ' to integer.')
-      vcf.data[, POS := as.integer(POS)];
-    }
+        #warning('Converting VCF POS column from ', typeof(vcf.data$POS), ' to integer.')
+        vcf.data[, POS := as.integer(POS)];
+        }
 
     if (typeof(pgs.weight.data$POS) != 'integer') {
-      # warning('Converting PGS POS column from ', typeof(pgs.weight.data$POS), ' to integer.')
-      pgs.weight.data[, POS := as.integer(POS)];
-    }
+        # warning('Converting PGS POS column from ', typeof(pgs.weight.data$POS), ' to integer.')
+        pgs.weight.data[, POS := as.integer(POS)];
+        }
 
     # Add a check to ensure no NAs were introduced by the conversion
     if(any(is.na(vcf.data$POS)) | any(is.na(pgs.weight.data$POS))) {
@@ -95,11 +95,6 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
     chr.prefix <- grepl('^chr', vcf.data$CHROM[1]);
     numeric.sex.chr <- any(grepl('23$', vcf.data$CHROM));
 
-    # pgs.weight.data$CHROM <- ApplyPolygenicScore::format.chromosome.notation(
-    #     chromosome = pgs.weight.data$CHROM,
-    #     chr.prefix = chr.prefix,
-    #     numeric.sex.chr = numeric.sex.chr
-    #     );
 
     pgs.weight.data[, CHROM := ApplyPolygenicScore::format.chromosome.notation(
         chromosome = CHROM,
@@ -107,21 +102,6 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         numeric.sex.chr = numeric.sex.chr
         )];
 
-    # 'left outer join' on CHROM and POS columns
-    # this merge keeps all pgs SNPs even if they are missing from the VCF
-    # and drops all VCF SNPs that are not a component of the pgs
-
-    # merged.vcf.with.pgs.data <- merge(
-    #     x = pgs.weight.data,
-    #     y = vcf.data,
-    #     by = c('CHROM', 'POS'),
-    #     suffixes = c('.pgs', '.vcf'),
-    #     all.x = TRUE
-    #     );
-
-    # merged.vcf.with.pgs.data$merge.strategy <- 'genomic coordinate';
-
-    # Left outer join on CHROM and POS
     # 'left outer join' on CHROM and POS columns using data.table::merge()
     merged.vcf.with.pgs.data <- data.table::merge.data.table(
         x = pgs.weight.data,
@@ -152,7 +132,7 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
             split.ids <- unlist(strsplit(ID, ';', fixed = TRUE));
             # Return a list of the new ID and the preserved original ID
             list(ID = split.ids, ID.vcf.unsplit = original.id);
-        }, by = cols.to.keep];
+            }, by = cols.to.keep];
 
         # Drop NA-filled unmatched VCF columns from first merge
         cols.to.drop.from.missing.data <- setdiff(cols.to.keep, c('CHROM', 'POS'));
