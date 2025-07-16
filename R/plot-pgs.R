@@ -142,6 +142,10 @@ create.pgs.density.plot <- function(
         if (!all(pgs.columns %in% colnames(pgs.data))) {
             stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
             }
+        # If user-provided pgs columns, check that they are numeric
+        if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
+            stop('All columns specified in pgs.columns must be numeric.');
+            }
         } else {
             # If no pgs columns provided, default to recognized PGS columns
             recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
@@ -480,6 +484,10 @@ create.pgs.boxplot <- function(
         if (!all(pgs.columns %in% colnames(pgs.data))) {
             stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
             }
+        # If user-provided pgs columns, check that they are numeric
+        if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
+            stop('All columns specified in pgs.columns must be numeric.');
+            }
         } else {
             # If no pgs columns provided, default to recognized PGS columns
             recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
@@ -795,6 +803,10 @@ create.pgs.with.continuous.phenotype.plot <- function(
         # If user-provided pgs columns, check that they exist in data
         if (!all(pgs.columns %in% colnames(pgs.data))) {
             stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        # If user-provided pgs columns, check that they are numeric
+        if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
+            stop('All columns specified in pgs.columns must be numeric.');
             }
         } else {
             # If no pgs columns provided, default to recognized PGS columns
