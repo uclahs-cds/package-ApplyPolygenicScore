@@ -28,7 +28,7 @@ assess.pgs.vcf.allele.match(
 \item{return.ambiguous.as.missing}{A logical value indicating whether to return NA for ambiguous cases where both a strand flip and effect switch are possible,
 or no strand flip is detected and a mismatch cannot be resolved. Default is \code{FALSE}.}
 
-\item{max.strand.flips}{An integer indicating the number of non-ambiguous strand flips that must be present to implement the discarding all allele matches labeled "ambigous_flip". Only applies if {return.ambiguous.as.missing == TRUE}.
+\item{max.strand.flips}{An integer indicating the number of non-ambiguous strand flips that must be present to implement the discarding all allele matches labeled "ambiguous_flip". Only applies if {return.ambiguous.as.missing == TRUE}.
 Defaults to \code{0}, meaning that no strand flips are allowed. Allele matches labeled "unresolved_mismatch" are not affected by this parameter.}
 }
 \value{
