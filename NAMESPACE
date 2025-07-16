@@ -51,6 +51,7 @@ export(
     import.vcf,
     parse.pgs.input.header,
     create.pgs.density.plot,
+    create.pgs.boxplot,
     create.pgs.rank.plot,
     create.pgs.with.continuous.phenotype.plot,
     run.pgs.regression

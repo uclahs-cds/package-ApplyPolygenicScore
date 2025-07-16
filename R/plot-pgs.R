@@ -57,6 +57,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' If phenotype columns are provided, multiple density curves are plotted for automatically detected categories for each categorical variable.
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
 #' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
 #' @param phenotype.columns character vector of phenotype columns in \code{pgs.data} to plot (optional)
 #' @param output.dir character directory to save output plots
 #' @param filename.prefix character prefix for output filenames
@@ -90,19 +91,24 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
 #' \donttest{create.pgs.density.plot(pgs.data, output.dir = temp.dir);}
 #'
+#' # Plot non-default PGS columns
+#' pgs.data$PGS.custom <- rnorm(100, 2, 1);
+#' \donttest{create.pgs.density.plot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
+#'
 #' # Plot phenotype categories
+#' pgs.data$sex <- sample(c('male', 'female'), size = 100, replace = TRUE);
 #' \donttest{
-#' pgs.data$sex <- sample(c('male', 'female', 100, replace = TRUE));
 #' create.pgs.density.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-pgs',
 #'     phenotype.columns = 'sex'
 #'     );
-#'}
+#' }
+#'
 #' # Plot multiple phenotypes
+#' pgs.data$letters <- sample(letters[1:5], size = 100, replace = TRUE);
 #' \donttest{
-#' pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
 #' create.pgs.density.plot(
 #'     pgs.data,
 #'     output.dir = temp.dir,
@@ -113,6 +119,7 @@ split.pgs.by.phenotype <- function(pgs, phenotype.data) {
 #' @export
 create.pgs.density.plot <- function(
     pgs.data,
+    pgs.columns = NULL,
     phenotype.columns = NULL,
     output.dir = NULL,
     filename.prefix = NULL,
@@ -130,8 +137,20 @@ create.pgs.density.plot <- function(
     pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
 
     # identify PGS columns
-    recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
-    pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+    if (!is.null(pgs.columns)) {
+        # If user-provided pgs columns, check that they exist in data
+        if (!all(pgs.columns %in% colnames(pgs.data))) {
+            stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        # If user-provided pgs columns, check that they are numeric
+        if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
+            stop('All columns specified in pgs.columns must be numeric.');
+            }
+        } else {
+            # If no pgs columns provided, default to recognized PGS columns
+            recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+            pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+        }
 
     # identify categorical phenotype variables for plotting
     if (!is.null(phenotype.columns)) {
@@ -374,10 +393,294 @@ create.pgs.density.plot <- function(
 
     }
 
+#' @title Plot PGS Boxplots
+#' @description Plot boxplots of PGS data outputted by \code{apply.polygenic.score}.
+#' If phenotype columns are provided, multiple boxplots are plotted for automatically detected categories for each categorical variable.
+#' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing.
+#' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
+#' @param phenotype.columns character vector of phenotype columns in \code{pgs.data} to plot (optional)
+#' @param add.stripplot logical whether to add a stripplot to the boxplot, defaults to \code{TRUE}
+#' @param jitter.factor numeric factor by which to scale the jitter (noise) applied to stripplot points, defaults to 1
+#' @param output.dir character directory to save output plots
+#' @param filename.prefix character prefix for output filenames
+#' @param file.extension character file extension for output plots
+#' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
+#' @param width numeric width of output plot in inches
+#' @param height numeric height of output plot in inches
+#' @param xaxes.cex numeric size for all x-axis labels
+#' @param yaxes.cex numeric size for all y-axis labels
+#' @param titles.cex numeric size for all plot titles
+#' @param border.padding numeric padding for plot borders
+#' @return If no output directory is provided, a multipanel lattice plot object is returned, otherwise a plot is written to the indicated path and \code{NULL} is returned.
+#' @examples
+#' set.seed(100);
+#' pgs.data <- data.frame(
+#'     PGS = rnorm(100, 0, 1)
+#'     );
+#' temp.dir <- tempdir();
+#'
+#' # Basic Plot
+#' create.pgs.boxplot(
+#'    pgs.data,
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'basic-plot',
+#'    width = 6,
+#'    height = 6
+#'    );
+#'
+#' # Plot multiple PGS outputs
+#' pgs.data$PGS.with.normalized.missing <- rnorm(100, 1, 1);
+#' \donttest{create.pgs.boxplot(pgs.data, output.dir = temp.dir);}
+#'
+#' # Plot non-default PGS columns
+#' pgs.data$PGS.custom <- rnorm(100, 2, 1);
+#' \donttest{create.pgs.boxplot(pgs.data, pgs.columns = 'PGS.custom', output.dir = temp.dir);}
+#' # Plot phenotype categories
+#' pgs.data$sex <- sample(c('male', 'female'), 100, replace = TRUE);
+#' \donttest{
+#' create.pgs.boxplot(
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'multiple-pgs',
+#'     phenotype.columns = 'sex'
+#'     );
+#' }
+#' # Plot multiple phenotypes
+#' pgs.data$letters <- sample(letters[1:5], 100, replace = TRUE);
+#' \donttest{
+#' create.pgs.boxplot(
+#'    pgs.data,
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'multiple-phenotypes',
+#'    phenotype.columns = c('sex', 'letters')
+#'    );
+#' }
+#' @export
+create.pgs.boxplot <- function(
+    pgs.data,
+    pgs.columns = NULL,
+    phenotype.columns = NULL,
+    add.stripplot = TRUE,
+    jitter.factor = 1,
+    output.dir = NULL,
+    filename.prefix = NULL,
+    file.extension = 'png',
+    tidy.titles = FALSE,
+    width = 10,
+    height = 10,
+    xaxes.cex = 1.5,
+    yaxes.cex = 1.5,
+    titles.cex = 1.5,
+    border.padding = 1
+    ) {
+
+    # check input
+    pgs.distribution.plotting.input.checks(pgs.data = pgs.data, phenotype.columns = phenotype.columns, output.dir = output.dir);
+
+    # identify PGS columns
+    if (!is.null(pgs.columns)) {
+        # If user-provided pgs columns, check that they exist in data
+        if (!all(pgs.columns %in% colnames(pgs.data))) {
+            stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        # If user-provided pgs columns, check that they are numeric
+        if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
+            stop('All columns specified in pgs.columns must be numeric.');
+            }
+        } else {
+            # If no pgs columns provided, default to recognized PGS columns
+            recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+            pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+        }
+
+    # identify categorical phenotype variables for plotting
+    if (!is.null(phenotype.columns)) {
+        phenotype.data <- subset(pgs.data, select = phenotype.columns);
+        phenotype.index.by.type <- classify.variable.type(data = phenotype.data);
+        phenotype.data.for.plotting <- subset(phenotype.data, select = phenotype.index.by.type$binary | phenotype.index.by.type$other);
+        }
+
+    # Plotting
+    pgs.by.phenotype <- NULL;
+    pgs.boxplots <- list();
+    pgs.boxplots.by.phenotype <- list();
+    # iterate over PGS inputs
+    for (pgs.column in pgs.columns) {
+        ### Single Boxplots ###
+        # tidy titles
+        if (tidy.titles) {
+            pgs.column.main <- gsub(pattern = '\\.', replacement = ' ', x = pgs.column);
+            } else {
+                pgs.column.main <- pgs.column;
+            }
+
+        # prettify x-axis labels (handle exponential notation)
+        basic.yaxis.formatting <- BoutrosLab.plotting.general::auto.axis(
+            pgs.data[ , pgs.column],
+            log.scaled = FALSE,
+            num.labels = 5,
+            include.origin = FALSE
+            );
+        pgs.data$placeholder <- 1; # add a placeholder column for single boxplot x-axis
+        pgs.data$placeholder <- factor(pgs.data$placeholder);
+
+        pgs.boxplots[[pgs.column]] <- BoutrosLab.plotting.general::create.boxplot(
+            formula = as.formula(paste0(pgs.column, ' ~ placeholder')),
+            data = pgs.data,
+            add.stripplot = add.stripplot,
+            jitter.factor = jitter.factor,
+            xlab.label = NULL,
+            ylab.label = pgs.column.main,
+            # main = NULL,
+            # main.cex = titles.cex,
+            yaxis.cex = yaxes.cex,
+            xaxis.cex = 0,
+            yat = basic.yaxis.formatting$at,
+            yaxis.lab = basic.yaxis.formatting$axis.lab
+            );
+
+        ### Boxplots by Phenotype ###
+        if (!is.null(phenotype.columns)) {
+            pgs.by.phenotype <- split.pgs.by.phenotype(pgs = pgs.data[ , pgs.column], phenotype.data = phenotype.data.for.plotting);
+
+            # remove phenotype categories containing fewer than 2 samples
+            pgs.by.phenotype <- lapply(
+                X = pgs.by.phenotype,
+                FUN = function(x) {
+                    large.categories <- sapply(
+                        X = x,
+                        function(y) {
+                            length(y[!is.na(y)]) > 1
+                            }
+                        );
+                    x <- x[large.categories];
+                    }
+                );
+
+            # iterate over phenotype variables
+            for (phenotype in names(pgs.by.phenotype)) {
+                pgs.data.split.by.phenotype <- pgs.by.phenotype[[phenotype]];
+
+                # handle case where all categories have fewer than 2 samples
+                if (length(pgs.data.split.by.phenotype) == 0) {
+                    # issue a warning
+                    warning(paste0('No ', phenotype, ' categories with more than 2 samples, plotting aggregated boxplot instead'));
+                    pgs.boxplots.by.phenotype.plots[[paste0(pgs.column,'_',phenotype)]] <- pgs.boxplots[[pgs.column]];
+                    next;
+                    }
+
+                # add factors if not already present
+                if (!is.factor(pgs.data[, phenotype])) {
+                    pgs.data[ , phenotype] <- factor(pgs.data[ , phenotype]);
+                    }
+
+                # color handling
+                max.colors <- 12;
+                max.categories <- max.colors;
+                if (length(levels(pgs.data[ , phenotype])) > max.categories) {
+                    # Issue a warning that plot is not being color-coded
+                    warning(paste0('Skipping colors for ', pgs.column, ' and ', phenotype, ' due to too many categories'));
+                    boxplot.colors <- 'black';
+                    } else {
+                        boxplot.colors <- suppressWarnings(BoutrosLab.plotting.general::default.colours(length(levels(pgs.data[ , phenotype]))));
+                    }
+                # plot boxplot
+                group.yaxis.formatting <- basic.yaxis.formatting;
+                pgs.boxplots.by.phenotype[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.boxplot(
+                    formula = as.formula(paste0(pgs.column, ' ~ ', phenotype)),
+                    data = pgs.data,
+                    add.stripplot = add.stripplot,
+                    jitter.factor = jitter.factor,
+                    xlab.label = phenotype,
+                    ylab.label = pgs.column.main,
+                    xlab.cex = titles.cex,
+                    yaxis.cex = yaxes.cex,
+                    xaxis.cex = xaxes.cex,
+                    yat = group.yaxis.formatting$at,
+                    yaxis.lab = group.yaxis.formatting$axis.lab,
+                    col = boxplot.colors
+                    );
+                }
+            }
+        }
+    # organize filename if plot writing requested
+    if (!is.null(output.dir)) {
+
+        if (is.null(filename.prefix)) {
+            filename.prefix <- 'ApplyPolygenicScore-Plot';
+            }
+        # construct multipanel plot
+        filename.for.boxplot.multiplot <- generate.filename(
+            project.stem = filename.prefix,
+            file.core = 'pgs-boxplot',
+            extension = file.extension
+            );
+
+        output.path <- file.path(output.dir, filename.for.boxplot.multiplot);
+        } else {
+            output.path <- NULL;
+        }
+
+    # assemble multipanel plot
+    if (length(pgs.boxplots.by.phenotype) != 0) {
+        # phenotype plots are in column-wise order, but need to be in row-wise order to match multipanelplot layout
+        phenotype.grid.height <- length(pgs.by.phenotype);
+        phenotype.grid.width <- length(pgs.boxplots);
+        phenotype.plot.indices <- matrix(1:(phenotype.grid.height * phenotype.grid.width), nrow = phenotype.grid.width, byrow = TRUE);
+        phenotype.plot.indices <- as.vector(phenotype.plot.indices);
+
+        pgs.boxplots.by.phenotype <- pgs.boxplots.by.phenotype[phenotype.plot.indices];
+
+        boxplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+            plot.objects = c(pgs.boxplots, pgs.boxplots.by.phenotype),
+            filename = output.path,
+            layout.height = 1 + length(pgs.by.phenotype),
+            layout.width = length(pgs.columns),
+            main = '',
+            main.cex = 0,
+            # ylab.label = 'PGS',
+            ylab.cex = titles.cex,
+            ylab.axis.padding = 0,
+            width = width,
+            height = height,
+            x.spacing = 1.5,
+            y.spacing = 0,
+            left.padding = border.padding,
+            right.padding = border.padding,
+            bottom.padding = border.padding,
+            top.padding = border.padding
+            );
+        } else {
+
+        boxplot.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+            plot.objects = pgs.boxplots,
+            filename = output.path,
+            layout.height = 1,
+            layout.width = length(pgs.columns),
+            main = '',
+            main.cex = 0,
+            ylab.cex = titles.cex,
+            ylab.axis.padding = 0,
+            width = width,
+            height = height,
+            x.spacing = 1.5,
+            y.spacing = 0,
+            left.padding = border.padding,
+            right.padding = border.padding,
+            bottom.padding = border.padding,
+            top.padding = border.padding
+            );
+        }
+
+        return(boxplot.multipanel); # this returns null when filename is provided to create.multipanelplot
+    }
+
 #' @title Plot PGS Scatterplots
 #' @description Create scatterplots for PGS data outputed by \code{apply.polygenic.score()} with continuous phenotype variables
 #' @param pgs.data data.frame PGS data as formatted by \code{apply.polygenic.score()}. Required columns are at least one of PGS, PGS.with.replaced.missing, or PGS.with.normalized.missing, and at least one continuous phenotype column.
 #' This function is designed to work with the output of \code{apply.polygenic.score()}.
+#' @param pgs.columns character vector of column names indicating which columns in \code{pgs.data} to plot as PGSs. If \code{NULL}, defaults to recognized PGS columns: PGS, PGS.with.replaced.missing, and PGS.with.normalized.missing.
 #' @param phenotype.columns character vector of continuous phenotype column names in pgs.data to plot
 #' @param hexbin.threshold numeric threshold (exclusive) for cohort size at which to switch from scatterplot to hexbin plot.
 #' @param hexbin.colour.scheme character vector of colors for hexbin plot bins. Default is \code{NULL} which uses gray/black.
@@ -433,21 +736,36 @@ create.pgs.density.plot <- function(
 #'     filename.prefix = 'multiple-pgs',
 #'     phenotype.columns = 'continuous.phenotype'
 #'     );
-#'}
+#' }
+#'
+#' # Plot non-default PGS columns
+#' \donttest{
+#' pgs.data$PGS.custom <- rnorm(100, 2, 1);
+#' create.pgs.with.continuous.phenotype.plot(
+#'    pgs.data,
+#'    pgs.columns = 'PGS.custom',
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'custom-pgs',
+#'    phenotype.columns = 'continuous.phenotype'
+#'    );
+#' }
 #'
 #' # Plot multiple phenotypes
 #' \donttest{
 #' pgs.data$continuous.phenotype2 <- rnorm(100, 10, 1);
 #' create.pgs.with.continuous.phenotype.plot(
 #'     pgs.data,
+#'     pgs.columns = 'PGS',
 #'     output.dir = temp.dir,
 #'     filename.prefix = 'multiple-phenotypes',
 #'     phenotype.columns = c('continuous.phenotype', 'continuous.phenotype2')
 #'     );
 #' }
+#'
 #' @export
 create.pgs.with.continuous.phenotype.plot <- function(
     pgs.data,
+    pgs.columns = NULL,
     phenotype.columns,
     hexbin.threshold = 1000,
     hexbin.colour.scheme = NULL,
@@ -481,8 +799,20 @@ create.pgs.with.continuous.phenotype.plot <- function(
         return(NULL);
         }
 
-    recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
-    pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+    if (!is.null(pgs.columns)) {
+        # If user-provided pgs columns, check that they exist in data
+        if (!all(pgs.columns %in% colnames(pgs.data))) {
+            stop('pgs.columns must be a subset of the column names in pgs.data, please check your input');
+            }
+        # If user-provided pgs columns, check that they are numeric
+        if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
+            stop('All columns specified in pgs.columns must be numeric.');
+            }
+        } else {
+            # If no pgs columns provided, default to recognized PGS columns
+            recognized.pgs.colnames <- c('PGS', 'PGS.with.replaced.missing', 'PGS.with.normalized.missing');
+            pgs.columns <- colnames(pgs.data)[colnames(pgs.data) %in% recognized.pgs.colnames];
+        }
 
     # identify continuous phenotype variables for plotting
     phenotype.data <- subset(pgs.data, select = phenotype.columns);

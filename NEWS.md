@@ -9,6 +9,8 @@
 ## Added
 * Added new contributor
 * Added minimum sample size check for grouped density curves
+* Added new plotting function `create.pgs.boxplot`
+* Added option for user to provide custom PGS source column(s) for plotting functions
 
 # ApplyPolygenicScore 3.0.2
 
