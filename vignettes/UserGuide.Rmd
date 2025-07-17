@@ -278,6 +278,7 @@ Checkout our discussion on [allele matching](https://github.com/uclahs-cds/packa
 `apply.polygenic.score` can perform an allele match check (internally using `assess.pgs.vcf.allele.match`). This functionality can be customized with the following arguments:
 - `correct.strand.flips` to automatically correct mismatches caused by strand flips by flipping the PGS weight data alleles.
 - `remove.ambiguous.allele.matches` to remove variants with mismatched alleles that cannot be corrected by flipping. The variant will be treated as a cohort-wide missing variant and handled according to missing variant rules described below.
+- `max.strand.flips` to specify the number of unambiguous strand flips that needs to be present for removal of ambiguous strand flips to occur (convenient for cases where you have reason to believe that all ambiguous strand flips are actually effect size flips) 
 - `remove.mismatched.indels` to remove variants with mismatched INDEL alleles. These variants will be treated as cohort-wide missing variants and handled according to missing variant rules described below.
 
 ```{r allele-matching, eval = FALSE}
@@ -298,7 +299,8 @@ less.strict.allele.match.result <- apply.polygenic.score(
     pgs.weight.data = pgs.data$pgs.weight.data,
     missing.genotype.method = 'none',
     correct.strand.flips = TRUE,
-    remove.ambiguous.allele.matches = FALSE,
+    remove.ambiguous.allele.matches = TRUE,
+    max.strand.flips = 1, # don't remove ambiguous allele matches unless there is at least one unambiguous strand flip
     remove.mismatched.indels = FALSE
     );
 
@@ -428,11 +430,12 @@ If you wish to use one of the other PGSs for analysis, the source PGS column for
 
 # Data Visualization
 
-ApplyPolygenicScore provides three plotting functions designed to operate on the output of `apply.polygenic.score`:
+ApplyPolygenicScore provides four plotting functions designed to operate on the output of `apply.polygenic.score`:
 
 1. `create.pgs.density.plot`
 2. `create.pgs.with.continuous.phenotype.plot`
-3. `create.pgs.rank.plot`
+3. `create.pgs.boxplot`
+4. `create.pgs.rank.plot`
 
 These visualizations are intended to provide quick quality assessments of PGS in a cohort.
 They really shine when combined with phenotype data to produce at-a-glance summaries of the relationship between PGS and phenotypes.
@@ -446,6 +449,7 @@ A filename will be generated using the current date and the provided prefix, and
 > Note: in the examples below, all plots are written to a temporary directory from which they are read and displayed inline in the vignette.
 
 Plotting functions automatically detect and plot data from the standardized PGS output columns produced by `apply.polygenic.score`: `PGS`, `PGS.with.normalized.missing`, and `PGS.with.replaced.missing`.
+If you are modifying and renaming your PGS outputs, or wish to plot data generated elsewhere, you can also specify a custom PGS column to plot using the `pgs.columns` argument.
 Plots are automatically titled with the name of the PGS column being plotted, and the titles can be "tidied up" to remove period characters and replace them with spaces
 using the `tidy.titles` argument.
 

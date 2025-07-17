@@ -442,6 +442,61 @@ test_that(
             c('A', NA)
             );
 
+        # palindromic case, return.ambiguous.as.missing == TRUE, max.strand.flips = 1
+        # expected output: all ambiguous returned as-is due to lack of unambiguous strand flips
+
+        test.ambiguous.below.threshold <- assess.pgs.vcf.allele.match(
+            c('A', 'A'),
+            c('G', 'T'),
+            c('A', 'T'),
+            c('G', 'A'),
+            return.ambiguous.as.missing = TRUE,
+            max.strand.flips = 1
+            );
+
+        expect_equal(
+            test.ambiguous.below.threshold$match.status,
+            c('default_match', 'ambiguous_flip')
+            );
+
+        expect_equal(
+            test.ambiguous.below.threshold$new.pgs.effect.allele,
+            c('G', 'A')
+            );
+
+        expect_equal(
+            test.ambiguous.below.threshold$new.pgs.other.allele,
+            c('A', 'T')
+            );
+
+        # palindromic case, return.ambiguous.as.missing == TRUE, max.strand.flips = 2, strand flips exceed threshold
+        # expected output: all ambiguous returned as missing due to number of unambiguous strand flips exceeding threshold
+
+        test.ambiguous.above.threshold <- assess.pgs.vcf.allele.match(
+            # last three alleles are unambiguous strand flips
+            c('A', 'A', 'A', 'A', 'A'),
+            c('G', 'T', 'G', 'C', 'G'),
+            c('A', 'T', 'T', 'T', 'T'),
+            c('G', 'A', 'C', 'G', 'C'),
+            return.ambiguous.as.missing = TRUE,
+            max.strand.flips = 2
+            );
+
+        expect_equal(
+            test.ambiguous.above.threshold$match.status,
+            c('default_match', 'ambiguous_flip', 'strand_flip', 'strand_flip', 'strand_flip')
+            );
+
+        expect_equal(
+            test.ambiguous.above.threshold$new.pgs.effect.allele,
+            c('G', NA, 'G', 'C', 'G')
+            );
+
+        expect_equal(
+            test.ambiguous.above.threshold$new.pgs.other.allele,
+            c('A', NA, 'A', 'A', 'A')
+            );
+
         # unresolved case, return.ambiguous.as.missing == TRUE
         test.unresolved.missing <- assess.pgs.vcf.allele.match(
             c('A', 'A'),

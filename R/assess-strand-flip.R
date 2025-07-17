@@ -79,6 +79,8 @@ flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
 #' @param return.indels.as.missing A logical value indicating whether to return NA for INDEL alleles with detected mismatches. Default is \code{FALSE}.
 #' @param return.ambiguous.as.missing A logical value indicating whether to return NA for ambiguous cases where both a strand flip and effect switch are possible,
 #' or no strand flip is detected and a mismatch cannot be resolved. Default is \code{FALSE}.
+#' @param max.strand.flips An integer indicating the number of non-ambiguous strand flips that must be present to implement the discarding all allele matches labeled "ambiguous_flip". Only applies if {return.ambiguous.as.missing == TRUE}.
+#' Defaults to \code{0}, meaning that no strand flips are allowed. Allele matches labeled "unresolved_mismatch" are not affected by this parameter.
 #' @return A list containing the match assessment, a new PGS effect allele, and a new PGS other allele.
 #'
 #' \strong{Output Structure}
@@ -88,7 +90,7 @@ flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
 #' \item \code{match.status}: A character vector indicating the match status for each pair of allele pairs. Possible values are \code{default_match}, \code{effect_switch}, \code{strand_flip}, \code{effect_switch_with_strand_flip}, \code{ambiguous_flip}, \code{indel_mismatch}, and \code{unresolved_mismatch}.
 #' \item \code{new.pgs.effect.allele}: A character vector of new PGS effect alleles based on the match status. If the match status is \code{default_match}, \code{effect_switch} or \code{missing_allele}, the original PGS effect allele is returned.
 #' If the match status is \code{strand_flip} or \code{effect_switch_with_strand_flip} the flipped PGS effect allele is returned. If the match status is \code{ambiguous_flip}, \code{indel_mismatch}, or \code{unresolved_mismatch},
-#' the return value is either the original allele or NA as dictated by the \code{return.indels.as.missing} and \code{return.ambiguous.as.missing} parameters.
+#' the return value is either the original allele or NA as dictated by the \code{return.indels.as.missing}, \code{return.ambiguous.as.missing}, and \code{max.strand.flips} parameters.
 #' \item \code{new.pgs.other.allele}: A character vector of new PGS other alleles based on the match status, following the same logic as \code{new.pgs.effect.allele}.
 #' }
 #'
@@ -123,7 +125,8 @@ assess.pgs.vcf.allele.match <- function(
     pgs.ref.allele,
     pgs.effect.allele,
     return.indels.as.missing = FALSE,
-    return.ambiguous.as.missing = FALSE
+    return.ambiguous.as.missing = FALSE,
+    max.strand.flips = 0
     ) {
 
     # check that all inputs are one dimensional character vectors
@@ -142,6 +145,20 @@ assess.pgs.vcf.allele.match <- function(
 
     if (length(vcf.ref.allele) != length(pgs.ref.allele)) {
         stop('vcf.ref.allele, vcf.alt.allele, pgs.ref.allele, and pgs.effect.allele must be the same length.');
+        }
+
+    # check that all logical parameters are TRUE or FALSE
+    if (!is.logical(return.indels.as.missing) || length(return.indels.as.missing) != 1) {
+        stop('return.indels.as.missing must be a single logical value.');
+        }
+
+    if (!is.logical(return.ambiguous.as.missing) || length(return.ambiguous.as.missing) != 1) {
+        stop('return.ambiguous.as.missing must be a single logical value.');
+        }
+
+    # check that max.strand.flips is a single integer
+    if (!is.numeric(max.strand.flips) || length(max.strand.flips) != 1 || max.strand.flips < 0 || max.strand.flips != floor(max.strand.flips)) {
+        stop('max.strand.flips must be a single non-negative integer.');
         }
 
     # verify valid alleles
@@ -283,16 +300,11 @@ assess.pgs.vcf.allele.match <- function(
         if (effect.switch.candidate && strand.flip.candidate) {
             # not possible to determine whether effect switch or strand flip has occured
             # This is an ambiguous case caused by palindromic SNPs
+            # Default is to assume that this is an effect switch until strand flip threshold is exceeded
             flip.designation[i] <- 'ambiguous_flip';
-            if (return.ambiguous.as.missing) {
-                flipped.effect.allele[i] <- NA;
-                flipped.other.allele[i] <- NA;
-                next;
-                } else {
-                flipped.effect.allele[i] <- current.pgs.effect.allele;
-                flipped.other.allele[i] <- current.pgs.ref.allele;
-                next;
-                }
+            flipped.effect.allele[i] <- current.pgs.effect.allele;
+            flipped.other.allele[i] <- current.pgs.ref.allele;
+            next;
             } else if (effect.switch.candidate) {
             # if this is a clear-cut effect switch, return the default PGS alleles
             # apply.polygenic.score automatically handles effect switches during PGS application
@@ -336,6 +348,26 @@ assess.pgs.vcf.allele.match <- function(
                     }
                 }
 
+        }
+
+    # implement max strand flip threshold for ambiguous cases
+    # count number of unambiguous strand flips
+    if (return.ambiguous.as.missing) {
+        if (max.strand.flips > 0) {
+            # if a max strand flips threshold is set, check if it is exceeded
+            unambiguous.strand.flips <- sum(flip.designation == 'strand_flip' | flip.designation == 'effect_switch_with_strand_flip');
+            if (unambiguous.strand.flips >= max.strand.flips) {
+                # if the number of unambiguous strand flips equals or exceeds the threshold, return NA for all ambiguous cases
+                flipped.effect.allele[flip.designation == 'ambiguous_flip'] <- NA;
+                flipped.other.allele[flip.designation == 'ambiguous_flip'] <- NA;
+                }
+                # if max threshold is not exceeded, return all ambiguous cases with no flips (default)
+            } else {
+            # if max.strand.flips is 0 there is no tolerance for ambiguous cases, return all as NA
+            flipped.effect.allele[flip.designation == 'ambiguous_flip'] <- NA;
+            flipped.other.allele[flip.designation == 'ambiguous_flip'] <- NA;
+            }
+        # If return.ambiguous.as.missing is FALSE, keep all ambiguous cases as is (no flips)
         }
 
     return(

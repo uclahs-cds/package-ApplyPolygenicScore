@@ -11,6 +11,7 @@ apply.polygenic.score(
   phenotype.analysis.columns = NULL,
   correct.strand.flips = TRUE,
   remove.ambiguous.allele.matches = FALSE,
+  max.strand.flips = 0,
   remove.mismatched.indels = FALSE,
   output.dir = NULL,
   file.prefix = NULL,
@@ -38,6 +39,9 @@ The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is
 
 \item{remove.ambiguous.allele.matches}{A logical indicating whether to remove PGS variants with ambiguous allele matches between PGS weight data and VCF genotype data. Default is \code{FALSE}.
 The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.}
+
+\item{max.strand.flips}{An integer indicating the number of unambiguous strand flips that need to be detected in order to discard all variants with ambiguous allele matches. Only applies if {return.ambiguous.as.missing == TRUE}.
+Default is \code{0} which means that all ambiguous variants are removed regardless of the status of any other variant.}
 
 \item{remove.mismatched.indels}{A logical indicating whether to remove indel variants that are mismatched between PGS weight data and VCF genotype data. Default is \code{FALSE}.
 The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.}
@@ -146,6 +150,9 @@ Strand flips can be detected and corrected by flipping the affected allele to it
 \item \code{remove.ambiguous.allele.matches}: Corresponds to the \code{return.ambiguous.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, non-INDEL allele
 mismatches that cannot be resolved (due to palindromic alleles or causes other than strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing
 prior to dosage calling and missing genotype handling. The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
+\item \code{max.strand.flips}: This argument only applies when \code{remove.ambiguous.allele.matches} is on and modifies its behavior. In cases where none or very few unambiguous strand flips are detected,
+it is likely that all ambiguous allele matches are simply palindromic effect size flips. This option facilitates handling of ambiguous allele matches conditional on a maximum number of unambiguous strand flips.
+Variants with ambiguous strand flips will be marked as missing only if the number of unambiguous strand flips is greater than or equal to \code{max.strand.flips}.
 \item \code{remove.mismatched.indels}: Corresponds to the \code{return.indels.as.missing} argument in \code{assess.pgs.vcf.allele.match}. When \code{TRUE}, INDEL allele mismatches
 (which cannot be assessed for strand flips) are removed by marking the affected value in the \code{effect_allele} column as missing prior to dosage calling and missing genotype handling.
 The corresponding dosage is set to NA and the variant is handled according to the chosen missing genotype method.
