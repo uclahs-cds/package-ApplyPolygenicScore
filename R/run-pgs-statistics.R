@@ -206,12 +206,53 @@ run.pgs.regression <- function(pgs, phenotype.data) {
     return(all.model.results);
     }
 
+#' @title Analyze PGS Predictiveness for Binary Phenotypes
+#' @description Analyze the predictiveness of polygenic scores (PGS) for binary phenotypes using logistic regression and ROC curves.
+#' This function performs logistic regression to evaluate the predictiveness of polygenic scores
+#' for binary or continuous phenotypes. For continuous phenotypes, it converts them
+#' to binary based on a specified cutoff threshold. It calculates and returns AUC,
+#' Odds Ratios (OR), and p-values for each PGS. Optionally, it can generate and save
+#' ROC plots.
+#' @param data A data frame containing the PGS, phenotype, and covariate columns.
+#' @param pgs.columns A character vector specifying the names of the PGS columns
+#'   in \code{data} to be analyzed. All specified columns must be numeric.
+#' @param phenotype.columns A character vector specifying the names of the phenotype columns in \code{data} to be analyzed.
+#' @param covariate.columns A character vector specifying the names of covariate columns in \code{data} to be included in the regression model. Default is NULL.
+#' @param phenotype.type A character string specifying the type of phenotype. Must be either 'continuous' or 'binary'.
+#' @param cutoff.threshold A numeric value or a named list specifying the cutoff threshold for converting continuous phenotypes to binary. If a named list, it must contain entries for each continuous phenotype.
+#' @param output.dir A character string specifying the directory where the ROC plots will be saved. If NULL, no plots are saved.
+#' @param filename.prefix A character string specifying the prefix for the output filenames. If NULL, defaults to 'ApplyPolygenicScore-Plot'.
+#' @param file.extension A character string specifying the file extension for the output plots. Default is 'png'.
+#' @param width Numeric value specifying the width of the output plot in inches.
+#' @param height Numeric value specifying the height of the output plot in inches.
+#' @param xaxes.cex Numeric size for all x-axis labels.
+#' @param yaxes.cex Numeric size for all y-axis labels.
+#' @param titles.cex Numeric size for all plot titles.
+#' @return A list containing:
+#'   \item{results.df}{A data frame with columns:
+#'     \itemize{
+#'       \item \code{phenotype}: Name of the phenotype column.
+#'       \item \code{PGS}: Name of the PGS column.
+#'       \item \code{AUC}: Area Under the Reciever Operator Curve.
+#'       \item \code{OR}: Odds Ratio for the PGS from logistic regression.
+#'       \item \code{OR.Lower.CI}: Lower 95% Confidence Interval for the Odds Ratio.
+#'       \item \code{OR.Upper.CI}: Upper 95% Confidence Interval for the Odds Ratio.
+#'       \item \code{p.value}: P-value for the PGS coefficient.
+#'     }
+#'     Values for \code{AUC}, \code{OR}, \code{OR.Lower.CI}, \code{OR.Upper.CI}, and \code{p.value} may be NA
+#'     if model fitting or ROC calculation fails (e.g., due to no complete cases,
+#'     no variance in PGS, or ROC calculation errors).
+#'   }
+#'   \item{roc.plot}{A \code{multipanelplot} object (from \code{BoutrosLab.plotting.general})
+#'     if \code{output.dir} is \code{NULL}, otherwise \code{NULL} if plots are saved to file.}
+#'
+#' @export
 analyze.pgs.binary.predictiveness <- function(
     data,
     pgs.columns,
     phenotype.columns,
     covariate.columns = NULL,
-    phenotype.type = c('binary', 'continuous'),
+    phenotype.type = 'binary',
     cutoff.threshold = NULL,
     output.dir = NULL,
     filename.prefix = NULL,
