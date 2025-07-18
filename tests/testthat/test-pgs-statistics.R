@@ -495,7 +495,7 @@ test_that(
             ),
             'No complete cases for PGS \'PGS.A\' and phenotype \'Pheno.Binary.01\' after NA removal. Skipping.'
         );
-        expect_true(is.na(results$roc.results$AUC));
+        expect_true(is.na(results$results.df$AUC));
 
 
         # Test 15: Logistic regression fails (e.g., due to no variance in PGS)
@@ -514,9 +514,9 @@ test_that(
             ),
             'PGS term \'PGS.A\' in model for phenotype \'Pheno.Binary.01\' is NA or Inf'
         );
-        expect_true(is.na(results$roc.results$AUC));
-        expect_true(is.na(results$roc.results$OR));
-        expect_true(is.na(results$roc.results$p.value));
+        expect_true(is.na(results$results.df$AUC));
+        expect_true(is.na(results$results.df$OR));
+        expect_true(is.na(results$results.df$p.value));
 
         # Test 16: ROC calculation fails (e.g., phenotype is constant after complete.cases)
         test.data.bad.roc <- data.frame(
@@ -534,11 +534,102 @@ test_that(
             ),
             'ROC curve calculation failed for PGS \'PGS.A\' and phenotype \'Pheno.Binary.01\''
         );
-        expect_true(is.na(results$roc.results$AUC));
+        expect_true(is.na(results$results.df$AUC));
 
 
         # Test 17: PGS term not found in model coefficients
         # Catastrophic error, don't know how to trigger.
 
+    }
+);
+
+## Tests for analyze.pgs.binary.predictiveness outputs ##
+
+test_that(
+    'analyze.pgs.binary.predictiveness correctly formats outputs', {
+
+        # Scenario 1: Binary phenotypes, with covariates, return plot object
+        results.binary <- analyze.pgs.binary.predictiveness(
+            data = test.data, # Using the global test.data
+            pgs.columns = c('PGS.A', 'PGS.B'),
+            phenotype.columns = c('Pheno.Binary.01', 'Pheno.Binary.TF'),
+            covariate.columns = c('Cov.Age', 'Cov.Sex'),
+            phenotype.type = 'binary',
+            output.dir = NULL # Return plot object
+            );
+
+        # Check overall return type
+        expect_type(results.binary, 'list');
+        expect_named(results.binary, c('results.df', 'roc.plot'));
+
+        # Check results.df
+        expect_s3_class(results.binary$results.df, 'data.frame');
+        # Expected rows: (number of PGS) * (number of phenotypes) = 2 * 2 = 4
+        expect_equal(nrow(results.binary$results.df), 4);
+        # Expected columns: Phenotype, PGS, AUC, OR, OR.Lower.CI, OR.Upper.CI, P.Value
+        expect_equal(ncol(results.binary$results.df), 7);
+
+        expected.colnames <- c('phenotype', 'PGS', 'AUC', 'OR', 'OR.Lower.CI', 'OR.Upper.CI', 'p.value');
+        expect_equal(colnames(results.binary$results.df), expected.colnames);
+
+        # Check column types (accounting for possible NAs in input leading to NA results)
+        expect_type(results.binary$results.df$phenotype, 'character');
+        expect_type(results.binary$results.df$PGS, 'character');
+        # AUC, OR, P.Value should be numeric even if values are NA
+        expect_type(results.binary$results.df$AUC, 'double');
+        expect_type(results.binary$results.df$OR, 'double');
+        expect_type(results.binary$results.df$OR.Lower.CI, 'double');
+        expect_type(results.binary$results.df$OR.Upper.CI, 'double');
+        expect_type(results.binary$results.df$p.value, 'double');
+
+        # Check plausible values for AUC (between 0 and 1, or NA if calculation failed)
+        # We expect some NA values due to NAs in test.data, so cannot check all non-NA values
+        expect_true(all(is.na(results.binary$results.df$AUC) | (results.binary$results.df$AUC >= 0 & results.binary$results.df$AUC <= 1)));
+
+        # Check roc.plot object (should be a BoutrosLab.plotting.general multipanel object)
+        # Only check if plotting is enabled or if the plotting package is available.
+        if (requireNamespace('BoutrosLab.plotting.general', quietly = TRUE)) {
+            expect_s3_class(results.binary$roc.plot, 'multipanel'); # BoutrosLab specific class
+            }
+
+
+        # Scenario 2: Continuous phenotype, no covariates, save to file (roc.plot should be NULL in return)
+        # Use existing test.data
+        results.continuous <- analyze.pgs.binary.predictiveness(
+            data = test.data, # Using the global test.data
+            pgs.columns = 'PGS.A',
+            phenotype.columns = 'Pheno.Continuous.Num',
+            covariate.columns = NULL,
+            phenotype.type = 'continuous',
+            cutoff.threshold = 50, # Use a common threshold
+            output.dir = temp.output.dir, # Save to file
+            filename.prefix = 'TEST-cont-ROC'
+            );
+
+        # Check overall return type and elements
+        expect_type(results.continuous, 'list');
+        expect_named(results.continuous, c('results.df', 'roc.plot'));
+
+        # Check results.df format (should be consistent)
+        expect_s3_class(results.continuous$results.df, 'data.frame');
+        expect_equal(nrow(results.continuous$results.df), 1 * 1); # 1 PGS * 1 Pheno
+        expect_equal(ncol(results.continuous$results.df), 7);
+        expect_equal(colnames(results.continuous$results.df), expected.colnames);
+        expect_true(all(is.na(results.continuous$results.df$AUC) | (results.continuous$results.df$AUC >= 0 & results.continuous$results.df$AUC <= 1)));
+
+        # Check roc.plot object (should be NULL because output.dir was provided)
+        expect_null(results.continuous$roc.plot);
+
+        # Check that the output file was created
+        output.file <- generate.filename(
+            project.stem = 'TEST-cont-ROC',
+            file.core = 'pgs-roc-curves',
+            extension = 'png'
+            );
+
+        expect_true(file.exists(file.path(temp.output.dir, output.file)));
+
+        # Clean up the generated plot file
+        file.remove(list.files(temp.output.dir, pattern = '*\\.png$', full.names = TRUE));
     }
 );
