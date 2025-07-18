@@ -259,7 +259,7 @@ analyze.pgs.binary.predictiveness <- function(
     for (pheno.col in phenotype.columns) {
         if (phenotype.type == 'binary') {
             if (!is.factor(data[[pheno.col]]) && !all(unique(na.omit(data[[pheno.col]])) %in% c(0, 1))) {
-                stop(paste0('Phenotype column \'', pheno.col, '\' is specified as binary but is not a factor or 0/1 numeric. Convert to factor'));
+                stop(paste0('Phenotype column \'', pheno.col, '\' is specified as binary but is not a factor or 0/1 numeric. Convert to factor.'));
                 }
             if (is.factor(data[[pheno.col]]) && nlevels(data[[pheno.col]]) != 2) {
                 stop(paste0('Binary phenotype column \'', pheno.col, '\' must have exactly two levels.'));
@@ -291,6 +291,9 @@ analyze.pgs.binary.predictiveness <- function(
         p.value = numeric(),
         stringsAsFactors = FALSE
         );
+
+    # Prepare plot variable
+    roc.plot <- NULL;
 
     # Store ROC data for plotting
     roc.data.for.plotting <- list();
@@ -341,8 +344,8 @@ analyze.pgs.binary.predictiveness <- function(
             if (nrow(clean.data) == 0) {
                 warning(paste0('No complete cases for PGS \'', pgs, '\' and phenotype \'', current.phenotype, '\' after NA removal. Skipping.'));
                 results.df <- rbind(results.df, data.frame(
-                    Phenotype = current.phenotype, PGS = pgs, AUC = NA, OR = NA,
-                    OR.Lower.CI = NA, OR.Upper.CI = NA, P.Value = NA
+                    phenotype = current.phenotype, PGS = pgs, AUC = NA, OR = NA,
+                    OR.Lower.CI = NA, OR.Upper.CI = NA, p.value = NA
                     ));
                 next; # Skip to next PGS
                 }
@@ -401,6 +404,16 @@ analyze.pgs.binary.predictiveness <- function(
 
                     # Check if the PGS term exists in the model coefficients
                     if (pgs %in% names(coefs)) {
+
+                        if (is.na(coefs[pgs]) || is.infinite(coefs[pgs])) {
+                            warning(paste0('PGS term \'', pgs, '\' in model for phenotype \'', current.phenotype, '\' is NA or Inf (e.g., due to no variance or perfect separation). Skipping AUC and OR calculation for this PGS/phenotype pair.'));
+                            results.df <- rbind(results.df, data.frame(
+                                phenotype = current.phenotype, PGS = pgs, AUC = NA, OR = NA,
+                                OR.Lower.CI = NA, OR.Upper.CI = NA, p.value = NA
+                                ));
+                            next; # Skip to next PGS
+                            }
+
                         pgs.index <- which(names(coefs) == pgs);
                         current.beta <- coefs[pgs.index];
                         current.se <- std.errors[pgs.index];
@@ -423,7 +436,7 @@ analyze.pgs.binary.predictiveness <- function(
                             OR = current.or,
                             OR.Lower.CI = current.or.lower.ci,
                             OR.Upper.CI = current.or.upper.ci,
-                            P.Value = current.p.value
+                            p.value = current.p.value
                             ));
                     } else { # if no pgs term found in coefficients
                         warning(paste0('PGS term \'', pgs, '\' not found in model summary for OR calculation for phenotype \'', current.phenotype, '\'. This can happen if the PGS is collinear with other predictors or has no variance.'));
@@ -434,7 +447,7 @@ analyze.pgs.binary.predictiveness <- function(
                                 OR = NA,
                                 OR.Lower.CI = NA,
                                 OR.Upper.CI = NA,
-                                P.Value = NA
+                                p.value = NA
                             ));
                         } 
                     } else { # if ROC doesn't compute
@@ -445,7 +458,7 @@ analyze.pgs.binary.predictiveness <- function(
                         OR = NA,
                         OR.Lower.CI = NA,
                         OR.Upper.CI = NA,
-                        P.Value = NA
+                        p.value = NA
                         ));
                     }
             } else { # If model itself failed
@@ -456,7 +469,7 @@ analyze.pgs.binary.predictiveness <- function(
                     OR = NA,
                     OR.Lower.CI = NA,
                     OR.Upper.CI = NA,
-                    P.Value = NA
+                    p.value = NA
                     ));
                 }
             } # End PGS loop
@@ -473,14 +486,15 @@ analyze.pgs.binary.predictiveness <- function(
         panel.counter <- 1;
 
         # Pre-calculate colors for all unique PGSs (to maintain consistent coloring across plots)
-        if (requireNamespace('scales', quietly = TRUE)) {
-            pgs.line.colours <- scales::hue_pal()(length(pgs.columns));
+        max.colors = 12;
+        if (length(pgs.columns) < max.colors) {
+            pgs.line.colours <- BoutrosLab.plotting.general::default.colours(length(pgs.columns));
         } else {
-            max.colors <- 12;
-            if (length(pgs.columns) > max.colors) {
+            if (requireNamespace('scales', quietly = TRUE)) {
+                pgs.line.colours <- scales::hue_pal()(length(pgs.columns));
+            } else {
                 stop('Too many PGS columns selected, must be 12 or fewer');
                 }
-            pgs.line.colours <- BoutrosLab.plotting.general::default.colours(length(pgs.columns));
         }
         names(pgs.line.colours) <- pgs.columns;
 
@@ -554,7 +568,7 @@ analyze.pgs.binary.predictiveness <- function(
                     data = current.pheno.plot.data,
                     groups = current.pheno.plot.data$PGS, # Group by PGS
                     type = 'l', # Line plot for ROC curve
-                    col = pgs.line.colours, # Colors mapped to groups
+                    col = pgs.line.colours[levels(current.pheno.plot.data$PGS)], # Colors mapped to groups
                     legend = pgs.legend,
                     lwd = 2,
                     xlab.label = 'False Positive Rate (1 - Specificity)',
@@ -582,6 +596,45 @@ analyze.pgs.binary.predictiveness <- function(
 
             } # End outer plotting loop
 
-    } # End if any plotting data exists
+        # organize filename if plot writing requested
+        if (!is.null(output.dir)) {
+
+            if (is.null(filename.prefix)) {
+                filename.prefix <- 'ApplyPolygenicScore-Plot';
+                }
+            # construct multipanel plot
+            filename.for.roc.multiplot <- generate.filename(
+                project.stem = filename.prefix,
+                file.core = 'pgs-roc-curves',
+                extension = file.extension
+                );
+
+            output.path <- file.path(output.dir, filename.for.roc.multiplot);
+            } else {
+                output.path <- NULL;
+            }
+
+        # Create a single multipanel plot for all ROC curves
+        roc.multipanel <- BoutrosLab.plotting.general::create.multipanelplot(
+            plot.objects = plot.objects.list,
+            filename = output.path,
+            layout.height = length(phenotype.columns), # One row per phenotype
+            layout.width = 1, # Two columns of plots
+            main.cex = 0,
+            width = width,
+            height = height,
+            x.spacing = 0.5,
+            y.spacing = 0.5
+            );
+
+        roc.plot <- roc.multipanel;
+    } else {# If no plotting data exists
+        warning('No ROC curves could be generated for plotting')
+        } 
+
+    return(list(
+        results.df = results.df,
+        roc.plot = roc.plot
+        ));
 
     } # End function
