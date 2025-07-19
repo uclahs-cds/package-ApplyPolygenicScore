@@ -20,11 +20,6 @@ importFrom(
     );
 
 importFrom(
-    'scales',
-    'hue_pals'
-    );
-
-importFrom(
     'stats',
     'aggregate',
     'as.formula',
