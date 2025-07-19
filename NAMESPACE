@@ -18,16 +18,26 @@ importFrom(
     'colorRampPalette',
     'col2rgb'
     );
+
+importFrom(
+    'scales',
+    'hue_pals'
+    );
+
 importFrom(
     'stats',
     'aggregate',
     'as.formula',
     'binomial',
+    'coef',
+    'complete.cases',
     'glm',
     'lm',
     'na.omit',
+    'pnorm',
     'predict',
     'quantile',
+    'vcov',
     'setNames'
     );
 importFrom(
