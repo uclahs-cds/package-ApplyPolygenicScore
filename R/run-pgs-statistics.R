@@ -531,7 +531,7 @@ analyze.pgs.binary.predictiveness <- function(
                                 OR.Upper.CI = NA,
                                 p.value = NA
                             ));
-                        } 
+                        }
                     } else { # if ROC doesn't compute
                     results.df <- rbind(results.df, data.frame(
                         phenotype = current.phenotype,
@@ -568,7 +568,7 @@ analyze.pgs.binary.predictiveness <- function(
         panel.counter <- 1;
 
         # Pre-calculate colors for all unique PGSs (to maintain consistent coloring across plots)
-        max.colors = 12;
+        max.colors <- 12;
         if (length(pgs.columns) < max.colors) {
             pgs.line.colours <- BoutrosLab.plotting.general::default.colours(length(pgs.columns));
         } else {
@@ -712,7 +712,7 @@ analyze.pgs.binary.predictiveness <- function(
         roc.plot <- roc.multipanel;
     } else {# If no plotting data exists
         warning('No ROC curves could be generated for plotting')
-        } 
+        }
 
     return(list(
         results.df = results.df,

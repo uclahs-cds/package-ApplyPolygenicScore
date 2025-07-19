@@ -237,11 +237,11 @@ test.data <- data.frame( # Changed to dot case
     Pheno.Binary.01 = factor(sample(c(0, 1), 100, replace = TRUE), levels = c(0, 1)), # Changed to dot case
     Pheno.Binary.TF = factor(sample(c(FALSE, TRUE), 100, replace = TRUE), levels = c(FALSE, TRUE)), # Changed to dot case
     Pheno.Binary.Numeric.01 = sample(c(0, 1), 100, replace = TRUE), # Changed to dot case
-    Pheno.Binary.Char.YesNo = sample(c("Yes", "No"), 100, replace = TRUE), # Changed to dot case
+    Pheno.Binary.Char.YesNo = sample(c('Yes', 'No'), 100, replace = TRUE), # Changed to dot case
     Pheno.Binary.3Levels = factor(sample(c(0, 1, 2), 100, replace = TRUE), levels = c(0,1,2)), # Changed to dot case
     Pheno.Continuous.Num = rnorm(100, mean = 50, sd = 10), # Changed to dot case
     Cov.Age = rnorm(100, mean = 40, sd = 10), # Changed to dot case
-    Cov.Sex = factor(sample(c("M", "F"), 100, replace = TRUE)), # Changed to dot case
+    Cov.Sex = factor(sample(c('M', 'F'), 100, replace = TRUE)), # Changed to dot case
     NonNumericPGS = as.character(rnorm(100)), # Changed to dot case
     stringsAsFactors = FALSE
     );
@@ -455,7 +455,7 @@ test_that(
         # Test 13: Too many PGS columns for default.colours (if 'scales' is NOT installed)
         # This test is conditional on 'scales' package availability.
         # If 'scales' is installed, this test will be skipped.
-        if (isFALSE(requireNamespace("scales", quietly = TRUE))) {
+        if (isFALSE(requireNamespace('scales', quietly = TRUE))) {
             many.pgs.data <- data.frame(
                 ID = 1:10,
                 Pheno.Binary.01 = factor(sample(c(0,1), 10, replace = TRUE), levels = c(0,1))
@@ -470,7 +470,7 @@ test_that(
                     phenotype.columns = 'Pheno.Binary.01',
                     phenotype.type = 'binary',
                     output.dir = temp.output.dir,
-                    filename.prefix = "test"
+                    filename.prefix = 'test'
                 ),
                 'Too many PGS columns selected, default.colours supports 12 or fewer.'
             );
@@ -483,7 +483,7 @@ test_that(
         test.data.no.complete.cases <- data.frame(
             ID = 1:10,
             PGS.A = c(rnorm(2), rep(NA, 8)), # Mostly NA
-            Pheno.Binary.01 = factor(c(rep(NA, 8), sample(c(0,1), 2, replace=TRUE)), levels=c(0,1))
+            Pheno.Binary.01 = factor(c(rep(NA, 8), sample(c(0,1), 2, replace = TRUE)), levels = c(0,1))
         );
         expect_warning(
             results <- analyze.pgs.binary.predictiveness(
@@ -502,7 +502,7 @@ test_that(
         test.data.bad.glm <- data.frame(
             ID = 1:10,
             PGS.A = rep(1, 10), # No variance in PGS
-            Pheno.Binary.01 = factor(sample(c(0,1), 10, replace=TRUE), levels=c(0,1))
+            Pheno.Binary.01 = factor(sample(c(0,1), 10, replace = TRUE), levels = c(0,1))
         );
         expect_warning(
             results <- analyze.pgs.binary.predictiveness(
@@ -522,7 +522,7 @@ test_that(
         test.data.bad.roc <- data.frame(
             ID = 1:10,
             PGS.A = rnorm(10),
-            Pheno.Binary.01 = factor(rep(0, 10), levels=c(0,1)) # All phenotype values are 0
+            Pheno.Binary.01 = factor(rep(0, 10), levels = c(0, 1)) # All phenotype values are 0
             );
         expect_warning(
             results <- analyze.pgs.binary.predictiveness(
