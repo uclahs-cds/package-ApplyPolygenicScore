@@ -207,18 +207,17 @@ run.pgs.regression <- function(pgs, phenotype.data) {
     }
 
 #' @title Analyze PGS Predictiveness for Binary Phenotypes
-#' @description Analyze the predictiveness of polygenic scores (PGS) for binary phenotypes using logistic regression and ROC curves.
+#' @description
 #' This function performs logistic regression to evaluate the predictiveness of polygenic scores
 #' for binary or continuous phenotypes. For continuous phenotypes, it converts them
 #' to binary based on a specified cutoff threshold. It calculates and returns AUC,
-#' Odds Ratios (OR), and p-values for each PGS. Optionally, it can generate and save
-#' ROC plots.
+#' Odds Ratios (OR), and p-values for each PGS. Corresponding ROC curves are plotted automatically.
 #' @param data A data frame containing the PGS, phenotype, and covariate columns.
 #' @param pgs.columns A character vector specifying the names of the PGS columns
 #'   in \code{data} to be analyzed. All specified columns must be numeric.
-#' @param phenotype.columns A character vector specifying the names of the phenotype columns in \code{data} to be analyzed.
+#' @param phenotype.columns A character vector specifying the names of the phenotype columns in \code{data} to be analyzed. If binary phenotypes are specified, they must be factors with two levels (0 and 1).
 #' @param covariate.columns A character vector specifying the names of covariate columns in \code{data} to be included in the regression model. Default is NULL.
-#' @param phenotype.type A character string specifying the type of phenotype. Must be either 'continuous' or 'binary'.
+#' @param phenotype.type A character string specifying the type of phenotype. Must be either 'continuous' or 'binary'. All provided phenotype columns must match this type.
 #' @param cutoff.threshold A numeric value or a named list specifying the cutoff threshold for converting continuous phenotypes to binary. If a named list, it must contain entries for each continuous phenotype.
 #' @param output.dir A character string specifying the directory where the ROC plots will be saved. If NULL, no plots are saved.
 #' @param filename.prefix A character string specifying the prefix for the output filenames. If NULL, defaults to 'ApplyPolygenicScore-Plot'.
@@ -228,7 +227,9 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 #' @param xaxes.cex Numeric size for all x-axis labels.
 #' @param yaxes.cex Numeric size for all y-axis labels.
 #' @param titles.cex Numeric size for all plot titles.
-#' @return A list containing:
+#' @return A list containing a data frame of logistic regression results and a plot object of corresponding ROC curves.
+#'
+#' \strong{Output Formatting}
 #'   \item{results.df}{A data frame with columns:
 #'     \itemize{
 #'       \item \code{phenotype}: Name of the phenotype column.
@@ -245,6 +246,46 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 #'   }
 #'   \item{roc.plot}{A \code{multipanelplot} object (from \code{BoutrosLab.plotting.general})
 #'     if \code{output.dir} is \code{NULL}, otherwise \code{NULL} if plots are saved to file.}
+#'
+#' Each phenotype is plotted in a separate panel, with ROC curves for each PGS specified in \code{pgs.columns}.
+#'
+#' @examples
+#' set.seed(100);
+#'
+#' pgs.data <- data.frame(
+#'     PGS = rnorm(100, 0, 1),
+#'     continuous.phenotype = rnorm(100, 2, 1),
+#'     binary.phenotype = sample(c(0, 1), 100, replace = TRUE),
+#'     covariate1 = rnorm(100, 0, 1)
+#'     );
+#'  temp.dir <- tempdir();
+#'
+#' # Basic analysis with binary phenotype
+#' analyze.pgs.binary.predictiveness(
+#'     pgs.data,
+#'     output.dir = temp.dir,
+#'     filename.prefix = 'basic-plot',
+#'     pgs.columns = 'PGS',
+#'     phenotype.columns = 'binary.phenotype',
+#'     phenotype.type = 'binary',
+#'     covariate.columns = 'covariate1',
+#'     width = 6,
+#'     height = 6
+#'     );
+#'
+#' # Analysis with continuous phenotype and cutoff threshold
+#' analyze.pgs.binary.predictiveness(
+#'    pgs.data,
+#'    output.dir = temp.dir,
+#'    filename.prefix = 'continuous-plot',
+#'    pgs.columns = 'PGS',
+#'    phenotype.columns = 'continuous.phenotype',
+#'    phenotype.type = 'continuous',
+#'    cutoff.threshold = 1.5, # Convert to binary using this threshold
+#'    covariate.columns = NULL,
+#'    width = 6,
+#'    height = 6
+#'    );
 #'
 #' @export
 analyze.pgs.binary.predictiveness <- function(
