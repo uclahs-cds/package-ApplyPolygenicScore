@@ -406,6 +406,7 @@ create.pgs.density.plot <- function(
 #' @param filename.prefix character prefix for output filenames
 #' @param file.extension character file extension for output plots
 #' @param tidy.titles logical whether to reformat PGS plot titles to remove periods
+#' @param alpha numeric alpha value for stripplot points, defaults to 0.5
 #' @param width numeric width of output plot in inches
 #' @param height numeric height of output plot in inches
 #' @param xaxes.cex numeric size for all x-axis labels
@@ -467,6 +468,7 @@ create.pgs.boxplot <- function(
     filename.prefix = NULL,
     file.extension = 'png',
     tidy.titles = FALSE,
+    alpha = 0.5,
     width = 10,
     height = 10,
     xaxes.cex = 1.5,
@@ -530,8 +532,10 @@ create.pgs.boxplot <- function(
             data = pgs.data,
             add.stripplot = add.stripplot,
             jitter.factor = jitter.factor,
+            points.alpha = alpha,
             xlab.label = NULL,
             ylab.label = pgs.column.main,
+            ylab.cex = titles.cex,
             # main = NULL,
             # main.cex = titles.cex,
             yaxis.cex = yaxes.cex,
@@ -584,6 +588,7 @@ create.pgs.boxplot <- function(
                     boxplot.colors <- 'black';
                     } else {
                         boxplot.colors <- suppressWarnings(BoutrosLab.plotting.general::default.colours(length(levels(pgs.data[ , phenotype]))));
+                        names(boxplot.colors) <- levels(pgs.data[ , phenotype]);
                     }
                 # plot boxplot
                 group.yaxis.formatting <- basic.yaxis.formatting;
@@ -592,14 +597,17 @@ create.pgs.boxplot <- function(
                     data = pgs.data,
                     add.stripplot = add.stripplot,
                     jitter.factor = jitter.factor,
+                    points.alpha = alpha,
                     xlab.label = phenotype,
                     ylab.label = pgs.column.main,
                     xlab.cex = titles.cex,
+                    ylab.cex = titles.cex,
                     yaxis.cex = yaxes.cex,
                     xaxis.cex = xaxes.cex,
                     yat = group.yaxis.formatting$at,
                     yaxis.lab = group.yaxis.formatting$axis.lab,
-                    col = boxplot.colors
+                    points.col = boxplot.colors[pgs.data[ , phenotype]] # color points by phenotype
+                    #col = boxplot.colors
                     );
                 }
             }
