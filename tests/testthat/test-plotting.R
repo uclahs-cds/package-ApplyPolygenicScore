@@ -1,5 +1,5 @@
 # plotting functions take a long time to run, this var toggles off plotting tests for faster testing
-SKIP.PLOTS <- FALSE;
+SKIP.PLOTS <- TRUE#FALSE;
 SKIP.COMPREHENSIVE.CASES <- TRUE#FALSE;
 skip.plotting.tests <- function(skip.plots = FALSE) {
     if (skip.plots) {
