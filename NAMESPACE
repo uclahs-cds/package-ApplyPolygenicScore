@@ -12,16 +12,21 @@ importFrom(
     'colorRampPalette',
     'col2rgb'
     );
+
 importFrom(
     'stats',
     'aggregate',
     'as.formula',
     'binomial',
+    'coef',
+    'complete.cases',
     'glm',
     'lm',
     'na.omit',
+    'pnorm',
     'predict',
     'quantile',
+    'vcov',
     'setNames'
     );
 importFrom(
@@ -44,6 +49,7 @@ export(
     import.pgs.weight.file,
     import.vcf,
     parse.pgs.input.header,
+    analyze.pgs.binary.predictiveness,
     create.pgs.density.plot,
     create.pgs.boxplot,
     create.pgs.rank.plot,

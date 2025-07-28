@@ -1,6 +1,9 @@
 # Unreleased
 
 # ApplyPolygenicScore unreleased
+
+# ApplyPolygenicScore 3.1.0
+
 ## Changed
 * Fixed regression of combine.vcf.with.pgs() function that prevented it from handling multiple rsIDs on the same line.
 * Fixed bug caused by the case of a sample-specific missing variant at a multiallelic site
@@ -12,6 +15,7 @@
 * Added new plotting function `create.pgs.boxplot`
 * Added option for user to provide custom PGS source column(s) for plotting functions
 * Added option to `assess.pgs.vcf.allele.match` to condition the handling of ambiguous strand flips on the total number of unambiguous strand flips.
+* Added new function `analyze.pgs.binary.predictiveness` which given a PGS and phenotypes runs a logistic regression and returns statistics (OR, p-value, AUC) describing how well the PGS predicts the phenotype. It also automatically plots a receiver-operator-curve.
 
 # ApplyPolygenicScore 3.0.2
 
