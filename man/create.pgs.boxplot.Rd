@@ -14,6 +14,7 @@ create.pgs.boxplot(
   filename.prefix = NULL,
   file.extension = "png",
   tidy.titles = FALSE,
+  alpha = 0.5,
   width = 10,
   height = 10,
   xaxes.cex = 1.5,
@@ -41,6 +42,8 @@ This function is designed to work with the output of \code{apply.polygenic.score
 \item{file.extension}{character file extension for output plots}
 
 \item{tidy.titles}{logical whether to reformat PGS plot titles to remove periods}
+
+\item{alpha}{numeric alpha value for stripplot points, defaults to 0.5}
 
 \item{width}{numeric width of output plot in inches}
 
