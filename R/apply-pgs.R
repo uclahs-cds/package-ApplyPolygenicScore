@@ -396,6 +396,14 @@ apply.polygenic.score <- function(
 
     ### End Input Validation ###
 
+    # handle long format VCF data by converting to wide
+    if (vcf.long.format) {
+        # convert long format VCF data to wide format
+        vcf.data <- convert.long.vcf.to.wide.vcf(long.vcf = vcf.data);
+        # set vcf.long.format to FALSE for further processing
+        vcf.long.format <- FALSE;
+        }
+
     # merge VCF and PGS data
     if (vcf.long.format) {
         merged.vcf.with.pgs.data <- combine.vcf.with.pgs(
@@ -618,7 +626,9 @@ apply.polygenic.score <- function(
                     merged.vcf.with.pgs.data = .SD,
                     vcf.long.format = vcf.long.format,
                     original.df.row.index = .I,
-                    merged.vcf.allele.matrix = merged.vcf.allele.matrix
+                    merged.vcf.allele.matrix = merged.vcf.allele.matrix,
+                    current.chrom = CHROM,
+                    current.pos = POS
                     ),
                 by = c('CHROM', 'POS')
                 ];

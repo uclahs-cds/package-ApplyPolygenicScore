@@ -2,7 +2,7 @@
 # pgs weight calculation due to mismatch of effect allele and genotype
 # Input is a data.frame with VCF and pgs weight data, requires columns CHROM, POS, Indiv, gt_GT_alleles, effect_allele, and beta
 # Output is the input data.frame filtered for non-risk multiallellic site entries
-get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.vcf.allele.matrix = NULL, vcf.long.format, original.df.row.index = NULL) {
+get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.vcf.allele.matrix = NULL, vcf.long.format, original.df.row.index = NULL, current.chrom = NULL, current.pos = NULL) {
     if (vcf.long.format) {
         # handle case where there are no multiallelic sites
         if (nrow(merged.vcf.with.pgs.data) < 2) {
@@ -36,9 +36,7 @@ get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.
                 # in this case, the entry with the higher effect alle beta is chosen to represent the sample
                 risk.allele.site.row.index <- which.max(merged.vcf.with.pgs.data$beta);
                 warning(paste0(
-                    'Multiple effect alleles found in ',
-                    unique(merged.vcf.with.pgs.data$Indiv),
-                    ' genotype, choosing effect allele with highest beta for dosage calculation. Check coordinates ',
+                    'Multiple effect alleles found in a sample, choosing effect allele with highest beta for dosage calculation. Check coordinates ',
                     merged.vcf.with.pgs.data$CHROM, ':', merged.vcf.with.pgs.data$POS, '\n'
                     ))
             } else {
@@ -78,6 +76,7 @@ get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.
             is.effect.allele.present.matrix <- (alleles.a == effect.allele.matrix) | (alleles.b == effect.allele.matrix);
 
             # Logic to find the single risk allele entry to keep for each sample
+            # browser()
             risk.alleles.to.keep.index <- apply(
                 X = is.effect.allele.present.matrix,
                 MARGIN = 2, # Apply to each column (sample)
@@ -91,6 +90,10 @@ get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.
                         return(1); # Arbitrarily choose the first entry
                     } else {
                         # Handle multiple matches: choose the one with the highest beta
+                        warning(paste0(
+                            'Multiple effect alleles found in a sample, choosing effect allele with highest beta for dosage calculation. ',
+                            'Check coordinates: ', current.chrom, ':', current.pos, '\n'
+                        ));
                         max.beta.index <- matched.rows[which.max(beta.values[matched.rows])];
                         return(max.beta.index);
                     }

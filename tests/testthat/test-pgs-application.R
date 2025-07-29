@@ -618,7 +618,7 @@ test_that(
                 vcf.long.format = TRUE,
                 pgs.weight.data = merged.multiallelic.site.test.data$ref.and.alt.as.two.risk.alelles.multiallelic.pgs.weight.data
                 ),
-            'Multiple effect alleles found in sample1 genotype, choosing effect allele with highest beta for dosage calculation. Check coordinates chr2:2'
+            'Multiple effect alleles found in a sample, choosing effect allele with highest beta for dosage calculation. Check coordinates: chr2:2'
             );
 
         # wide format equivalence check
