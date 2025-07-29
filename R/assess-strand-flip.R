@@ -181,17 +181,66 @@ assess.pgs.vcf.allele.match <- function(
     validate.allele.input(pgs.effect.allele, na.allowed = TRUE);
 
     # split multiallelic sites in VCF ALT field and validate
-    vcf.alt.allele.split <- unlist(sapply(
-        X = vcf.alt.allele,
-        FUN = function(x) {
-            if (is.na(x)) {
-                return(NA);
-                } else {
-                    return(unlist(strsplit(x, ',')));
-                }
-            }
-        ));
-    validate.allele.input(vcf.alt.allele.split, na.allowed = TRUE);
+    # VCF ALT field may contain multiallelic variants
+    # Multiple alleles are separated by commas e.g. 'A,T'
+    all.vcf.alt.alleles.split.upper <- lapply( # CHANGED: all_vcf_alt_alleles_split_upper -> all.vcf.alt.alleles.split.upper
+        strsplit(vcf.alt.allele, ',', fixed = TRUE),
+        toupper # Convert all alleles to uppercase
+        );
+    non.na.alt.allele.lists <- !sapply(all.vcf.alt.alleles.split.upper, function(x) all(is.na(x)));
+    alt.alleles.to.validate <- all.vcf.alt.alleles.split.upper[non.na.alt.allele.lists];
+    validate.allele.input(unlist(alt.alleles.to.validate), na.allowed = TRUE);
+
+    # convert all alleles to uppercase
+    pgs.other.allele.upper <- toupper(pgs.ref.allele);
+    pgs.effect.allele.upper <- toupper(pgs.effect.allele);
+    vcf.ref.allele.upper <- toupper(vcf.ref.allele);
+
+    # pre-calculate flipped PGS alleles
+    all.pgs.other.flip <- flip.DNA.allele(pgs.ref.allele, return.indels.as.missing = FALSE);;
+    all.pgs.effect.flip <- flip.DNA.allele(pgs.effect.allele, return.indels.as.missing = FALSE);
+
+    all.pgs.other.flip.upper <- toupper(all.pgs.other.flip);
+    all.pgs.effect.flip.upper <- toupper(all.pgs.effect.flip);
+
+    # pre-calculate nchar for INDEL checks
+    nchar.pgs.other.allele <- nchar(pgs.ref.allele);
+    nchar.pgs.effect.allele <- nchar(pgs.effect.allele);
+    nchar.vcf.ref.allele <- nchar(vcf.ref.allele);
+    nchar.vcf.alt.alleles.list <- lapply(all.vcf.alt.alleles.split.upper, nchar); # list of nchar vectors
+
+    # pre-calculate any() %in% checks with mapply
+    # Check if the PGS effect allele is present in the VCF ALT alleles
+    default.alt.check.vector <- mapply(
+        FUN = function(alt.vec, pgs.eff) any(alt.vec %in% pgs.eff),
+        all.vcf.alt.alleles.split.upper,
+        pgs.effect.allele.upper,
+        SIMPLIFY = TRUE # Return a logical vector
+        );
+
+    # Check if the non-effect PGS allele is present in the VCF ALT alleles
+    effect.switch.other.check.vector <- mapply(
+        FUN = function(alt.vec, pgs.other) any(alt.vec %in% pgs.other),
+        all.vcf.alt.alleles.split.upper,
+        pgs.other.allele.upper,
+        SIMPLIFY = TRUE
+        );
+
+    # Check if the flipped PGS effect allele is present in the VCF ALT alleles
+    default.alt.flip.check.vector <- mapply(
+        FUN = function(alt.vec, pgs.eff.flip) any(alt.vec %in% pgs.eff.flip),
+        all.vcf.alt.alleles.split.upper,
+        all.pgs.effect.flip.upper,
+        SIMPLIFY = TRUE
+        );
+
+    # Check if the flipped pgs other allele is present in the VCF ALT alleles
+    effect.switch.alt.flip.check.vector <- mapply(
+        FUN = function(alt.vec, pgs.other.flip) any(alt.vec %in% pgs.other.flip),
+        all.vcf.alt.alleles.split.upper,
+        all.pgs.other.flip.upper,
+        SIMPLIFY = TRUE
+        );
 
     # initialize empty vectors to store flip info
     flipped.effect.allele <- rep(NA, length(vcf.ref.allele));
@@ -201,58 +250,73 @@ assess.pgs.vcf.allele.match <- function(
 
     for (i in seq_along(vcf.ref.allele)) {
 
-        current.pgs.ref.allele <- pgs.ref.allele[i];
-        current.pgs.effect.allele <- pgs.effect.allele[i];
-        current.vcf.ref.allele <- vcf.ref.allele[i];
+        # Get current values
 
-        # VCF ALT field may contain multiallelic variants
-        # Multiple alleles are separated by commas e.g. 'A,T'
-        # Split the VCF ALT field into a vector of alleles
-        current.vcf.alt.allele.split <- unlist(strsplit(vcf.alt.allele[i], ','));
+        # Original PGS alleles
+        current.pgs.other.allele.orig <- pgs.ref.allele[i];
+        current.pgs.effect.allele.orig <- pgs.effect.allele[i];
+
+        # Uppercase PGS alleles
+        current.pgs.other.allele.upper <- pgs.other.allele.upper[i];
+        current.pgs.effect.allele.upper <- pgs.effect.allele.upper[i];
+
+        # Original VCF alleles (uppercase)
+        current.vcf.alt.allele.split.upper <- all.vcf.alt.alleles.split.upper[[i]];
+        current.vcf.ref.allele.upper <- vcf.ref.allele.upper[i];
+
+        # Flipped PGS alleles
+        current.pgs.other.flip.orig <- all.pgs.other.flip[i];
+        current.pgs.effect.flip.orig <- all.pgs.effect.flip[i];
+        current.pgs.other.flip.upper <- all.pgs.other.flip.upper[i];
+        current.pgs.effect.flip.upper <- all.pgs.effect.flip.upper[i];
+
+        # Character counts of all alleles
+        current.nchar.pgs.other <- nchar.pgs.other.allele[i];
+        current.nchar.pgs.effect <- nchar.pgs.effect.allele[i];
+        current.nchar.vcf.ref <- nchar.vcf.ref.allele[i];
+        current.nchar.vcf.alt.list <- nchar.vcf.alt.alleles.list[[i]];
 
         # NA handling.
         # If one of the four alleles is missing, it is not possible to assess the match.
         # Note that A VCF can have a missing ALT allele when in GVCF format and reporting
         # a site where all individuals are non-variant (homozygous reference)
-        if (all(is.na(current.vcf.alt.allele.split)) || is.na(current.vcf.ref.allele) || is.na(current.pgs.ref.allele) || is.na(current.pgs.effect.allele)) {
+        if (is.na(current.vcf.ref.allele.upper) || is.na(current.pgs.other.allele.upper) || is.na(current.pgs.effect.allele.upper) || all(is.na(current.vcf.alt.allele.split.upper))) {
             flip.designation[i] <- 'missing_allele';
-                flipped.effect.allele[i] <- current.pgs.effect.allele;
-                flipped.other.allele[i] <- current.pgs.ref.allele;
-                next;
-                }
+            flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+            flipped.other.allele[i] <- current.pgs.other.allele.orig;
+            next;
+            }
 
         # check if default ref-ref / alt-effect alleles match
-        default.ref.check <- current.pgs.ref.allele == current.vcf.ref.allele;
-        default.alt.check <- any(current.vcf.alt.allele.split %in% current.pgs.effect.allele);
+        default.ref.check <- current.pgs.other.allele.upper == current.vcf.ref.allele.upper;
+        default.alt.check <- default.alt.check.vector[i];
 
         if (default.ref.check && default.alt.check) {
             flip.designation[i] <- 'default_match';
-            flipped.effect.allele[i] <- pgs.effect.allele[i];
-            flipped.other.allele[i] <- pgs.ref.allele[i];
+            flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+            flipped.other.allele[i] <- current.pgs.other.allele.orig;
             next;
             }
 
         # check if PGS effect designation is on the VCF reference allele (effect switch)
-        effect.switch.ref.check <- any(vcf.alt.allele.split %in% current.pgs.ref.allele);
-        effect.switch.alt.check <- current.pgs.effect.allele == current.vcf.ref.allele;
+        effect.switch.other.check <- effect.switch.other.check.vector[i];
+        effect.switch.alt.check <- current.pgs.effect.allele.upper == current.vcf.ref.allele.upper;
 
-        if (effect.switch.ref.check && effect.switch.alt.check) {
-            # effect switch criteria is met, but could also be a palindromic strand flip
+        if (effect.switch.other.check && effect.switch.alt.check) {
             effect.switch.candidate <- TRUE;
-            } else {
-                effect.switch.candidate <- FALSE;
-            }
+        } else {
+            effect.switch.candidate <- FALSE;
+        }
 
 
         # identify insertion/deletion alleles in PGS
-        if (nchar(current.pgs.ref.allele) > 1 || nchar(current.pgs.effect.allele) > 1) {
-            pgs.indel <- TRUE;
+        if (current.nchar.pgs.other > 1 || current.nchar.pgs.effect > 1) {
             if (effect.switch.candidate) {
                 # if an INDEL effect switch is detected, do not continue to strand flip assessment
                 # and return effect switch designation
                 flip.designation[i] <- 'effect_switch';
-                flipped.effect.allele[i] <- current.pgs.effect.allele;
-                flipped.other.allele[i] <- current.pgs.ref.allele;
+                flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+                flipped.other.allele[i] <- current.pgs.other.allele.orig;
                 next;
                 }
             # no INDEL flipping supported, return either NA or the original allele
@@ -263,22 +327,20 @@ assess.pgs.vcf.allele.match <- function(
                 flipped.other.allele[i] <- NA;
                 next;
                 } else {
-                    flipped.effect.allele[i] <- pgs.effect.allele[i];
-                    flipped.other.allele[i] <- pgs.ref.allele[i];
+                    flipped.effect.allele[i] <- current.pgs.effect.allele.orig
+                    flipped.other.allele[i] <- current.pgs.other.allele.orig
                     next;
                     }
-            } else {
-                pgs.indel <- FALSE;
             }
 
         # identify insertion/deletion alleles in VCF
-        if (nchar(current.vcf.ref.allele) > 1 || all(nchar(current.vcf.alt.allele.split) > 1)) {
+        if (current.nchar.vcf.ref > 1 || all(current.nchar.vcf.alt.list > 1)) {
             if (effect.switch.candidate) {
                 # if an INDEL effect switch is detected, do not continue to strand flip assessment
                 # and return effect switch designation
                 flip.designation[i] <- 'effect_switch';
-                flipped.effect.allele[i] <- current.pgs.effect.allele;
-                flipped.other.allele[i] <- current.pgs.ref.allele;
+                flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+                flipped.other.allele[i] <- current.pgs.other.allele.orig;
                 next;
                 }
             # no INDEL flipping supported, return either NA or the original allele
@@ -289,8 +351,8 @@ assess.pgs.vcf.allele.match <- function(
                 flipped.other.allele[i] <- NA;
                 next;
                 } else {
-                    flipped.effect.allele[i] <- current.pgs.effect.allele;
-                    flipped.other.allele[i] <- current.pgs.ref.allele;
+                    flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+                    flipped.other.allele[i] <- current.pgs.other.allele.orig;
                     next;
                     }
             }
@@ -300,8 +362,8 @@ assess.pgs.vcf.allele.match <- function(
         pgs.ref.flip <- flip.DNA.allele(pgs.ref.allele[i]);
         pgs.effect.flip <- flip.DNA.allele(pgs.effect.allele[i]);
 
-        default.ref.flip.check <- current.vcf.ref.allele == pgs.ref.flip;
-        default.alt.flip.check <- any(current.vcf.alt.allele.split %in% pgs.effect.flip);
+        default.ref.flip.check <- current.vcf.ref.allele.upper == current.pgs.other.flip.upper;
+        default.alt.flip.check <- default.alt.flip.check.vector[i];
 
         if (default.ref.flip.check && default.alt.flip.check) {
             # strand flip criteria is met, but could also be a palindromic effect switch
@@ -312,25 +374,25 @@ assess.pgs.vcf.allele.match <- function(
 
         # assess strand flip and effect switch candidates
         if (effect.switch.candidate && strand.flip.candidate) {
-            # not possible to determine whether effect switch or strand flip has occured
+            # not possible to determine whether effect switch or strand flip has ocurred
             # This is an ambiguous case caused by palindromic SNPs
             # Default is to assume that this is an effect switch until strand flip threshold is exceeded
             flip.designation[i] <- 'ambiguous_flip';
-            flipped.effect.allele[i] <- current.pgs.effect.allele;
-            flipped.other.allele[i] <- current.pgs.ref.allele;
+            flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+            flipped.other.allele[i] <- current.pgs.other.allele.orig;
             next;
             } else if (effect.switch.candidate) {
             # if this is a clear-cut effect switch, return the default PGS alleles
             # apply.polygenic.score automatically handles effect switches during PGS application
             flip.designation[i] <- 'effect_switch';
-            flipped.effect.allele[i] <- current.pgs.effect.allele;
-            flipped.other.allele[i] <- current.pgs.ref.allele;
+            flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+            flipped.other.allele[i] <- current.pgs.other.allele.orig;
             next;
             } else if (strand.flip.candidate) {
             # if this is a clear-cut strand flip, return the flipped PGS alleles
             flip.designation[i] <- 'strand_flip';
-            flipped.effect.allele[i] <- pgs.effect.flip;
-            flipped.other.allele[i] <- pgs.ref.flip;
+            flipped.effect.allele[i] <- current.pgs.effect.flip.orig;
+            flipped.other.allele[i] <- current.pgs.other.flip.orig;
             next;
             }
 
@@ -339,13 +401,13 @@ assess.pgs.vcf.allele.match <- function(
         # One more resolvable case is when there is both an effect switch AND a strand flip
 
         # attempt strand flip on effect_switch ref-effect / alt-other alleles
-        effect.switch.ref.flip.check <- current.vcf.ref.allele == pgs.effect.flip;
-        effect.switch.alt.flip.check <- any(current.vcf.alt.allele.split %in% pgs.ref.flip);
+        effect.switch.ref.flip.check <- current.vcf.ref.allele.upper == current.pgs.effect.flip.upper;
+        effect.switch.alt.flip.check <- effect.switch.alt.flip.check.vector[i];
 
         if (effect.switch.ref.flip.check && effect.switch.alt.flip.check) {
             flip.designation[i] <- 'effect_switch_with_strand_flip';
-            flipped.effect.allele[i] <- pgs.effect.flip;
-            flipped.other.allele[i] <- pgs.ref.flip;
+            flipped.effect.allele[i] <- current.pgs.effect.flip.orig;
+            flipped.other.allele[i] <- current.pgs.other.flip.orig;
             next;
             } else {
                 # no solution found for ref/ref alt/alt mismatch
@@ -356,8 +418,8 @@ assess.pgs.vcf.allele.match <- function(
                     flipped.other.allele[i] <- NA;
                     next;
                     } else {
-                    flipped.effect.allele[i] <- current.pgs.effect.allele;
-                    flipped.other.allele[i] <- current.pgs.ref.allele;
+                    flipped.effect.allele[i] <- current.pgs.effect.allele.orig;
+                    flipped.other.allele[i] <- current.pgs.other.allele.orig;
                     next;
                     }
                 }
