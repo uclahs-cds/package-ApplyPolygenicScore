@@ -33,9 +33,10 @@ custom.na.aggregation.function <- function(x) {
             }
     }
 
-# utility function for transforming long data to SNP by sample matrix
-# wrapper for reshape2::dcast which handles extra columns introduced by missing sites
+# utility function for transforming long data to variant by sample matrix by user-provided variant ID (row ID) columns
+# wrapper for data.table::dcast which handles extra columns introduced by missing sites
 # and cleans up the matrix by moving the row ID column to rownames.
+# Expects an "Indiv" column in the long data which contains sample identifiers.
 get.variant.by.sample.matrix <- function(long.data, row.id.cols, value.col) {
 
     # transform to SNP by sample matrix
@@ -54,16 +55,16 @@ get.variant.by.sample.matrix <- function(long.data, row.id.cols, value.col) {
     if (any(duplicate.check$N > 1)) {
         # Identify all combinations with duplicates
         duplicate.combos <- duplicate.check[N > 1];
-        
+
         # Recreate the original key string format from the duplicate rows
-        key_values_list <- as.list(duplicate.combos[, check.cols, with=FALSE]);
-        duplicate_keys <- do.call(paste, c(key_values_list, sep = '_'));
-        
-        # Stop with the original error message format
+        key.values.list <- as.list(duplicate.combos[, check.cols, with = FALSE]);
+        duplicate.keys <- do.call(paste, c(key.values.list, sep = '_'));
+
+        # Stop if duplicate variant entries (aka rows) are present.
         stop(
-            paste('Duplicate variant/effect-allele/sample combinations detected:\n',
-                paste(duplicate_keys, collapse = '\n'),
-                '\nPlease ensure that each sample has only one genotype call for each variant:allele combination.\n'
+            paste('Duplicate variant/sample combinations detected:\n',
+                paste(duplicate.keys, collapse = '\n'),
+                '\nPlease ensure that each sample has only one genotype call for each variant id combination.\n'
                 )
             );
         }
@@ -104,8 +105,38 @@ get.variant.by.sample.matrix <- function(long.data, row.id.cols, value.col) {
     # Assign the row names to the matrix
     rownames(matrix.data) <- row.names.vector;
 
-    
     return(matrix.data);
+
+    }
+
+convert.long.vcf.to.wide.vcf <- function(long.vcf) {
+    long.vcf <- as.data.frame(long.vcf);
+    fixed.colnames <- c('CHROM', 'POS', 'ID', 'REF', 'ALT');
+    fixed.data <- long.vcf[, fixed.colnames];
+    fixed.data$variant.id <- paste0(fixed.data$CHROM, ':', fixed.data$POS);
+    fixed.data <- unique(fixed.data); # remove duplicates
+    # convert to data.table
+    fixed.data <- data.table::as.data.table(fixed.data);
+
+    allele.matrix <- get.variant.by.sample.matrix(
+        long.data = long.vcf,
+        row.id.cols = c('CHROM', 'POS'),
+        value.col = 'gt_GT_alleles'
+        );
+
+    # sort allele matrix in order of corresponding fixed data variant id
+    allele.matrix <- allele.matrix[match(fixed.data$variant.id, rownames(allele.matrix)), ];
+
+    # save allele matrix row indices in fixed data
+    fixed.data$allele.matrix.row.index <- seq_len(nrow(allele.matrix));
+
+    # format output according to import.vcf standards
+    output <- list(
+        genotyped.alleles = allele.matrix,
+        vcf.fixed.fields = fixed.data
+        );
+
+    return(output);
 
     }
 
