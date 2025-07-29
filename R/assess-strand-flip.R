@@ -12,12 +12,16 @@ validate.allele.input <- function(alleles, na.allowed = TRUE) {
         }
 
     # Verify acceptable SNP alleles
-    snp.alleles <- alleles[nchar(alleles) == 1];
-    accepted.alleles <- c('A', 'T', 'C', 'G', '*');
-    allele.check <- snp.alleles[!is.na(snp.alleles)] %in% accepted.alleles;
+    is.snp <- nchar(alleles) == 1;
+    snp.alleles <- alleles[is.snp & !is.na(alleles)];
+    # convert to uppercase
+    snp.alleles.upper <- toupper(snp.alleles);
+    accepted.alleles <- c('A', 'T', 'C', 'G', '*'); # Note that "*" is a regex wild card and may not be comparable if using regular expressions
+    allele.check <- snp.alleles.upper %in% accepted.alleles;
 
     if (any(!allele.check, na.rm = TRUE)) {
-        stop('Invalid allele: ', snp.alleles[!is.na(snp.alleles)][!allele.check]);
+        invalid.snps <- snp.alleles[!allele.check];
+        stop('Invalid allele: ', invalid.snps);
         }
     }
 

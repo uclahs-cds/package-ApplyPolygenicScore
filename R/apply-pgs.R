@@ -437,7 +437,7 @@ apply.polygenic.score <- function(
         merged.vcf.with.pgs.data$POS,
         merged.vcf.with.pgs.data$effect_allele,
         sep = ':'
-    );
+        );
     rownames(merged.vcf.allele.matrix) <- unique.var.id;
 
     # save sample names from matrix
