@@ -36,42 +36,52 @@ validate.allele.input <- function(alleles, na.allowed = TRUE) {
 #' @export
 flip.DNA.allele <- function(alleles, return.indels.as.missing = FALSE) {
     if (all(is.na(alleles))) {
-        return(NA);
+        return(rep(NA, length(alleles)));
         }
     # validate allele input
     validate.allele.input(alleles);
 
-    flipped.alleles <- sapply(
-        X = alleles,
-        FUN = function(x) {
-            # NA handling
-            if (is.na(x)) {
-                return(NA);
-                # INDEL handling
-                } else if (nchar(x) > 1) {
-                if (return.indels.as.missing) {
-                    return(NA);
-                    } else {
-                        return(x); # no INDEL flipping supported
-                        }
-                # SNP handling
-                } else {
-                    flip <- switch(
-                        x,
-                        'A' = 'T',
-                        'T' = 'A',
-                        'C' = 'G',
-                        'G' = 'C',
-                        '*' = '*', # wildcard for missing alleles
-                        `NA` = NA
-                        );
-                }
-            }
+    # Initialize a character vector to store flipped alleles
+    flipped.alleles <- rep(NA, length(alleles));
+
+    # Lookup table for flipping alleles
+    snp.flip.map <- c(
+        'A' = 'T',
+        'T' = 'A',
+        'C' = 'G',
+        'G' = 'C',
+        '*' = '*' # this symbol represents an allele that overlaps with a nearby indel
         );
+
+    # Identify non-NA alleles
+    non.na.index <- which(!is.na(alleles));
+
+    current.alleles <- alleles[non.na.index];
+    nchars.current.alleles <- nchar(current.alleles);
+
+    # Handle INDELs (alleles that contain more than one character)
+    indel.mask <- nchars.current.alleles > 1;
+    if (any(indel.mask)) {
+        if (!return.indels.as.missing) {
+            # INDELS are not flipped, but returned as is
+            flipped.alleles[non.na.index[indel.mask]] <- current.alleles[indel.mask];
+            } # Otherwise, INDELs are returned as NA from initialization
+        }
+
+    # Handle SNPs (alleles that contain one character)
+    snp.mask <- nchars.current.alleles == 1;
+    if (any(snp.mask)) {
+        # convert to upper
+        snps.to.flip <- toupper(current.alleles[snp.mask]);
+        # Flip SNP alleles using the lookup table
+        flipped.snps <- snp.flip.map[snps.to.flip];
+        flipped.alleles[non.na.index[snp.mask]] <- flipped.snps;
+        }
 
     names(flipped.alleles) <- NULL;
     return(flipped.alleles);
     }
+
 #' @title Assess PGS allele match to VCF allele
 #' @description Assess whether PGS reference and effect alleles match provided VCF reference and alternative alleles.
 #' Mismatches are checked for potential switching of effect and reference PGS alleles (cases where the effect allele is the REF VCF allele)
