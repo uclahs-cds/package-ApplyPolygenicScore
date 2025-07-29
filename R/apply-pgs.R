@@ -405,65 +405,49 @@ apply.polygenic.score <- function(
         }
 
     # merge VCF and PGS data
-    if (vcf.long.format) {
-        merged.vcf.with.pgs.data <- combine.vcf.with.pgs(
-            vcf.data = vcf.data,
-            pgs.weight.data = pgs.weight.data
-            )$merged.vcf.with.pgs.data;
-        } else {
-            merged.vcf.with.pgs.data <- combine.vcf.with.pgs(
-                vcf.data = vcf.data$vcf.fixed.fields,
-                pgs.weight.data = pgs.weight.data
-                )$merged.vcf.with.pgs.data;
+    merged.vcf.with.pgs.data <- combine.vcf.with.pgs(
+        vcf.data = vcf.data$vcf.fixed.fields,
+        pgs.weight.data = pgs.weight.data
+        )$merged.vcf.with.pgs.data;
 
-            # Sort merged VCF data by allele.matrix.row.index with NAs last (in-place for efficiency)
-            data.table::setorder(merged.vcf.with.pgs.data, allele.matrix.row.index, na.last = TRUE);
+    # Sort merged VCF data by allele.matrix.row.index with NAs last (in-place for efficiency)
+    data.table::setorder(merged.vcf.with.pgs.data, allele.matrix.row.index, na.last = TRUE);
 
-            # Pre-allocate a new, correctly-sized allele matrix filled with NAs
-            merged.vcf.allele.matrix <- matrix(
-                data = NA,
-                nrow = nrow(merged.vcf.with.pgs.data),
-                ncol = ncol(vcf.data$genotyped.alleles),
-                dimnames = list(NULL, colnames(vcf.data$genotyped.alleles))
-                );
+    # Pre-allocate a new, correctly-sized allele matrix filled with NAs
+    merged.vcf.allele.matrix <- matrix(
+        data = NA,
+        nrow = nrow(merged.vcf.with.pgs.data),
+        ncol = ncol(vcf.data$genotyped.alleles),
+        dimnames = list(NULL, colnames(vcf.data$genotyped.alleles))
+        );
 
-            # Get the indices for non-missing variants from the original VCF allele matrix
-            non.missing.vcf.indices <- merged.vcf.with.pgs.data[!is.na(allele.matrix.row.index),
-                                                                as.numeric(allele.matrix.row.index)];
+    # Get the indices for non-missing variants from the original VCF allele matrix
+    non.missing.vcf.indices <- merged.vcf.with.pgs.data[!is.na(allele.matrix.row.index),
+                                                        as.numeric(allele.matrix.row.index)];
 
-            # Get the indices for where the non-missing variants should go in the new matrix
-            new.matrix.indices <- which(!is.na(merged.vcf.with.pgs.data$allele.matrix.row.index));
+    # Get the indices for where the non-missing variants should go in the new matrix
+    new.matrix.indices <- which(!is.na(merged.vcf.with.pgs.data$allele.matrix.row.index));
 
-            # Fill the pre-allocated matrix with the correct data
-            merged.vcf.allele.matrix[new.matrix.indices, ] <- vcf.data$genotyped.alleles[non.missing.vcf.indices, ];
+    # Fill the pre-allocated matrix with the correct data
+    merged.vcf.allele.matrix[new.matrix.indices, ] <- vcf.data$genotyped.alleles[non.missing.vcf.indices, ];
 
-            # Update row names of allele matrix to unique variant identifiers from merged data
-            unique.var.id <- paste(
-                merged.vcf.with.pgs.data$CHROM,
-                merged.vcf.with.pgs.data$POS,
-                merged.vcf.with.pgs.data$effect_allele,
-                sep = ':'
-            );
-            rownames(merged.vcf.allele.matrix) <- unique.var.id;
+    # Update row names of allele matrix to unique variant identifiers from merged data
+    unique.var.id <- paste(
+        merged.vcf.with.pgs.data$CHROM,
+        merged.vcf.with.pgs.data$POS,
+        merged.vcf.with.pgs.data$effect_allele,
+        sep = ':'
+    );
+    rownames(merged.vcf.allele.matrix) <- unique.var.id;
 
-            # save sample names from matrix
-            sample.names <- colnames(merged.vcf.allele.matrix);
-        }
+    # save sample names from matrix
+    sample.names <- colnames(merged.vcf.allele.matrix);
 
     # free up some memory
     rm(vcf.data);
 
     ### Start Allele Match Check ###
     if (remove.ambiguous.allele.matches || correct.strand.flips) {
-        # adjust max.strand.flips threshold to account for the long-form of the variant x sample matrix
-        # each allele match appears once per sample, so the threshold is multiplied by the number of samples
-        if (vcf.long.format) {
-            # adjust max.strand.flips to account for the number of samples in long format
-            adjusted.max.strand.flips <- max.strand.flips * length(unique(merged.vcf.with.pgs.data$Indiv));
-        } else {
-            # if split matrix format, no adjustment necessary
-            adjusted.max.strand.flips <- max.strand.flips;
-        }
 
         match.assessment <- ApplyPolygenicScore::assess.pgs.vcf.allele.match(
             vcf.ref.allele = merged.vcf.with.pgs.data$REF,
@@ -471,200 +455,97 @@ apply.polygenic.score <- function(
             pgs.ref.allele = merged.vcf.with.pgs.data$other_allele,
             pgs.effect.allele = merged.vcf.with.pgs.data$effect_allele,
             return.ambiguous.as.missing = remove.ambiguous.allele.matches,
-            max.strand.flips = adjusted.max.strand.flips,
+            max.strand.flips = max.strand.flips,
             return.indels.as.missing = remove.mismatched.indels
             );
         merged.vcf.with.pgs.data$effect_allele <- match.assessment$new.pgs.effect.allele;
         }
 
     # calculate dosage
-    if (vcf.long.format) {
-        # if long format, simply add a dosage column to merged data
-        merged.vcf.with.pgs.data$dosage <- convert.alleles.to.pgs.dosage(
-            called.alleles = merged.vcf.with.pgs.data$gt_GT_alleles,
-            risk.alleles = merged.vcf.with.pgs.data$effect_allele
-            );
-        } else {
-            # if split matrix format, calculate dosage from allele matrix and save to new matrix
-            dosage.matrix <- convert.alleles.to.pgs.dosage(
-                called.alleles = merged.vcf.allele.matrix,
-                risk.alleles = merged.vcf.with.pgs.data$effect_allele
-                );
-        }
+    # in split matrix format, calculate dosage from allele matrix and save to new matrix
+    dosage.matrix <- convert.alleles.to.pgs.dosage(
+        called.alleles = merged.vcf.allele.matrix,
+        risk.alleles = merged.vcf.with.pgs.data$effect_allele
+        );
 
     ### Start Missing Genotype Handling ###
-    if (vcf.long.format) {
-        variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, merged.vcf.with.pgs.data$effect_allele, sep = ':');
-        if ('mean.dosage' %in% missing.genotype.method) {
-            # calculate dosage to replace missing genotypes
-            if (use.external.effect.allele.frequency) {
-                missing.genotype.dosage <- data.frame(dosage = convert.allele.frequency.to.dosage(allele.frequency = merged.vcf.with.pgs.data$allelefrequency_effect));
-                missing.genotype.dosage$variant.id <- variant.id;
-                missing.genotype.dosage$missing.in.all <- is.na(merged.vcf.with.pgs.data$Indiv);
-                # remove duplicated rows
-                missing.genotype.dosage <- missing.genotype.dosage[!duplicated(missing.genotype.dosage$variant.id), ];
-                # compute total dosage for variants missing in all Indivs
-                dosage.for.missing.in.all <- sum(missing.genotype.dosage$dosage[missing.genotype.dosage$missing.in.all]);
-                # convert to named vector
-                missing.genotype.dosage <- setNames(missing.genotype.dosage$dosage, missing.genotype.dosage$variant.id);
-                # identify missing genotypes
-                # this method includes variants that are missing in all Indivs, these are all replaced with the same mean dosage
-                missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage));
-                } else {
-                # create sample by variant dosage matrix
-
-                dosage.matrix <- get.variant.by.sample.matrix(
-                    long.data = merged.vcf.with.pgs.data,
-                    row.id.cols = c('CHROM', 'POS', 'effect_allele'),
-                    value.col = 'dosage'
-                    );
-                missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
-                # free up some memory
-                rm(dosage.matrix);
-                # identify missing genotypes
-                # this method excludes variants that are missing in all Indivs, these remain as NA
-                missing.genotype.row.index <- which(is.na(merged.vcf.with.pgs.data$dosage) & !is.na(merged.vcf.with.pgs.data$Indiv));
-                }
-
-
-            # start a column for replaced missing dosages
-            merged.vcf.with.pgs.data[, dosage.with.replaced.missing := as.numeric(dosage)];
-            # assign mean dosage to missing genotypes
-            for (i in missing.genotype.row.index) {
-                missing.variant.id <- paste(merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], merged.vcf.with.pgs.data[i, 'effect_allele'], sep = ':');
-                missing.variant.dosage <- missing.genotype.dosage[missing.variant.id];
-                merged.vcf.with.pgs.data[i, 'dosage.with.replaced.missing'] <- missing.variant.dosage;
-                }
-        }
-    } else {
-        if ('mean.dosage' %in% missing.genotype.method) {
-            # calculate dosage to replace missing genotypes
-            if (use.external.effect.allele.frequency) {
-                # calculate mean dosage from user-provided allele frequency
-                missing.genotype.dosage <- convert.allele.frequency.to.dosage(allele.frequency = merged.vcf.with.pgs.data$allelefrequency_effect);
-                } else {
-                # calculate mean dosage from allele matrix
-                missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
-                }
-            # replace missing genotypes with mean dosage
-            mean.dosage.matrix <- dosage.matrix;
-            missing.dosage.index <- is.na(mean.dosage.matrix);
-            mean.dosage.matrix[missing.dosage.index] <- missing.genotype.dosage[row(mean.dosage.matrix)[missing.dosage.index]];
+    if ('mean.dosage' %in% missing.genotype.method) {
+        # calculate dosage to replace missing genotypes
+        if (use.external.effect.allele.frequency) {
+            # calculate mean dosage from user-provided allele frequency
+            missing.genotype.dosage <- convert.allele.frequency.to.dosage(allele.frequency = merged.vcf.with.pgs.data$allelefrequency_effect);
+            } else {
+            # calculate mean dosage from allele matrix
+            missing.genotype.dosage <- calculate.missing.genotype.dosage(dosage.matrix = dosage.matrix);
             }
+        # replace missing genotypes with mean dosage
+        mean.dosage.matrix <- dosage.matrix;
+        missing.dosage.index <- is.na(mean.dosage.matrix);
+        mean.dosage.matrix[missing.dosage.index] <- missing.genotype.dosage[row(mean.dosage.matrix)[missing.dosage.index]];
         }
-
 
     ### End Missing Genotype Handling ###
 
     # calculate weighted dosage
-    if (vcf.long.format) {
-        if ('mean.dosage' %in% missing.genotype.method) {
-            merged.vcf.with.pgs.data$weighted.dosage.with.replaced.missing <- merged.vcf.with.pgs.data$dosage.with.replaced.missing * merged.vcf.with.pgs.data$beta;
-            }
-        if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
-            merged.vcf.with.pgs.data$weighted.dosage <- merged.vcf.with.pgs.data$dosage * merged.vcf.with.pgs.data$beta;
-            }
-        } else {
-            if ('mean.dosage' %in% missing.genotype.method) {
-                # calculate weighted dosage with replaced missing genotypes
-                weighted.dosage.with.replaced.missing.matrix <- mean.dosage.matrix * merged.vcf.with.pgs.data$beta;
-                # clean up the memory
-                rm(mean.dosage.matrix);
-                }
-            if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
-                # calculate weighted dosage without missing genotypes
-                weighted.dosage.matrix <- dosage.matrix * merged.vcf.with.pgs.data$beta;
-                }
-
+    if ('mean.dosage' %in% missing.genotype.method) {
+        # calculate weighted dosage with replaced missing genotypes
+        weighted.dosage.with.replaced.missing.matrix <- mean.dosage.matrix * merged.vcf.with.pgs.data$beta;
+        # clean up the memory
+        rm(mean.dosage.matrix);
         }
-
+    if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
+        # calculate weighted dosage without missing genotypes
+        weighted.dosage.matrix <- dosage.matrix * merged.vcf.with.pgs.data$beta;
+        }
 
     ### Start Multiallelic Site Handling ###
-    if (vcf.long.format) {
-        # create a dictionary to each unique sample:coordinate combination
-        sample.coordinate.to.row.dict.hash <- new.env(hash = TRUE, parent = emptyenv());
+    # Apply multiallelic site handling function by CHROM POS groupings of data.table
+    # Function returns a logical mask matrix for each multiallelic site indicating which alleles are non-risk and should be
+    # excluded from dosage calculation.
+    non.risk.multiallelic.entries.dt <- merged.vcf.with.pgs.data[
+        ,
+        get.non.risk.multiallelic.site.row(
+            merged.vcf.with.pgs.data = .SD,
+            vcf.long.format = vcf.long.format,
+            original.df.row.index = .I,
+            merged.vcf.allele.matrix = merged.vcf.allele.matrix,
+            current.chrom = CHROM,
+            current.pos = POS
+            ),
+        by = c('CHROM', 'POS')
+        ];
 
-        for (i in 1:nrow(merged.vcf.with.pgs.data)) {
-            # skip if the variant is missing from all samples
-            if (is.na(merged.vcf.with.pgs.data[i, 'Indiv'])) {
-                next;
-                }
-            key <- paste(merged.vcf.with.pgs.data[i, 'Indiv'], merged.vcf.with.pgs.data[i, 'CHROM'], merged.vcf.with.pgs.data[i, 'POS'], sep = '_');
-            # save all row indexes that have the same sample:coordinate combination under one key
-            sample.coordinate.to.row.dict.hash[[key]] <- c(sample.coordinate.to.row.dict.hash[[key]], i);
+    # Initialize a global mask matrix with FALSE values
+    global.non.risk.mask <- matrix(
+        FALSE,
+        nrow = nrow(dosage.matrix),
+        ncol = ncol(dosage.matrix)
+        );
+
+    # Populate the global mask by iterating through each multiallelic site's mask.
+    # This loop runs only for each unique multiallelic site (CHROM, POS), not for every SNP.
+    if (nrow(non.risk.multiallelic.entries.dt) > 0) {
+        for (i in seq_len(nrow(non.risk.multiallelic.entries.dt))) {
+            # Extract the global row indices for the current multiallelic site
+            rows.for.site <- non.risk.multiallelic.entries.dt$original.df.row.index[[i]];
+            # Extract the logical mask matrix for the current multiallelic site
+            mask.for.site <- non.risk.multiallelic.entries.dt$mask.matrix[[i]];
+
+            # Assign the site-specific mask to the correct rows in the global mask.
+            # Using '|' (OR) ensures that if a row is marked TRUE as non-risk in any sub-mask,
+            # it remains TRUE in the global mask.
+            global.non.risk.mask[rows.for.site, ] <- global.non.risk.mask[rows.for.site, ] | mask.for.site;
             }
-
-        non.risk.multiallelic.entries.index <- lapply(
-            X = ls(sample.coordinate.to.row.dict.hash),
-            FUN = function(x) {
-                row.index <- sample.coordinate.to.row.dict.hash[[x]];
-                merged.vcf.with.pgs.data <- merged.vcf.with.pgs.data[row.index, ];
-                merged.vcf.with.pgs.data$original.df.row.index <- row.index;
-                non.risk.multiallelic.site.rows <- get.non.risk.multiallelic.site.row(
-                    merged.vcf.with.pgs.data = merged.vcf.with.pgs.data,
-                    vcf.long.format = vcf.long.format
-                    );
-                return(non.risk.multiallelic.site.rows$original.df.row.index);
-                }
-            );
-
-        non.risk.multiallelic.entries.index <- unlist(non.risk.multiallelic.entries.index);
-
-        if ('mean.dosage' %in% missing.genotype.method) {
-            merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing <- merged.vcf.with.pgs.data$weighted.dosage.with.replaced.missing;
-            merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing[non.risk.multiallelic.entries.index] <- NA;
-            }
-        if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
-            merged.vcf.with.pgs.data$multiallelic.weighted.dosage <- merged.vcf.with.pgs.data$weighted.dosage;
-            merged.vcf.with.pgs.data$multiallelic.weighted.dosage[non.risk.multiallelic.entries.index] <- NA;
-            }
-        } else {
-
-            non.risk.multiallelic.entries.dt <- merged.vcf.with.pgs.data[
-                ,
-                get.non.risk.multiallelic.site.row(
-                    merged.vcf.with.pgs.data = .SD,
-                    vcf.long.format = vcf.long.format,
-                    original.df.row.index = .I,
-                    merged.vcf.allele.matrix = merged.vcf.allele.matrix,
-                    current.chrom = CHROM,
-                    current.pos = POS
-                    ),
-                by = c('CHROM', 'POS')
-                ];
-
-            # Initialize a global mask matrix with FALSE values
-            global.non.risk.mask <- matrix(
-                FALSE,
-                nrow = nrow(dosage.matrix),
-                ncol = ncol(dosage.matrix)
-                );
-
-            # Populate the global mask by iterating through each multiallelic site's mask.
-            # This loop runs only for each unique multiallelic site (CHROM, POS), not for every SNP.
-            if (nrow(non.risk.multiallelic.entries.dt) > 0) {
-                for (i in seq_len(nrow(non.risk.multiallelic.entries.dt))) {
-                    # Extract the global row indices for the current multiallelic site
-                    rows.for.site <- non.risk.multiallelic.entries.dt$original.df.row.index[[i]];
-                    # Extract the logical mask matrix for the current multiallelic site
-                    mask.for.site <- non.risk.multiallelic.entries.dt$mask.matrix[[i]];
-
-                    # Assign the site-specific mask to the correct rows in the global mask.
-                    # Using '|' (OR) ensures that if a row is marked TRUE as non-risk in any sub-mask,
-                    # it remains TRUE in the global mask.
-                    global.non.risk.mask[rows.for.site, ] <- global.non.risk.mask[rows.for.site, ] | mask.for.site;
-                }
-            }
-
-            # Apply the single, global non-risk mask to the dosage matrices
-            if ('mean.dosage' %in% missing.genotype.method) {
-                weighted.dosage.with.replaced.missing.matrix[global.non.risk.mask] <- NA;
-                }
-            if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
-                weighted.dosage.matrix[global.non.risk.mask] <- NA;
-                }
-
         }
+
+    # Apply the single, global non-risk mask to the dosage matrices
+    if ('mean.dosage' %in% missing.genotype.method) {
+        weighted.dosage.with.replaced.missing.matrix[global.non.risk.mask] <- NA;
+        }
+    if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
+        weighted.dosage.matrix[global.non.risk.mask] <- NA;
+        }
+
     ### End Multiallelic Site Handling ###
 
     ### Start Missing SNP Count ###
@@ -672,33 +553,19 @@ apply.polygenic.score <- function(
     bialellic.variant.id <- paste(merged.vcf.with.pgs.data$CHROM, merged.vcf.with.pgs.data$POS, sep = ':');
     n.variant.in.pgs <- length(unique(bialellic.variant.id));
 
-    if (vcf.long.format) {
-        biallelic.snp.by.sample.matrix <- get.combined.multiallelic.variant.by.sample.matrix(
-            long.data = merged.vcf.with.pgs.data,
-            variant.id = bialellic.variant.id,
-            value.var = 'dosage'
-            );
-        per.sample.missing.genotype.count <- colSums(is.na(biallelic.snp.by.sample.matrix));
-        per.sample.missing.genotype.percent <- round(per.sample.missing.genotype.count / n.variant.in.pgs, 2);
-        per.sample.non.missing.genotype.count <- colSums(!is.na(biallelic.snp.by.sample.matrix));
-        per.sample.non.missing.allele.count <- ploidy * per.sample.non.missing.genotype.count
-
-        } else {
-            # find NAs in dosage matrix
-            na.dosage.matrix <- +is.na(dosage.matrix);
-            # count NAs per sample per variant site
-            missingness.matrix <- rowsum(na.dosage.matrix, group = bialellic.variant.id);
-            # Any values above 1 represent multiallelics and are double-counted, set to one instead
-            missingness.matrix[missingness.matrix > 1] <- 1;
-            # Sum up missingness per sample (colSums)
-            per.sample.missing.genotype.count <- colSums(missingness.matrix);
-            per.sample.missing.genotype.percent <- round(per.sample.missing.genotype.count / n.variant.in.pgs, 2);
-            per.sample.non.missing.genotype.count <- n.variant.in.pgs - per.sample.missing.genotype.count;
-            per.sample.non.missing.allele.count <- per.sample.non.missing.genotype.count * ploidy; # assuming diploid genome
-            # clean up memory
-            rm(missingness.matrix, na.dosage.matrix, dosage.matrix);
-            # NOTE TO SELF: figure out a clean way to compute number variants in the PGS and number of non-missing alleles per sample
-        }
+    # find NAs in dosage matrix
+    na.dosage.matrix <- +is.na(dosage.matrix);
+    # count NAs per sample per variant site
+    missingness.matrix <- rowsum(na.dosage.matrix, group = bialellic.variant.id);
+    # Any values above 1 represent multiallelics and are double-counted, set to one instead
+    missingness.matrix[missingness.matrix > 1] <- 1;
+    # Sum up missingness per sample (colSums)
+    per.sample.missing.genotype.count <- colSums(missingness.matrix);
+    per.sample.missing.genotype.percent <- round(per.sample.missing.genotype.count / n.variant.in.pgs, 2);
+    per.sample.non.missing.genotype.count <- n.variant.in.pgs - per.sample.missing.genotype.count;
+    per.sample.non.missing.allele.count <- per.sample.non.missing.genotype.count * ploidy; # assuming diploid genome
+    # clean up memory
+    rm(missingness.matrix, na.dosage.matrix, dosage.matrix);
 
     ### End Missing SNP Count ###
 
@@ -710,116 +577,55 @@ apply.polygenic.score <- function(
         'none' = 'PGS'
         );
 
+    # Initialize output list
+    pgs.output.list <- list();
 
-    if (vcf.long.format) {
+    # Calculate colSums for weighted.dosage.matrix only once if multiple methods need it
+    weighted.dosage.matrix.colsums <- NULL; # Initialize to NULL
+    if (('none' %in% missing.genotype.method) || ('normalize' %in% missing.genotype.method)) {
+        weighted.dosage.matrix.colsums <- colSums(weighted.dosage.matrix, na.rm = TRUE);
+        }
+
+    if ('none' %in% missing.genotype.method) {
         # calculate PGS per sample
-        pgs.output.list <- list();
+        pgs.output.list$PGS <- weighted.dosage.matrix.colsums;
+        }
 
-        if ('none' %in% missing.genotype.method) {
-            pgs.per.sample <- aggregate(
-                x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
-                by = list(merged.vcf.with.pgs.data$Indiv),
-                FUN = sum,
-                na.rm = TRUE
-                );
-            colnames(pgs.per.sample) <- c('Indiv', 'PGS');
-            pgs.output.list$PGS <- pgs.per.sample;
-            # free up some memory
-            rm(pgs.per.sample);
+    if ('normalize' %in% missing.genotype.method) {
+        # calculate PGS per sample with normalized missing genotypes
+        pgs.output.list$PGS.with.normalized.missing <- weighted.dosage.matrix.colsums;
+        # divide sum by non-missing allele count
+        pgs.output.list$PGS.with.normalized.missing <- pgs.output.list$PGS.with.normalized.missing / per.sample.non.missing.allele.count;
+        # account for division by zero
+        pgs.output.list$PGS.with.normalized.missing[is.nan(pgs.output.list$PGS.with.normalized.missing)] <- NA;
+        }
+
+    if ('mean.dosage' %in% missing.genotype.method) {
+        # calculate PGS per sample with replaced missing genotypes
+        pgs.output.list$PGS.with.replaced.missing <- colSums(weighted.dosage.with.replaced.missing.matrix, na.rm = TRUE);
+        }
+
+        # format outputs
+        pgs.output <- data.table::data.table(Indiv = sample.names);
+
+        # Add PGS columns by reference if they exist
+        if (!is.null(pgs.output.list[['PGS']])) { # due to pattern-matching, cannot use pgs.output.list$PGS
+            pgs.output[, PGS := pgs.output.list[['PGS']]];
             }
-
-        if ('normalize' %in% missing.genotype.method) {
-            pgs.per.sample.with.normalized.missing <- aggregate(
-                x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage,
-                by = list(merged.vcf.with.pgs.data$Indiv),
-                FUN = sum,
-                na.rm = TRUE
-                );
-            colnames(pgs.per.sample.with.normalized.missing) <- c('Indiv', 'PGS');
-            pgs.per.sample.with.normalized.missing$PGS <- pgs.per.sample.with.normalized.missing$PGS / per.sample.non.missing.allele.count;
-            # account for division by zero
-            pgs.per.sample.with.normalized.missing$PGS[is.nan(pgs.per.sample.with.normalized.missing$PGS)] <- NA;
-            pgs.output.list$PGS.with.normalized.missing <- pgs.per.sample.with.normalized.missing;
-            # free up some memory
-            rm(pgs.per.sample.with.normalized.missing);
+        if (!is.null(pgs.output.list$PGS.with.normalized.missing)) {
+            pgs.output[, PGS.with.normalized.missing := pgs.output.list$PGS.with.normalized.missing];
             }
-
+        if (!is.null(pgs.output.list$PGS.with.replaced.missing)) {
+            pgs.output[, PGS.with.replaced.missing := pgs.output.list$PGS.with.replaced.missing];
+            }
+        # free up memory conditionally
         if ('mean.dosage' %in% missing.genotype.method) {
-            pgs.per.sample <- aggregate(
-                x = merged.vcf.with.pgs.data$multiallelic.weighted.dosage.with.replaced.missing,
-                by = list(merged.vcf.with.pgs.data$Indiv),
-                FUN = sum,
-                na.rm = TRUE
-                );
-            colnames(pgs.per.sample) <- c('Indiv', 'PGS');
-            if (use.external.effect.allele.frequency) {
-                pgs.per.sample$PGS <- pgs.per.sample$PGS + dosage.for.missing.in.all;
-                }
-            pgs.output.list$PGS.with.replaced.missing <- pgs.per.sample;
-            # free up some memory
-            rm(pgs.per.sample);
+            rm(weighted.dosage.with.replaced.missing.matrix);
             }
-        # format output
-        # bind PGS columns of list components
-        PGS.cols <- lapply(pgs.output.list, function(x) x$PGS);
-        PGS.cols <- data.frame(do.call(cbind, PGS.cols));
-        colnames(PGS.cols) <- names(pgs.output.list);
-        # bind sample column of first list component
-        Indiv <- pgs.output.list[[1]]$Indiv;
-        pgs.output <- cbind(Indiv, PGS.cols);
-
-        # convert to data.table for downstream
-        data.table::setDT(pgs.output);
-
-        } else {
-            pgs.output.list <- list();
-
-            # Calculate colSums for weighted.dosage.matrix only once if multiple methods need it
-            weighted.dosage.matrix.colsums <- NULL; # Initialize to NULL
-            if (('none' %in% missing.genotype.method) || ('normalize' %in% missing.genotype.method)) {
-                weighted.dosage.matrix.colsums <- colSums(weighted.dosage.matrix, na.rm = TRUE);
-                }
-
-            if ('none' %in% missing.genotype.method) {
-                # calculate PGS per sample
-                pgs.output.list$PGS <- weighted.dosage.matrix.colsums;
-                }
-
-            if ('normalize' %in% missing.genotype.method) {
-                # calculate PGS per sample with normalized missing genotypes
-                pgs.output.list$PGS.with.normalized.missing <- weighted.dosage.matrix.colsums;
-                # divide sum by non-missing allele count
-                pgs.output.list$PGS.with.normalized.missing <- pgs.output.list$PGS.with.normalized.missing / per.sample.non.missing.allele.count;
-                # account for division by zero
-                pgs.output.list$PGS.with.normalized.missing[is.nan(pgs.output.list$PGS.with.normalized.missing)] <- NA;
-                }
-
-            if ('mean.dosage' %in% missing.genotype.method) {
-                # calculate PGS per sample with replaced missing genotypes
-                pgs.output.list$PGS.with.replaced.missing <- colSums(weighted.dosage.with.replaced.missing.matrix, na.rm = TRUE);
-                }
-
-            # format outputs
-            pgs.output <- data.table::data.table(Indiv = sample.names);
-
-            # Add PGS columns by reference if they exist
-            if (!is.null(pgs.output.list[['PGS']])) { # due to pattern-matching, cannot use pgs.output.list$PGS
-                pgs.output[, PGS := pgs.output.list[['PGS']]];
-                }
-            if (!is.null(pgs.output.list$PGS.with.normalized.missing)) {
-                pgs.output[, PGS.with.normalized.missing := pgs.output.list$PGS.with.normalized.missing];
-                }
-            if (!is.null(pgs.output.list$PGS.with.replaced.missing)) {
-                pgs.output[, PGS.with.replaced.missing := pgs.output.list$PGS.with.replaced.missing];
-                }
-            # free up memory conditionally
-            if ('mean.dosage' %in% missing.genotype.method) {
-                rm(weighted.dosage.with.replaced.missing.matrix);
-                }
-            if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
-                rm(weighted.dosage.matrix);
-                }
+        if ('normalize' %in% missing.genotype.method || 'none' %in% missing.genotype.method) {
+            rm(weighted.dosage.matrix);
             }
+
 
 
     ### End PGS Application ###
