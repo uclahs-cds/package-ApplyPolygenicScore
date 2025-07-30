@@ -66,7 +66,7 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
     called.alleles.matrix <- matrix(called.alleles, nrow = nrow(called.alleles.matrix), ncol = ncol(called.alleles.matrix));
 
     # Split the entire matrix of alleles into two matrices, one for each allele
-    alleles.split <- data.table::tstrsplit(as.vector(called.alleles.matrix), split = "/|\\|", fixed = FALSE);
+    alleles.split <- data.table::tstrsplit(as.vector(called.alleles.matrix), split = '/|\\|', fixed = FALSE);
     alleles.a <- matrix(alleles.split[[1]], nrow = nrow(called.alleles.matrix), ncol = ncol(called.alleles.matrix));
     alleles.b <- matrix(alleles.split[[2]], nrow = nrow(called.alleles.matrix), ncol = ncol(called.alleles.matrix));
 

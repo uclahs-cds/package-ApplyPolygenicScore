@@ -75,9 +75,9 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         }
 
     # Add a check to ensure no NAs were introduced by the conversion
-    if(any(is.na(vcf.data$POS)) | any(is.na(pgs.weight.data$POS))) {
+    if (any(is.na(vcf.data$POS)) | any(is.na(pgs.weight.data$POS))) {
         stop('Data type conversion of POS column introduced NA values. Please check your input files for non-numeric POS entries.')
-    }
+        }
 
     # check for optional ID column
     rsid.available <- TRUE;
@@ -175,7 +175,7 @@ combine.vcf.with.pgs <- function(vcf.data, pgs.weight.data) {
         merged.vcf.with.missing.pgs.data[, merge.strategy := 'rsID'];
 
         # subset columns to match original merge
-        merged.vcf.with.missing.pgs.data <- merged.vcf.with.missing.pgs.data[, colnames(merged.vcf.with.pgs.data), with=FALSE];
+        merged.vcf.with.missing.pgs.data <- merged.vcf.with.missing.pgs.data[, colnames(merged.vcf.with.pgs.data), with = FALSE];
 
         # combine merged data
         merged.vcf.with.pgs.data <- data.table::rbindlist(list(

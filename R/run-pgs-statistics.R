@@ -138,7 +138,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
             X = linear.model,
             FUN = function(x) {
                 # Ensure 'pgs.val' is in the coefficients table; if only intercept, handle NA
-                coeff.index <- if ("pgs.val" %in% rownames(x$coefficients)) "pgs.val" else NA;
+                coeff.index <- if ('pgs.val' %in% rownames(x$coefficients)) 'pgs.val' else NA;
                 data.table::data.table( # Create data.table directly
                     beta = x$coefficients[coeff.index, 'Estimate'],
                     se = x$coefficients[coeff.index, 'Std. Error'],
@@ -149,9 +149,9 @@ run.pgs.regression <- function(pgs, phenotype.data) {
                 }
             );
         # Combine list of data.tables into one using rbindlist, adding phenotype column
-        linear.model.aggregated <- data.table::rbindlist(linear.model.aggregated, idcol = "phenotype");
+        linear.model.aggregated <- data.table::rbindlist(linear.model.aggregated, idcol = 'phenotype');
         linear.model.aggregated[, model := 'linear.regression']; # Add model column by reference
-        
+
         # Ensure column order
         linear.model.aggregated <- linear.model.aggregated[, .(phenotype, model, beta, se, p.value, r.squared, AUC)];
 
@@ -206,7 +206,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
             X = logistic.model.summary,
             FUN = function(x) {
                 # Ensure 'pgs.val' is in the coefficients table; if only intercept, handle NA
-                coeff.index <- if ("pgs.val" %in% rownames(x$coefficients)) "pgs.val" else NA;
+                coeff.index <- if ('pgs.val' %in% rownames(x$coefficients)) 'pgs.val' else NA;
                 data.table::data.table( # Create data.table directly
                     beta = x$coefficients[coeff.index, 'Estimate'],
                     se = x$coefficients[coeff.index, 'Std. Error'],
@@ -216,12 +216,12 @@ run.pgs.regression <- function(pgs, phenotype.data) {
                 }
             );
         # Combine list of data.tables into one using rbindlist, adding phenotype column
-        logistic.model.aggregated <- data.table::rbindlist(logistic.model.aggregated, idcol = "phenotype");
+        logistic.model.aggregated <- data.table::rbindlist(logistic.model.aggregated, idcol = 'phenotype');
         logistic.model.aggregated[, model := 'logistic.regression']; # Add model column by reference
 
         # Add AUC column by reference
         logistic.model.aggregated[, AUC := unlist(logistic.auc)];
-        
+
         # Ensure column order
         logistic.model.aggregated <- logistic.model.aggregated[, .(phenotype, model, beta, se, p.value, r.squared, AUC)];
     }
