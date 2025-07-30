@@ -51,27 +51,6 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         stop('unrecognized risk.allele format, must be capitalized letters.');
         }
 
-    # # handle totally missing genotypes
-    # # if the entire vector is NA or the entire vector is '.', return NA
-    # if (all(is.na(called.alleles)) | all(called.alleles == '.')) {
-    #     split.alleles <- data.frame(called.alleles, called.alleles);
-    #     } else {
-    #         # check that called.alleles is a vector of genotypes in allelic notation or '.' separated by a slash or pipe
-    #         # "*" characters represent overlapping deletions from an upstream indel and are accepted VCF format
-    #         allowed.pattern <- '^((([A-Z]+|\\.|\\*)[/\\|]([A-Z]+|\\.|\\*))|\\.|[A-Z]+)$' # '|' are special chars in regular expressions
-    #         passing.alleles <- grepl(allowed.pattern, called.alleles);
-    #         passing.alleles[is.na(called.alleles)] <- TRUE; # NA allowed
-    #         if (!all(passing.alleles)) {
-    #             stop('unrecognized called.alleles format, must be capitalized letters, "." or "*" separated by a slash or pipe.');
-    #             }
-    #         # replace hemizygous genotypes with a placeholder for easier splitting
-    #         # index for non-NA alleles that are missing allele separators:
-    #         no.sep.index <- (!grepl('/|\\|', called.alleles) & !is.na(called.alleles) & called.alleles != '.');
-    #         called.alleles[no.sep.index] <- paste0(called.alleles[no.sep.index], '/-');
-    #         split.alleles <- data.table::tstrsplit(called.alleles, split = c('/|\\|'), keep = c(1,2)); # '|' are special chars in regular expressions
-    #         }
-    # names(split.alleles) <- c('called.allele.a', 'called.allele.b');
-
     # Vectorized validation and handling of called alleles
     # "*" characters represent overlapping deletions from an upstream indel and are accepted VCF format
     allowed.pattern <- '^((([A-Z]+|\\.|\\*)[/\\|]([A-Z]+|\\.|\\*))|\\.|[A-Z]+)$';
@@ -105,18 +84,18 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
     dosage.matrix <- dosage.matrix + (alleles.b == risk.alleles.matrix);
 
     # Handle special cases
-    # 1. Check for missing alleles ('NA' or '.') for both NA assignment and warning
+    # Check for missing alleles ('NA' or '.') for both NA assignment and warning
     is.missing.a <- is.na(alleles.a) | (alleles.a == '.');
     is.missing.b <- is.na(alleles.b) | (alleles.b == '.');
 
-    # 2. Case where one allele is marked as missing and the other is not (e.g. `./A`)
+    # Case where one allele is marked as missing and the other is not (e.g. `./A`)
     # This should return NA and issue a warning
     is.one.missing <- (is.missing.a & !is.missing.b) | (!is.missing.a & is.missing.b);
     if (any(is.one.missing)) {
         warning('some genotypes contain a missing allele, returning NA for corresponding dosage.');
     }
 
-    # 3. Apply the final NA mask
+    # Apply the final NA mask
     na.mask <- is.missing.a | is.missing.b | is.na(called.alleles.matrix) | is.na(risk.alleles.matrix);
     dosage.matrix[na.mask] <- NA;
 

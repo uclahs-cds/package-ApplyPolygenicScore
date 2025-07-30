@@ -76,7 +76,6 @@ get.non.risk.multiallelic.site.row <- function(merged.vcf.with.pgs.data, merged.
             is.effect.allele.present.matrix <- (alleles.a == effect.allele.matrix) | (alleles.b == effect.allele.matrix);
 
             # Logic to find the single risk allele entry to keep for each sample
-            # browser()
             risk.alleles.to.keep.index <- apply(
                 X = is.effect.allele.present.matrix,
                 MARGIN = 2, # Apply to each column (sample)

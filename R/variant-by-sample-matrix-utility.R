@@ -1,38 +1,6 @@
 # Handling CRAN warnings for data.table syntax:
 if (getRversion() >= '2.15.1') utils::globalVariables(c('Indiv', 'N'));
 
-type_stable_na <- function(x) {
-  if (is.integer(x)) return(NA_integer_);
-  if (is.numeric(x)) return(NA_real_);
-  if (is.character(x)) return(NA_character_);
-  if (is.logical(x)) return(NA);
-  stop("Unhandled type in NA fallback");
-}
-
-custom.na.aggregation.function <- function(x) {
-  if (length(x) > 1) {
-    if (all(is.na(x))) {
-      return(type_stable_na(x));
-    } else {
-      stop("Duplicate entries found");
-    }
-  } else {
-    return(x[1]);
-  }
-}
-
-custom.na.aggregation.function <- function(x) {
-    if (length(x) > 1) {
-        if (all(is.na(x))) {
-            return(type_stable_na(x));
-            } else {
-                stop('Duplicate variant/effect-allele/sample combinations detected');
-                }
-        } else {
-            return((x[1]));
-            }
-    }
-
 # utility function for transforming long data to variant by sample matrix by user-provided variant ID (row ID) columns
 # wrapper for data.table::dcast which handles extra columns introduced by missing sites
 # and cleans up the matrix by moving the row ID column to rownames.
