@@ -701,7 +701,7 @@ create.pgs.with.continuous.phenotype.plot(
 knitr::include_graphics(file.path(temp.dir, correlation.filename));
 ```
 
-Unsurprisingly, our randomly generated phenotype data is not correlated with our fake PGS.
+Unsurprisingly, our randomly generated phenotype data are not correlated with our fake PGS.
 
 - When multiple PGS columns are present and/or multiple phenotype columns are specified, each combination is plotted in a separate panel.
 - Panels are arranged in a grid with unique PGS inputs on the x-axis and unique phenotype inputs on the y-axis.
