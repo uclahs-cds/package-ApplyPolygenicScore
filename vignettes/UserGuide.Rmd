@@ -3,6 +3,8 @@ title: "User Guide"
 output:
     rmarkdown::html_vignette:
         number_sections: true
+    rmarkdown::pdf_document:
+        number_sections: true
 vignette: >
   %\VignetteIndexEntry{User Guide}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,7 +12,16 @@ vignette: >
 ---
 
 ```{r options, include = FALSE}
-knitr::opts_chunk$set(comment = NA, purl = FALSE)
+knitr::opts_chunk$set(comment = NA, purl = FALSE, dpi = 96)
+```
+
+```{r render-how-to, include = FALSE, eval = FALSE, echo = FALSE}
+# Render vignette outside of build_vignettes() via rmardown:
+# Render the HTML vignette
+rmarkdown::render('vignettes/UserGuide.Rmd', output_format = 'rmarkdown::html_vignette')
+
+# Render the PDF vignette
+rmarkdown::render('vignettes/UserGuide.Rmd', output_format = 'rmarkdown::pdf_document')
 ```
 
 ```{r setup}
