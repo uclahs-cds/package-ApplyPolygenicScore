@@ -245,7 +245,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 #' Odds Ratios (OR), and p-values for each PGS. Corresponding ROC curves are plotted automatically.
 #' @param pgs.data A data frame containing the PGS, phenotype, and covariate columns.
 #' @param pgs.columns A character vector specifying the names of the PGS columns
-#'   in \code{data} to be analyzed. All specified columns must be numeric.
+#'   in \code{pgs.data} to be analyzed. All specified columns must be numeric.
 #' @param phenotype.columns A character vector specifying the names of the phenotype columns in \code{data} to be analyzed. If binary phenotypes are specified, they must be factors with two levels (0 and 1).
 #' @param covariate.columns A character vector specifying the names of covariate columns in \code{data} to be included in the regression model. Default is NULL.
 #' @param phenotype.type A character string specifying the type of phenotype. Must be either 'continuous' or 'binary'. All provided phenotype columns must match this type.
