@@ -21,7 +21,7 @@ validate.allele.input <- function(alleles, na.allowed = TRUE) {
 
     if (any(!allele.check, na.rm = TRUE)) {
         invalid.snps <- snp.alleles[!allele.check];
-        stop('Invalid allele: ', invalid.snps);
+        stop('Invalid allele: ', unique(invalid.snps));
         }
     }
 
