@@ -9,30 +9,37 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r options, include = FALSE}
+knitr::opts_chunk$set(comment = NA, purl = FALSE)
+```
+
 ```{r setup}
 library(ApplyPolygenicScore)
 ```
 
+
 # Introduction
-ApplyPolygenicScore provides utilities for applying a polygenic score to genetic data.
+ApplyPolygenicScore provides utilities for applying a polygenic score model to genetic data.
 
 This guide contains step-by-step instructions for how best to take advantage of the functions 
 in this package to facilitate this process and transition smoothly into downstream analyses.
 
 # Input data
 
-The application of a polygenic score to genetic data requires two basic inputs:
+The application of a polygenic score model to genetic data requires two basic inputs:
 
 1. A VCF file containing genotype data for a set of individuals.
-2. A polygenic score weight file containing the SNP coordinates and weights for the polygenic score.
+2. A polygenic score model weight file containing the SNP coordinates and weights for the polygenic score.
 
 Optionally, a third data type, phenotype data, can be provided to several ApplyPolygenicScore functions.
 
 VCF file requirements:
-- VCF files must be in standard VCF format.
-- All multiallelic sites must be merged into one line per variant.
+
+* VCF files must be in standard VCF format.
+* All multiallelic sites must be merged into one line per variant.
 
 PGS weight file requirements:
+
 - PGS weight files provided by the PGS Catalog should be imported with the native package function `import.pgs.weight.file` to ensure proper formatting
 - PGS weight files from other sources must be formatted according to PGS Catalog standards for compatibility with the import function.
 - PGS weight files from other sources that are imported independently must have the required columns: `CHROM`, `POS`, `effect_allele`, `beta` and optionally `ID`, `other_allele`, and `allelefrequency_effect`.
@@ -69,6 +76,22 @@ vcf.data <- import.vcf(
 str(vcf.data)
 ```
 
+As we can see, `import.vcf` returns a list with two elements: `split.wide.vcf.matrices` and `combined.long.vcf.df`.
+These two objects represent two ways of representing the imported data.
+
+The "wide" format is the most memory-efficient.
+It splits the VCF data into two objects: a table of per-variant data with only essential columns (CHROM, POS, ID, REF, ALT)
+and a matrix of genotypes where each row corresponds to a variant and each column corresponds to an individual.
+This format allows for efficient storage and manipulation of genotype data, especially for large VCF files.
+The key limitation of this format is that it does not allow the importation of information (other than genotype)
+ unique to a sample-variant pair, such as that stored in the `FORMAT`field of the VCF file.
+
+
+The "long" format is optional and will only be returned if `long.format = TRUE` is specified. It allows for the importation of all
+information in the VCF file, including the `FORMAT` field, however it requires a lot more memory to store in R. This is because a
+row is created for each sample-variant pair, resulting in a data frame with many more rows than the wide format.
+For most applications, the wide format is sufficient and preferred for its memory efficiency.
+
 ### Importing polygenic score data
 
 Use the `import.pgs.weight.file` function to import PGS weight files formatted according to PGS Catalog specifications.
@@ -104,7 +127,7 @@ and must contain a column named `Indiv` corresponding to the individual IDs in t
 ```{r import-phenotype}
 
 # Isolating the individual IDs from the VCF data
-vcf.individuals <- unique(vcf.data$combined.long.vcf.df$dat$Indiv)
+vcf.individuals <- colnames(vcf.data$split.wide.vcf.matrices$genotyped.alleles)
 
 # Simulating phenotype data
 set.seed(123)
@@ -151,9 +174,12 @@ head(pgs.bed.format)
 ```
 
 Coordinate files must match the coordinate style used in the VCF file you wish to filter. The `convert.pgs.to.bed` function provides options for
-formatting chromosome names, as these tend to vary between human genome reference GRCh38 and GRCh37 aligned files. Use `chr.prefix = TRUE` to add 'chr'
-to the chromosome name (GRCh38 style) and `chr.prefix = FALSE` to remove 'chr' from the chromosome name (GRCh37 style). Use `numeric.sex.chr = FALSE` to
-format the X and Y chromosomes as 'X' and 'Y' respectively, and `numeric.sex.chr = TRUE` to format the X and Y chromosomes as '23' and '24' respectively.
+formatting chromosome names, as these tend to vary between human genome reference GRCh38 and GRCh37 aligned files.
+
+- Use `chr.prefix = TRUE` to add 'chr' to the chromosome name (GRCh38 style)
+- Use `chr.prefix = FALSE` to remove 'chr' from the chromosome name (GRCh37 style)
+- Use `numeric.sex.chr = FALSE` to format the X and Y chromosomes as 'X' and 'Y' respectively
+- Use `numeric.sex.chr = TRUE` to format the X and Y chromosomes as '23' and '24' respectively
 
 The `slop` option imitates `bedtools` nomenclature for adding base pairs to the start and end of a set of coordinates. `slop = 10` adds 10 base pairs to the start and end of each variant coordinate.
 
@@ -214,6 +240,16 @@ configured to just run the validation step to check your inputs first.
 
 ```{r check-pgs-columns}
 
+# By default, apply.polygenic.score expects the vcf data to be in wide format.
+apply.polygenic.score(
+    vcf.data = vcf.data$split.wide.vcf.matrices,
+    vcf.long.format = FALSE,
+    pgs.weight.data = pgs.data$pgs.weight.data,
+    phenotype.data = phenotype.data,
+    validate.inputs.only = TRUE
+    )
+
+# If you have imported a VCF file in long format, you can specify that with the vcf.long.format argument.
 apply.polygenic.score(
     vcf.data = vcf.data$combined.long.vcf.df$dat,
     vcf.long.format = TRUE,
@@ -235,8 +271,7 @@ to handle missing genotypes.
 ```{r apply-pgs}
 
 pgs.results <- apply.polygenic.score(
-    vcf.data = vcf.data$combined.long.vcf.df$dat,
-    vcf.long.format = TRUE,
+    vcf.data = vcf.data$split.wide.vcf.matrices,
     pgs.weight.data = pgs.data$pgs.weight.data,
     correct.strand.flips = FALSE, # no strand flip check to avoid warnings
     missing.genotype.method = 'none'
@@ -250,11 +285,20 @@ The warning indicates that some variants from the PGS weight data were not found
 apply any weights to these variants, which effectively assumes their dosage as homozygous reference for all individuals. Checkout our discussion on [missing genotype data](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/17)
 for more details on how missing variants come to be.
 
+
 Next, we see the output of the function. The output is a list with two elements: `pgs.output`, and `regression.output`. `regression.output` is empty because we did not provide the optional `phenotype.data`, more on that later.
 `pgs.output` is a data frame with the individual IDs from the VCF and the calculated polygenic score in the `PGS` column for each individual. As we will see later, each missing genotype method creates a uniquely named column of PGS values.
+
+
 Next, the `percentile`, `decile`, and `quartile` columns report the respective percentile information for each individual's PGS among the distribution of the entire cohort in the VCF data.
 These values look a bit strange in this example because our [example VCF](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/6) contains only two individuals which have identical genotypes. In a real-world scenario, these values would be more informative.
+
+
 The next two columns report the number and percentage of missing PGS genotypes for each individual. This number should be equal to or greater than the number reported in the warning message from `combine.vcf.with.pgs`.
+
+
+The final column reports the number of non-missing alleles for each individual. This value is equivalent to the number of non-missing variants multiplied by 2 (2 alleles per genotype in a diploid genome).
+It is used to normalize the PGS values for missing genotypes when the `normalize` missing genotype method is used.
 
 ### `combine.vcf.with.pgs`
 
@@ -264,7 +308,7 @@ which may be useful for troubleshooting missing genotype data.
 ```{r merge-vcf-with-pgs}
 
 merged.vcf.pgs.data <- combine.vcf.with.pgs(
-    vcf.data = vcf.data$combined.long.vcf.df$dat,
+    vcf.data = vcf.data$split.wide.vcf.matrices$vcf.fixed,
     pgs.weight.data = pgs.data$pgs.weight.data
     )
 
@@ -279,6 +323,7 @@ By convention, the `other_allele` (non-effect allele) in the PGS weight data sho
 Checkout our discussion on [allele matching](https://github.com/uclahs-cds/package-ApplyPolygenicScore/discussions/68) for more details on the various ways in which this matching may fail.
 
 `apply.polygenic.score` can perform an allele match check (internally using `assess.pgs.vcf.allele.match`). This functionality can be customized with the following arguments:
+
 - `correct.strand.flips` to automatically correct mismatches caused by strand flips by flipping the PGS weight data alleles.
 - `remove.ambiguous.allele.matches` to remove variants with mismatched alleles that cannot be corrected by flipping. The variant will be treated as a cohort-wide missing variant and handled according to missing variant rules described below.
 - `max.strand.flips` to specify the number of unambiguous strand flips that needs to be present for removal of ambiguous strand flips to occur (convenient for cases where you have reason to believe that all ambiguous strand flips are actually effect size flips) 
@@ -288,8 +333,7 @@ Checkout our discussion on [allele matching](https://github.com/uclahs-cds/packa
 
 # Most strict allele match handling
 strict.allele.match.result <- apply.polygenic.score(
-    vcf.data = vcf.data$combined.long.vcf.df$dat,
-    vcf.long.format = TRUE,
+    vcf.data = vcf.data$split.wide.vcf.matrices,
     pgs.weight.data = pgs.data$pgs.weight.data,
     missing.genotype.method = 'none',
     correct.strand.flips = TRUE,
@@ -299,8 +343,7 @@ strict.allele.match.result <- apply.polygenic.score(
 
 # Less strict allele match handling
 less.strict.allele.match.result <- apply.polygenic.score(
-    vcf.data = vcf.data$combined.long.vcf.df$dat,
-    vcf.long.format = TRUE,
+    vcf.data = vcf.data$split.wide.vcf.matrices,
     pgs.weight.data = pgs.data$pgs.weight.data,
     missing.genotype.method = 'none',
     correct.strand.flips = TRUE,
@@ -327,8 +370,7 @@ Briefly:
 ```{r missing-genotype-methods}
 
 all.missing.methods.pgs.results <- apply.polygenic.score(
-    vcf.data = vcf.data$combined.long.vcf.df$dat,
-    vcf.long.format = TRUE,
+    vcf.data = vcf.data$split.wide.vcf.matrices,
     pgs.weight.data = pgs.data$pgs.weight.data,
     correct.strand.flips = FALSE, # no strand flip check to avoid warnings
      missing.genotype.method = c('none', 'normalize', 'mean.dosage')
@@ -363,8 +405,7 @@ Curious to see how your PGS values distribute among quintiles? No problem. Speci
 ```{r custom-percentiles}
 
 custom.percentiles.pgs.results <- apply.polygenic.score(
-    vcf.data = vcf.data$combined.long.vcf.df$dat,
-    vcf.long.format = TRUE,
+    vcf.data = vcf.data$split.wide.vcf.matrices,
     pgs.weight.data = pgs.data$pgs.weight.data,
     correct.strand.flips = FALSE, # no strand flip check to avoid warnings
     n.percentiles = 5
@@ -442,8 +483,8 @@ If you wish to use one of the other PGSs for analysis, the source PGS column for
 ApplyPolygenicScore provides four plotting functions designed to operate on the output of `apply.polygenic.score`:
 
 1. `create.pgs.density.plot`
-2. `create.pgs.with.continuous.phenotype.plot`
-3. `create.pgs.boxplot`
+2. `create.pgs.boxplot`
+3. `create.pgs.with.continuous.phenotype.plot`
 4. `create.pgs.rank.plot`
 
 These visualizations are intended to provide quick quality assessments of PGS in a cohort.
@@ -489,6 +530,18 @@ phenotype.density.filename <- ApplyPolygenicScore:::generate.filename(
     extension = 'png'
     );
 
+basic.boxplot.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-basic',
+    file.core = 'pgs-boxplot',
+    extension = 'png'
+    );
+
+phenotype.boxplot.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-phenotype',
+    file.core = 'pgs-boxplot',
+    extension = 'png'
+    );
+
 correlation.filename <- ApplyPolygenicScore:::generate.filename(
     project.stem = 'vignette-example-correlation',
     file.core = 'pgs-scatter',
@@ -504,6 +557,18 @@ basic.rank.filename <- ApplyPolygenicScore:::generate.filename(
 phenotype.rank.filename <- ApplyPolygenicScore:::generate.filename(
     project.stem = 'vignette-example-phenotype',
     file.core = 'pgs-rank-plot',
+    extension = 'png'
+    );
+
+roc.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-basic',
+    file.core = 'pgs-roc-curves',
+    extension = 'png'
+    );
+
+roc.continuous.filename <- ApplyPolygenicScore:::generate.filename(
+    project.stem = 'vignette-example-continuous',
+    file.core = 'pgs-roc-curves',
     extension = 'png'
     );
 
@@ -527,6 +592,7 @@ knitr::include_graphics(file.path(temp.dir, basic.density.filename));
 ### Add phenotypes
 
 If provided with phenotype column names, this function will plot individual PGS density curves for each category in a categorical phenotype.
+
 - Non-categorical phenotypes are ignored.
 - Colors are automatically assigned up to 12 categories.
 - If more than 12 categories are present, all categories are plotted in black.
@@ -551,10 +617,61 @@ create.pgs.density.plot(
 knitr::include_graphics(file.path(temp.dir, phenotype.density.filename));
 ```
 
+## PGS Boxplot
+`create.pgs.boxplot` plots a boxplot of the PGS distribution in the cohort, optionally grouped by phenotype categories.
+By default, individual scores are plotted as points over the boxplot in a stripplot style, and this option can be disabled with the `add.stripplot = FALSE` argument.
+
+### Basic plot
+
+```{r pgs-boxplot, eval = TRUE}
+
+create.pgs.boxplot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = temp.dir,
+    filename.prefix = 'vignette-example-basic',
+    file.extension = 'png'
+    )
+
+```
+
+```{r out.width = '50%', echo = FALSE}
+knitr::include_graphics(file.path(temp.dir, basic.boxplot.filename));
+```
+
+### Add phenotypes
+
+If provided with phenotype column names, this function will plot individual boxplots for each category in a categorical phenotype.
+
+- Non-categorical phenotypes are ignored.
+- Colors are automatically assigned up to 12 categories.
+- If more than 12 categories are present, all categories are plotted in black.
+- When multiple PGS columns are present and/or multiple phenotype columns are specified, each combination is plotted in a separate panel.
+- Panels are arranged in a grid with unique PGS inputs on the x-axis and unique phenotype inputs on the y-axis.
+
+```{r pgs-boxplot-phenotype, eval = TRUE}
+
+create.pgs.boxplot(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    output.dir = temp.dir,
+    filename.prefix = 'vignette-example-phenotype',
+    file.extension = 'png',
+    tidy.titles = TRUE,
+    add.stripplot = FALSE,
+    width = 8,
+    height = 11,
+    alpha = 0.9,
+    phenotype.columns = c('binary.factor.phenotype', 'categorical.phenotype', 'continuous.phenotype')
+    )
+
+```
+
+```{r out.width = '50%', echo = FALSE}
+knitr::include_graphics(file.path(temp.dir, phenotype.boxplot.filename));
+```
 
 ## PGS Correlation
 `create.pgs.with.continuous.phenotype.plot` plots a scatterplot between the PGS and a continuous phenotype, and reports a correlation.
-Non-continuous phenotypes are ignored. This function can only be used if phenotype data is provided.
+Non-continuous phenotypes are ignored. This function can only be used if phenotype data are provided.
 
 ### Basic plot
 
@@ -638,3 +755,51 @@ This function comes with a handful of additional arguments to control the appear
 - Use `missing.genotype.style` to toggle between displaying counts and percentages.
 - Use `categorical.palette` to specify a custom color palette for categorical phenotype bars.
 - Use `binary.pallette` to specify a custom color palette for binary and continuous phenotype bars.
+
+## Case-control analysis
+
+Another feature of ApplyPolygenicScore is the ability to perform a case-control style analysis to assess the accuracy of a PGS in predicting a binary phenotype.
+The `analyze.pgs.binary.predictiveness` function takes the output of `apply.polygenic.score`, fits a logistic regression to predict the specified phenotype, plots
+a receiver-operator curve, and returns the corresponding area under the curve (AUC) value.
+
+### Basic Plot
+
+```{r pgs-case-control, eval = TRUE}
+pgs.case.control.analysis <- analyze.pgs.binary.predictiveness(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    pgs.columns = 'PGS.with.replaced.missing',
+    phenotype.column = 'binary.phenotype',
+    output.dir = temp.dir,
+    filename.prefix = 'vignette-example-basic',
+    file.extension = 'png'
+    );
+```
+
+```{r out.width = '50%', echo = FALSE}
+knitr::include_graphics(file.path(temp.dir, roc.filename));
+```
+
+### Binarize Continuous Phenotypes
+If you wish to assess the predictiveness of a PGS in predicting a continuous phenotype,
+ you can binarize the continuous phenotype by specifying a threshold that will split the continuous values into two categories.
+
+```{r pgs-case-control-continuous, eval = TRUE, results = 'hide'}
+pgs.case.control.analysis.continuous <- analyze.pgs.binary.predictiveness(
+    pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
+    pgs.columns = 'PGS.with.replaced.missing',
+    phenotype.column = 'continuous.phenotype',
+    phenotype.type = 'continuous',
+    cutoff.threshold = 0, # binarize at 0
+    output.dir = temp.dir,
+    filename.prefix = 'vignette-example-continuous',
+    file.extension = 'png'
+    );
+```
+
+```{r out.width = '50%', echo = FALSE}
+knitr::include_graphics(file.path(temp.dir, roc.continuous.filename));
+```
+
+
+- provide multiple pgs columns to plot multiple ROC curves in the same plot
+- provide multiple phenotype columns to plot separate panels for each phenotype
