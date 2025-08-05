@@ -15,6 +15,7 @@ load('data/phenotype.test.data.Rda');
 # run pgs statistics
 pgs.test <- apply.polygenic.score(
     vcf.data = phenotype.test.data$vcf.data,
+    vcf.long.format = TRUE,
     pgs.weight.data = phenotype.test.data$pgs.weight.data,
     phenotype.data = phenotype.test.data$phenotype.data,
     missing.genotype.method = c('mean.dosage', 'normalize', 'none'),

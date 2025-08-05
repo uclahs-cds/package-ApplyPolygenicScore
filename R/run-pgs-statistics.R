@@ -1,3 +1,9 @@
+# Handling CRAN warnings for data.table syntax:
+if (getRversion() >= '2.15.1') utils::globalVariables(c(
+    'model', 'phenotype', 'se', 'p.value',
+    'r.squared', 'AUC'
+    ));
+
 #' @title get.pgs.percentiles
 #' @description Calculate percentiles and report decile and quartile ranks for a vector of polygenic scores
 #' @param pgs numeric vector of polygenic scores
@@ -58,17 +64,18 @@ get.pgs.percentiles <- function(pgs, n.percentiles = NULL) {
 
 # utility function for identifying data as continuous or binary for analysis and plotting purposes
 classify.variable.type <- function(data, continuous.threshold = 4) {
+    data <- data.table::as.data.table(data);
     # identify continuous and binary variables
     continuous.vars.index <- sapply(
         X = data,
         FUN = function(x) {
-            ('numeric' == class(x) | 'integer' == class(x)) & continuous.threshold < length(unique(na.omit(x)));
+            ('numeric' == class(x) | 'integer' == class(x)) & (continuous.threshold < data.table::uniqueN(x, na.rm = TRUE));
             }
         );
     binary.vars.index <- sapply(
         X = data,
         FUN = function(x) {
-            2 == length(unique(na.omit(x)));
+            (2 == data.table::uniqueN(x, na.rm = TRUE));
             }
         );
 
@@ -99,6 +106,8 @@ classify.variable.type <- function(data, continuous.threshold = 4) {
 #' run.pgs.regression(pgs, phenotype.data);
 #' @export
 run.pgs.regression <- function(pgs, phenotype.data) {
+    # Ensure phenotype.data is a data.table for efficient operations
+    data.table::setDT(phenotype.data);
 
     # initialize conditional outputs
     linear.model.aggregated <- NULL;
@@ -109,101 +118,123 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 
     # run linear regression on continuous phenotypes
     if (any(variable.index.by.type$continuous)) {
-        continuous.data <- subset(phenotype.data, select = variable.index.by.type$continuous);
+        continuous.data <- phenotype.data[, .SD, .SDcols = variable.index.by.type$continuous];
         linear.model <- lapply(
-            X = continuous.data,
-            FUN = function(x) {
-                return(summary(lm(x ~ pgs, data = phenotype.data)));
+            X = colnames(continuous.data), # Iterate over column names for robustness
+            FUN = function(pheno.name) {
+                # Create a temporary data.table for lm to find the variables 'y' and 'pgs.val'
+                temp.data <- data.table::data.table(
+                    y = continuous.data[[pheno.name]], # Extract column content by name
+                    pgs.val = pgs                      # The global pgs vector
+                    );
+                return(summary(lm(y ~ pgs.val, data = temp.data)));
                 }
             );
+        names(linear.model) <- colnames(continuous.data); # Reassign names to the list elements
+
 
         # aggregate results in a data frame
         linear.model.aggregated <- lapply(
             X = linear.model,
             FUN = function(x) {
-                coeff.index <- if (nrow(x$coefficients) == 1) NA else 'pgs';
-                data.frame(
+                # Ensure 'pgs.val' is in the coefficients table; if only intercept, handle NA
+                coeff.index <- if ('pgs.val' %in% rownames(x$coefficients)) 'pgs.val' else NA;
+                data.table::data.table( # Create data.table directly
                     beta = x$coefficients[coeff.index, 'Estimate'],
                     se = x$coefficients[coeff.index, 'Std. Error'],
                     p.value = x$coefficients[coeff.index, 'Pr(>|t|)'],
                     r.squared = x$r.squared,
-                    AUC = NA
+                    AUC = NA_real_ # Use NA_real_ for numeric NA
                     );
                 }
             );
-        linear.model.aggregated <- do.call(rbind, linear.model.aggregated);
-        linear.model.aggregated <- data.frame(
-            phenotype = names(linear.model),
-            model = 'linear.regression',
-            linear.model.aggregated
-            );
+        # Combine list of data.tables into one using rbindlist, adding phenotype column
+        linear.model.aggregated <- data.table::rbindlist(linear.model.aggregated, idcol = 'phenotype');
+        linear.model.aggregated[, model := 'linear.regression']; # Add model column by reference
+
+        # Ensure column order
+        linear.model.aggregated <- linear.model.aggregated[, .(phenotype, model, beta, se, p.value, r.squared, AUC)];
 
     }
 
 
-    # run logistic regression on binary phenotypes
+    # Run logistic regression on binary phenotypes
     if (any(variable.index.by.type$binary)) {
 
-        binary.data <- subset(phenotype.data, select = variable.index.by.type$binary);
+        # Select binary phenotype columns as a data.table using .SDcols
+        binary.data <- phenotype.data[, .SD, .SDcols = variable.index.by.type$binary];
 
-        # ensure binary data is formatted as factors
-        binary.data <- lapply(
-            X = binary.data,
-            FUN = function(x) {
-                if (!is.factor(x)) {
-                    return(as.factor(x));
-                    } else {
-                    return(x);
-                    }
+        # Ensure binary data is formatted as factors using data.table::set for in-place modification
+        for (pheno.name in colnames(binary.data)) {
+            if (!is.factor(binary.data[[pheno.name]])) {
+                data.table::set(binary.data, j = pheno.name, value = as.factor(binary.data[[pheno.name]]));
                 }
-            );
+            }
 
+        # Run glm for each binary phenotype
         logistic.model <- lapply(
-            X = binary.data,
-            FUN = function(x) {
-                return(glm(x ~ pgs, data = binary.data, family = binomial));
+            X = colnames(binary.data), # Iterate over column names
+            FUN = function(pheno.name) {
+                # Create a temporary data.table for glm to find the variables 'y' and 'pgs.val'
+                temp.data <- data.table::data.table(
+                    y = binary.data[[pheno.name]], # Extract column content by name
+                    pgs.val = pgs                      # The global pgs vector
+                    );
+                return(glm(y ~ pgs.val, data = temp.data, family = binomial));
                 }
             );
+        names(logistic.model) <- colnames(binary.data); # Reassign names
 
         logistic.model.summary <- lapply(
             X = logistic.model,
             FUN = summary
             );
 
+        # Calculate AUC for logistic models
         logistic.auc <- lapply(
             X = logistic.model,
             FUN = function(x) {
-                predictions <- predict(x, type = 'response'); # get predicted probabilities on the training set
-                # auc is a bit wordy by default
-                auc <- suppressMessages(pROC::auc(x$y, predictions)); # compute area under the curve on training set
+                predictions <- predict(x, type = 'response'); # Get predicted probabilities on the training set
+                # Compute area under the curve on training set. Ensure pROC package is available.
+                return(suppressMessages(pROC::auc(x$y, predictions)));
                 }
             );
 
 
+        # Aggregate logistic model results into a data.table
         logistic.model.aggregated <- lapply(
             X = logistic.model.summary,
             FUN = function(x) {
-                coeff.index <- if (nrow(x$coefficients) == 1) NA else 'pgs';
-                data.frame(
+                # Ensure 'pgs.val' is in the coefficients table; if only intercept, handle NA
+                coeff.index <- if ('pgs.val' %in% rownames(x$coefficients)) 'pgs.val' else NA;
+                data.table::data.table( # Create data.table directly
                     beta = x$coefficients[coeff.index, 'Estimate'],
                     se = x$coefficients[coeff.index, 'Std. Error'],
                     p.value = x$coefficients[coeff.index, 'Pr(>|z|)'],
-                    r.squared = NA
+                    r.squared = NA_real_ # Use NA_real_ for numeric NA
                     );
                 }
             );
-        logistic.model.aggregated <- do.call(rbind, logistic.model.aggregated);
-        logistic.model.aggregated$AUC <- unlist(logistic.auc);
-        logistic.model.aggregated <- data.frame(
-            phenotype = names(logistic.model),
-            model = 'logistic.regression',
-            logistic.model.aggregated
-            );
+        # Combine list of data.tables into one using rbindlist, adding phenotype column
+        logistic.model.aggregated <- data.table::rbindlist(logistic.model.aggregated, idcol = 'phenotype');
+        logistic.model.aggregated[, model := 'logistic.regression']; # Add model column by reference
+
+        # Add AUC column by reference
+        logistic.model.aggregated[, AUC := unlist(logistic.auc)];
+
+        # Ensure column order
+        logistic.model.aggregated <- logistic.model.aggregated[, .(phenotype, model, beta, se, p.value, r.squared, AUC)];
     }
 
-    all.model.results <- rbind(linear.model.aggregated, logistic.model.aggregated);
 
-    return(all.model.results);
+        # Combine all model results (linear and logistic)
+        # Using fill = TRUE to handle cases where columns might be missing (e.g., AUC for linear, r.squared for logistic)
+        all.model.results <- data.table::rbindlist(
+            list(linear.model.aggregated, logistic.model.aggregated),
+            fill = TRUE
+        );
+
+    return(as.data.frame(all.model.results));
     }
 
 #' @title Analyze PGS Predictiveness for Binary Phenotypes

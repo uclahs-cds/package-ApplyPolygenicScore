@@ -522,7 +522,7 @@ test_that(
             is.na(test.combine.vcf.with.pgs.missing$missing.snp.data$POS.vcf)
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing$missing.snp.data$ID,
+            test.combine.vcf.with.pgs.missing$missing.snp.data$ID.pgs,
             'rs4'
             );
         expect_equal(
@@ -569,7 +569,7 @@ test_that(
             is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$POS.vcf)
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$ID,
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid$missing.snp.data$ID.pgs,
             'rs4'
             );
         expect_equal(
@@ -608,7 +608,7 @@ test_that(
             is.na(test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$POS.vcf)
             );
         expect_equal(
-            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$ID,
+            test.combine.vcf.with.pgs.missing.locus.matching.rsid.with.semicolons$missing.snp.data$ID.pgs,
             'rs4'
             );
         expect_equal(
@@ -705,12 +705,23 @@ test_that(
 
 test_that(
     'combine.vcf.with.pgs works correctly with real data', {
-        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz');
+        vcf.import.split.name <- 'split.wide.vcf.matrices';
+        vcf.import.long.name <- 'combined.long.vcf.df';
+
+        test.vcf.data <- import.vcf('data/HG001_GIAB.vcf.gz', long.format = TRUE);
+        vcf.long.format <- test.vcf.data[[vcf.import.long.name]]$dat;
+        vcf.wide.format <- test.vcf.data[[vcf.import.split.name]];
         test.pgs.weight.data <- import.pgs.weight.file('data/PGS003378_hmPOS_GRCh38.txt');
 
         expect_no_error(
             combine.vcf.with.pgs(
-                vcf.data = test.vcf.data$dat,
+                vcf.data = vcf.long.format,
+                pgs.weight.data = test.pgs.weight.data$pgs.weight.data
+                )
+            );
+        expect_no_error(
+            combine.vcf.with.pgs(
+                vcf.data = vcf.wide.format$vcf.fixed.fields,
                 pgs.weight.data = test.pgs.weight.data$pgs.weight.data
                 )
             );

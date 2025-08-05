@@ -1,11 +1,5 @@
 import('vcfR');
-importFrom(
-    'data.table',
-    'tstrsplit',
-    'setDT',
-    ':='
-    );
-import('reshape2');
+import('data.table');
 import('BoutrosLab.plotting.general');
 importFrom(
     'lattice',

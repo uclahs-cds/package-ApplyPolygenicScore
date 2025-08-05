@@ -564,7 +564,7 @@ test_that(
             );
 
         # case with extra indels that don't change the result
-        vcf.alt.multi.allele <- c('G,TGCA', 'G,TGCA', 'G,TGCA', 'G,TGCA', 'GTCA,T', 'G,TGCA')
+        vcf.alt.multi.allele <- c('G,TGCA', 'G,TGCA', 'G,TGCA', 'G,TGCA', 'GTCA,T', 'G,TGCA');
         test.output.benign.multi.indel <- assess.pgs.vcf.allele.match(vcf.ref.allele, vcf.alt.multi.allele, pgs.ref.allele, pgs.effect.allele);
 
         expect_equal(

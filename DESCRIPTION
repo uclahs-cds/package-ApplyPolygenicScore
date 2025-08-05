@@ -1,7 +1,7 @@
 Package: ApplyPolygenicScore
 Type: Package
 Title: Utilities for the Application of a Polygenic Score to a VCF
-Version: 3.1.0
+Version: 4.0.0
 Authors@R: c(
     person('Paul', 'Boutros', role = 'cre', email = 'PBoutros@mednet.ucla.edu'),
     person('Nicole', 'Zeltser', role = 'aut', comment = c(ORCID = '0000-0001-7246-2771')),
@@ -21,7 +21,6 @@ Imports:
     vcfR,
     pROC,
     data.table,
-    reshape2,
     BoutrosLab.plotting.general,
     lattice
 Suggests:

@@ -7,7 +7,7 @@ test_that(
                 called.alleles = c('A/A', 'A/T', 'T/T', 'A/A', 'A/T', 'T/T'),
                 risk.alleles = c('A', 'T', 'A', 'T', 'A', 'T', 'A')
                 ),
-            'called.alleles and risk.alleles must be the same length.'
+            'Number of rows in called.alleles must equal length of risk.alleles.'
             );
 
         # check for correct risk.alleles format
@@ -60,35 +60,35 @@ test_that(
                 called.alleles = c('A/A', 'A/'),
                 risk.alleles = c('A', 'T', 'A')
                 ),
-            'called.alleles and risk.alleles must be the same length.'
+            'Number of rows in called.alleles must equal length of risk.alleles.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', '/A'),
                 risk.alleles = c('A', 'T', 'A')
                 ),
-            'called.alleles and risk.alleles must be the same length.'
+            'Number of rows in called.alleles must equal length of risk.alleles.'
             );
         expect_error(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', NA),
                 risk.alleles = c('A', 'T', 'A')
                 ),
-            'called.alleles and risk.alleles must be the same length.'
+            'Number of rows in called.alleles must equal length of risk.alleles.'
             );
         expect_warning(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', './A'),
                 risk.alleles = c('A', 'A')
                 ),
-            'one of two alleles is marked as missing at index 2, this is an unrecognized format, returning NA for dosage.'
+            'some genotypes contain a missing allele, returning NA for corresponding dosage.'
             );
         expect_warning(
             convert.alleles.to.pgs.dosage(
                 called.alleles = c('A/A', 'A/.'),
                 risk.alleles = c('A', 'A')
                 ),
-            'one of two alleles is marked as missing at index 2, this is an unrecognized format, returning NA for dosage.'
+            'some genotypes contain a missing allele, returning NA for corresponding dosage.'
             );
 
         # check that correct input is accepted
@@ -152,10 +152,10 @@ test_that(
 test_that(
     'convert.alleles.to.pgs.dosage calculates dosage correctly from missing genotypes', {
         expect_equal(
-            convert.alleles.to.pgs.dosage(
+            as.logical(convert.alleles.to.pgs.dosage(
                 called.alleles = c('./.', './A', 'A/.', '.', NA, 'A/A'),
                 risk.alleles = c('A', 'A', 'T', 'T', 'T', NA)
-                ),
+                )),
             c(NA, NA, NA, NA, NA, NA)
             );
         }
@@ -187,14 +187,30 @@ test_that(
 
 test_that(
     'convert.alleles.to.pgs.dosage works on real data', {
-        test.vcf <- ApplyPolygenicScore::import.vcf('data/HG001_GIAB.vcf.gz')
+        vcf.import.split.name <- 'split.wide.vcf.matrices';
+        vcf.import.long.name <- 'combined.long.vcf.df';
+
+        test.vcf <- ApplyPolygenicScore::import.vcf('data/HG001_GIAB.vcf.gz', long.format = TRUE);
 
         expect_silent(
             convert.alleles.to.pgs.dosage(
-                called.alleles = test.vcf$dat$gt_GT_alleles,
-                risk.alleles = test.vcf$dat$ALT
+                called.alleles = test.vcf[[vcf.import.long.name]]$dat$gt_GT_alleles,
+                risk.alleles = test.vcf[[vcf.import.long.name]]$dat$ALT
                 )
             );
+
+        expect_silent(
+            apply(
+                X = test.vcf[[vcf.import.split.name]]$genotyped.alleles,
+                MARGIN = 2,
+                FUN = function(x) {
+                    convert.alleles.to.pgs.dosage(
+                        called.alleles = x,
+                        risk.alleles = test.vcf[[vcf.import.split.name]]$vcf.fixed.fields$ALT
+                        )
+                    }
+                )
+            )
         }
     );
 

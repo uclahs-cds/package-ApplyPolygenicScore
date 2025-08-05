@@ -2,6 +2,16 @@
 
 # ApplyPolygenicScore unreleased
 
+# ApplyPolygenicScore 4.0.0
+
+## Changed
+* Refactored all main functions for gains in RAM efficiency and runtime
+* Introduced a breaking change to the output of `import.vcf`. The outputed list object has a different naming scheme and different data formats. Previous data formats are still supported by setting `long.format` to `TRUE`, however the naming scheme is still changed.
+* Introduced a breaking change to `apply.polygenic.score`. The expected default `vcf.data` input format has changed. The previous input format is still supported by setting `vcf.long.format` to `TRUE` from the default `FALSE`.
+
+## Added
+* Added support for more efficient storage and manipulation of imported VCF data. The default output of `import.vcf` now returns VCF data in a split format. A `data.table` object contains VCF data from fixed fields (CHROM, POS, ID, REF, ALT). A `matrix` object contains sample-specific genotypes in allele-format in a sample (columns) by variant (rows) matrix.
+
 # ApplyPolygenicScore 3.1.0
 
 ## Changed
