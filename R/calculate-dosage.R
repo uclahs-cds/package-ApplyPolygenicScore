@@ -109,7 +109,6 @@ convert.alleles.to.pgs.dosage <- function(called.alleles, risk.alleles) {
         return(dosage.matrix);
     }
 
-    return(dosage);
     }
 
 # The function for calculating a dosage value intended to replace missing genotypes.
