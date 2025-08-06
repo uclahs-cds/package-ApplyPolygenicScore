@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r options, include = FALSE}
-knitr::opts_chunk$set(comment = NA, purl = FALSE, dpi = 96)
+knitr::opts_chunk$set(comment = NA, purl = FALSE, dpi = 96, fig.width = 0.5, fig.height = 0.7, dev = 'png')
 ```
 
 ```{r render-how-to, include = FALSE, eval = FALSE, echo = FALSE}
@@ -589,7 +589,9 @@ create.pgs.density.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
     output.dir = temp.dir,
     filename.prefix = 'vignette-example-basic',
-    file.extension = 'png'
+    file.extension = 'png',
+    width = 5,
+    height = 5
     )
 
 ```
@@ -617,7 +619,10 @@ create.pgs.density.plot(
     filename.prefix = 'vignette-example-phenotype',
     file.extension = 'png',
     tidy.titles = TRUE,
-    phenotype.columns = c('binary.factor.phenotype', 'categorical.phenotype', 'continuous.phenotype')
+    phenotype.columns = c('binary.factor.phenotype', 'categorical.phenotype', 'continuous.phenotype'),
+    width = 5,
+    height = 7,
+    yaxes.cex = 1.2
     )
 
 ```
@@ -638,7 +643,9 @@ create.pgs.boxplot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
     output.dir = temp.dir,
     filename.prefix = 'vignette-example-basic',
-    file.extension = 'png'
+    file.extension = 'png',
+    width = 4,
+    height = 4
     )
 
 ```
@@ -666,10 +673,11 @@ create.pgs.boxplot(
     file.extension = 'png',
     tidy.titles = TRUE,
     add.stripplot = FALSE,
-    width = 8,
+    width = 5,
     height = 11,
     alpha = 0.9,
-    phenotype.columns = c('binary.factor.phenotype', 'categorical.phenotype', 'continuous.phenotype')
+    phenotype.columns = c('binary.factor.phenotype', 'categorical.phenotype', 'continuous.phenotype'),
+    titles.cex = 1.2
     )
 
 ```
@@ -692,12 +700,14 @@ create.pgs.with.continuous.phenotype.plot(
     filename.prefix = 'vignette-example-correlation',
     file.extension = 'png',
     tidy.titles = TRUE,
-    phenotype.columns = c('continuous.phenotype', 'categorical.phenotype')
+    phenotype.columns = c('continuous.phenotype', 'categorical.phenotype'),
+    width = 5,
+    height = 5
     )
 
 ```
 
-```{r out.width = '70%', echo = FALSE}
+```{r out.width = '50%', echo = FALSE}
 knitr::include_graphics(file.path(temp.dir, correlation.filename));
 ```
 
@@ -727,7 +737,9 @@ create.pgs.rank.plot(
     pgs.data = pgs.results.with.phenotype.analysis$pgs.output,
     output.dir = temp.dir,
     filename.prefix = 'vignette-example-basic',
-    file.extension = 'png'
+    file.extension = 'png',
+    width = 5,
+    height = 6
     )
 
 ```
@@ -745,7 +757,9 @@ create.pgs.rank.plot(
     output.dir = temp.dir,
     filename.prefix = 'vignette-example-phenotype',
     file.extension = 'png',
-    phenotype.columns = c('binary.factor.phenotype', 'binary.phenotype', 'categorical.phenotype', 'continuous.phenotype')
+    phenotype.columns = c('binary.factor.phenotype', 'binary.phenotype', 'categorical.phenotype', 'continuous.phenotype'),
+    width = 6,
+    height = 8
     )
 
 ```
@@ -780,7 +794,10 @@ pgs.case.control.analysis <- analyze.pgs.binary.predictiveness(
     phenotype.column = 'binary.phenotype',
     output.dir = temp.dir,
     filename.prefix = 'vignette-example-basic',
-    file.extension = 'png'
+    file.extension = 'png',
+    width = 5,
+    height = 5,
+    titles.cex = 1.2
     );
 ```
 
@@ -801,7 +818,10 @@ pgs.case.control.analysis.continuous <- analyze.pgs.binary.predictiveness(
     cutoff.threshold = 0, # binarize at 0
     output.dir = temp.dir,
     filename.prefix = 'vignette-example-continuous',
-    file.extension = 'png'
+    file.extension = 'png',
+    width = 5,
+    height = 5,
+    titles.cex = 1.2
     );
 ```
 
