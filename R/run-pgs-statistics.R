@@ -243,9 +243,9 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 #' for binary or continuous phenotypes. For continuous phenotypes, it converts them
 #' to binary based on a specified cutoff threshold. It calculates and returns AUC,
 #' Odds Ratios (OR), and p-values for each PGS. Corresponding ROC curves are plotted automatically.
-#' @param data A data frame containing the PGS, phenotype, and covariate columns.
+#' @param pgs.data A data frame containing the PGS, phenotype, and covariate columns.
 #' @param pgs.columns A character vector specifying the names of the PGS columns
-#'   in \code{data} to be analyzed. All specified columns must be numeric.
+#'   in \code{pgs.data} to be analyzed. All specified columns must be numeric.
 #' @param phenotype.columns A character vector specifying the names of the phenotype columns in \code{data} to be analyzed. If binary phenotypes are specified, they must be factors with two levels (0 and 1).
 #' @param covariate.columns A character vector specifying the names of covariate columns in \code{data} to be included in the regression model. Default is NULL.
 #' @param phenotype.type A character string specifying the type of phenotype. Must be either 'continuous' or 'binary'. All provided phenotype columns must match this type.
@@ -320,7 +320,7 @@ run.pgs.regression <- function(pgs, phenotype.data) {
 #'
 #' @export
 analyze.pgs.binary.predictiveness <- function(
-    data,
+    pgs.data,
     pgs.columns,
     phenotype.columns,
     covariate.columns = NULL,
@@ -337,22 +337,22 @@ analyze.pgs.binary.predictiveness <- function(
     ) {
     ## Validate Inputs ##
 
-    if (!is.data.frame(data)) {
-        stop('`data` must be a data frame.');
+    if (!is.data.frame(pgs.data)) {
+        stop('`pgs.data` must be a data frame.');
         }
 
-    if (!all(pgs.columns %in% names(data))) {
+    if (!all(pgs.columns %in% names(pgs.data))) {
         stop('Not all specified `pgs.columns` found in the data frame.');
         }
-    if (!all(sapply(data[, pgs.columns, drop = FALSE], is.numeric))) {
+    if (!all(sapply(pgs.data[, pgs.columns, drop = FALSE], is.numeric))) {
         stop('All `pgs.columns` must be numeric.');
         }
 
-    if (!all(phenotype.columns %in% names(data))) {
+    if (!all(phenotype.columns %in% names(pgs.data))) {
         stop(paste0('Not all specified `phenotype.columns` found in the data frame.'));
         }
 
-    if (!is.null(covariate.columns) && !all(covariate.columns %in% names(data))) {
+    if (!is.null(covariate.columns) && !all(covariate.columns %in% names(pgs.data))) {
         stop('Not all specified `covariate.columns` found in the data frame.');
         }
 
@@ -371,14 +371,14 @@ analyze.pgs.binary.predictiveness <- function(
     # Validate phenotype types consistency
     for (pheno.col in phenotype.columns) {
         if (phenotype.type == 'binary') {
-            if (!is.factor(data[[pheno.col]]) && !all(unique(na.omit(data[[pheno.col]])) %in% c(0, 1))) {
+            if (!is.factor(pgs.data[[pheno.col]]) && !all(unique(na.omit(pgs.data[[pheno.col]])) %in% c(0, 1))) {
                 stop(paste0('Phenotype column \'', pheno.col, '\' is specified as binary but is not a factor or 0/1 numeric. Convert to factor.'));
                 }
-            if (is.factor(data[[pheno.col]]) && nlevels(data[[pheno.col]]) != 2) {
+            if (is.factor(pgs.data[[pheno.col]]) && nlevels(pgs.data[[pheno.col]]) != 2) {
                 stop(paste0('Binary phenotype column \'', pheno.col, '\' must have exactly two levels.'));
                 }
         } else { # phenotype.type == 'continuous'
-            if (!is.numeric(data[[pheno.col]])) {
+            if (!is.numeric(pgs.data[[pheno.col]])) {
                 stop(paste0('Phenotype column \'', pheno.col, '\' is specified as continuous but is not numeric.'));
                 }
             if (is.null(cutoff.threshold)) {
@@ -415,7 +415,7 @@ analyze.pgs.binary.predictiveness <- function(
     for (current.phenotype in phenotype.columns) {
         # message(paste0('Processing phenotype: ', current.phenotype));
 
-        temp.data <- data; # Work on a fresh copy for each phenotype
+        temp.data <- pgs.data; # Work on a fresh copy for each phenotype
 
         pheno.var <- temp.data[[current.phenotype]];
 

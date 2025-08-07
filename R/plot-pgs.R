@@ -590,6 +590,14 @@ create.pgs.boxplot <- function(
                         boxplot.colors <- suppressWarnings(BoutrosLab.plotting.general::default.colours(length(levels(pgs.data[ , phenotype]))));
                         names(boxplot.colors) <- levels(pgs.data[ , phenotype]);
                     }
+
+                # handle stripplot vs boxplot coloring
+                if (add.stripplot) {
+                    box.colors <- 'transparent';
+                } else {
+                    box.colors <- boxplot.colors;
+                }
+
                 # plot boxplot
                 group.yaxis.formatting <- basic.yaxis.formatting;
                 pgs.boxplots.by.phenotype[[paste0(pgs.column,'_',phenotype)]] <- BoutrosLab.plotting.general::create.boxplot(
@@ -606,8 +614,8 @@ create.pgs.boxplot <- function(
                     xaxis.cex = xaxes.cex,
                     yat = group.yaxis.formatting$at,
                     yaxis.lab = group.yaxis.formatting$axis.lab,
-                    points.col = boxplot.colors[pgs.data[ , phenotype]] # color points by phenotype
-                    #col = boxplot.colors
+                    points.col = boxplot.colors[pgs.data[ , phenotype]], # color points by phenotype
+                    col = box.colors # color boxes by phenotype
                     );
                 }
             }

@@ -5,7 +5,7 @@
 \title{Analyze PGS Predictiveness for Binary Phenotypes}
 \usage{
 analyze.pgs.binary.predictiveness(
-  data,
+  pgs.data,
   pgs.columns,
   phenotype.columns,
   covariate.columns = NULL,
@@ -22,7 +22,7 @@ analyze.pgs.binary.predictiveness(
 )
 }
 \arguments{
-\item{data}{A data frame containing the PGS, phenotype, and covariate columns.}
+\item{pgs.data}{A data frame containing the PGS, phenotype, and covariate columns.}
 
 \item{pgs.columns}{A character vector specifying the names of the PGS columns
 in \code{data} to be analyzed. All specified columns must be numeric.}

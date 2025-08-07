@@ -90,7 +90,7 @@ If you wish to apply a PGS to a cohort, we recommend that genotypes for the whol
 
 4. Create summary plots.
 
-    ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data.
+    ApplyPolygenicScore comes with several plotting functions designed to operate on the results of `apply.polygenic.score`. Display PGS density curves with `create.pgs.density.plot`, distributions with `create.pgs.boxplot` and PGS percentile ranks with `create.pgs.rank.plot`. If you provided phenotype data in step 3, you can incorporate categorical data into the density plots and categorical and continuous phenotype data into the rank plots, and use `create.pgs.with.continuous.phenotype.plot` to make scatterplots of your PGS against any continuous phenotype data. For more sophisticated downstream analysis, check how well the PGS predicts binary outcomes using `analyze.pgs.binary.predictiveness`.
 
 For more step-by-step instructions, check out our [vignettes](https://CRAN.R-project.org/package=ApplyPolygenicScore).
 

@@ -267,18 +267,18 @@ test_that(
         # Test 1: `data` must be a data frame
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = list(),
+                pgs.data = list(),
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary'
             ),
-            '`data` must be a data frame.'
+            '`pgs.data` must be a data frame.'
         );
 
         # Test 2: Not all specified `pgs.columns` found in the data frame
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = c('PGS.A', 'NonExistentPGS'),
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary'
@@ -289,7 +289,7 @@ test_that(
         # Test 3: All `pgs.columns` must be numeric
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'NonNumericPGS',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary'
@@ -300,7 +300,7 @@ test_that(
         # Test 4: Not all specified `phenotype.columns` found in the data frame
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = c('Pheno.Binary.01', 'NonExistentPheno'),
                 phenotype.type = 'binary'
@@ -311,7 +311,7 @@ test_that(
         # Test 5: `covariate.columns` not found
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 covariate.columns = 'NonExistentCovariate',
@@ -323,7 +323,7 @@ test_that(
         # Test 6: `phenotype.type` is invalid (using match.arg's error)
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'invalid_type'
@@ -339,7 +339,7 @@ test_that(
         # Test 7a: Binary phenotype column is a factor but not 2 levels
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.3Levels',
                 phenotype.type = 'binary'
@@ -351,7 +351,7 @@ test_that(
         # Pheno.Binary.Char.YesNo is character, not 0/1 numeric
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.Char.YesNo',
                 phenotype.type = 'binary'
@@ -362,7 +362,7 @@ test_that(
         # Test 7c: Numeric binary phenotype is automatically converted to factor.
         expect_warning( # Expect no error or warning for valid conversion
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.Numeric.01',
                 phenotype.type = 'binary'
@@ -373,7 +373,7 @@ test_that(
         # Test 7d: Binary phenotype that converts successfully (no error expected, but good for coverage)
         expect_silent( # Expect no error or warning for valid conversion
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary'
@@ -390,7 +390,7 @@ test_that(
         test.data.bad.continuous$Pheno.Continuous.Num <- as.character(test.data.bad.continuous$Pheno.Continuous.Num);
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data.bad.continuous,
+                pgs.data = test.data.bad.continuous,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Continuous.Num',
                 phenotype.type = 'continuous',
@@ -402,7 +402,7 @@ test_that(
         # Test 9: `cutoff.threshold` missing for continuous phenotype
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Continuous.Num',
                 phenotype.type = 'continuous',
@@ -414,7 +414,7 @@ test_that(
         # Test 10: `cutoff.threshold` is a list but missing entry for specific phenotype
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Continuous.Num',
                 phenotype.type = 'continuous',
@@ -426,7 +426,7 @@ test_that(
         # Test 11: `cutoff.threshold` is not numeric or a named list
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Continuous.Num',
                 phenotype.type = 'continuous',
@@ -438,7 +438,7 @@ test_that(
         # Test 12: `cutoff.threshold` is a list but value for specific phenotype is NULL/not numeric
         expect_error(
             analyze.pgs.binary.predictiveness(
-                data = test.data,
+                pgs.data = test.data,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Continuous.Num',
                 phenotype.type = 'continuous',
@@ -465,7 +465,7 @@ test_that(
             }
             expect_error(
                 analyze.pgs.binary.predictiveness(
-                    data = many.pgs.data,
+                    pgs.data = many.pgs.data,
                     pgs.columns = paste0('PGS', 1:13),
                     phenotype.columns = 'Pheno.Binary.01',
                     phenotype.type = 'binary',
@@ -487,7 +487,7 @@ test_that(
         );
         expect_warning(
             results <- analyze.pgs.binary.predictiveness(
-                data = test.data.no.complete.cases,
+                pgs.data = test.data.no.complete.cases,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary',
@@ -506,7 +506,7 @@ test_that(
         );
         expect_warning(
             results <- analyze.pgs.binary.predictiveness(
-                data = test.data.bad.glm,
+                pgs.data = test.data.bad.glm,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary',
@@ -526,7 +526,7 @@ test_that(
             );
         expect_warning(
             results <- analyze.pgs.binary.predictiveness(
-                data = test.data.bad.roc,
+                pgs.data = test.data.bad.roc,
                 pgs.columns = 'PGS.A',
                 phenotype.columns = 'Pheno.Binary.01',
                 phenotype.type = 'binary',
@@ -550,7 +550,7 @@ test_that(
 
         # Scenario 1: Binary phenotypes, with covariates, return plot object
         results.binary <- analyze.pgs.binary.predictiveness(
-            data = test.data, # Using the global test.data
+            pgs.data = test.data, # Using the global test.data
             pgs.columns = c('PGS.A', 'PGS.B'),
             phenotype.columns = c('Pheno.Binary.01', 'Pheno.Binary.TF'),
             covariate.columns = c('Cov.Age', 'Cov.Sex'),
@@ -596,7 +596,7 @@ test_that(
         # Scenario 2: Continuous phenotype, no covariates, save to file (roc.plot should be NULL in return)
         # Use existing test.data
         results.continuous <- analyze.pgs.binary.predictiveness(
-            data = test.data, # Using the global test.data
+            pgs.data = test.data, # Using the global test.data
             pgs.columns = 'PGS.A',
             phenotype.columns = 'Pheno.Continuous.Num',
             covariate.columns = NULL,
