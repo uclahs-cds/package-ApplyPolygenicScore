@@ -14,7 +14,7 @@ knitr::opts_chunk$set(comment = NA, purl = FALSE, dpi = 96, fig.width = 0.5, fig
 ```
 
 ```{r render-how-to, include = FALSE, eval = FALSE, echo = FALSE}
-# Render vignette outside of build_vignettes() via rmardown:
+# Render vignette outside of build_vignettes() via rmarkdown:
 # Render the HTML vignette
 rmarkdown::render('vignettes/UserGuide.Rmd', output_format = 'rmarkdown::html_vignette')
 
@@ -85,6 +85,9 @@ vcf.data <- import.vcf(
 str(vcf.data)
 ```
 
+
+#### Imported VCF data structures
+
 As we can see, `import.vcf` returns a list with two elements: `split.wide.vcf.matrices` and `combined.long.vcf.df`.
 These two objects represent two ways of representing the imported data.
 
@@ -93,7 +96,7 @@ It splits the VCF data into two objects: a table of per-variant data with only e
 and a matrix of genotypes where each row corresponds to a variant and each column corresponds to an individual.
 This format allows for efficient storage and manipulation of genotype data, especially for large VCF files.
 The key limitation of this format is that it does not allow the importation of information (other than genotype)
- unique to a sample-variant pair, such as that stored in the `FORMAT`field of the VCF file.
+ unique to a sample-variant pair, such as that stored in the `FORMAT` field of the VCF file.
 
 
 The "long" format is optional and will only be returned if `long.format = TRUE` is specified. It allows for the importation of all
@@ -183,10 +186,10 @@ head(pgs.bed.format)
 ```
 
 Coordinate files must match the coordinate style used in the VCF file you wish to filter. The `convert.pgs.to.bed` function provides options for
-formatting chromosome names, as these tend to vary between human genome reference GRCh38 and GRCh37 aligned files.
+formatting chromosome names, as these can vary between human genome reference files that originate from different databases.
 
-- Use `chr.prefix = TRUE` to add 'chr' to the chromosome name (GRCh38 style)
-- Use `chr.prefix = FALSE` to remove 'chr' from the chromosome name (GRCh37 style)
+- Use `chr.prefix = TRUE` to add 'chr' to the chromosome name (UCSC style)
+- Use `chr.prefix = FALSE` to remove 'chr' from the chromosome name (Ensembl style)
 - Use `numeric.sex.chr = FALSE` to format the X and Y chromosomes as 'X' and 'Y' respectively
 - Use `numeric.sex.chr = TRUE` to format the X and Y chromosomes as '23' and '24' respectively
 
