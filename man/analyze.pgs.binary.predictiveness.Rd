@@ -25,7 +25,7 @@ analyze.pgs.binary.predictiveness(
 \item{pgs.data}{A data frame containing the PGS, phenotype, and covariate columns.}
 
 \item{pgs.columns}{A character vector specifying the names of the PGS columns
-in \code{data} to be analyzed. All specified columns must be numeric.}
+in \code{pgs.data} to be analyzed. All specified columns must be numeric.}
 
 \item{phenotype.columns}{A character vector specifying the names of the phenotype columns in \code{data} to be analyzed. If binary phenotypes are specified, they must be factors with two levels (0 and 1).}
 
