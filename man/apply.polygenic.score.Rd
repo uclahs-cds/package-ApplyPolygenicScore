@@ -43,7 +43,7 @@ The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is
 \item{remove.ambiguous.allele.matches}{A logical indicating whether to remove PGS variants with ambiguous allele matches between PGS weight data and VCF genotype data. Default is \code{FALSE}.
 The PGS catalog standard column \code{other_allele} in \code{pgs.weight.data} is required for this check.}
 
-\item{max.strand.flips}{An integer indicating the number of unambiguous strand flips that need to be detected in order to discard all variants with ambiguous allele matches. Only applies if {return.ambiguous.as.missing == TRUE}.
+\item{max.strand.flips}{An integer indicating the number of unambiguous strand flips that need to be detected in order to discard all variants with ambiguous allele matches. Only applies if \code{return.ambiguous.as.missing == TRUE}.
 Default is \code{0} which means that all ambiguous variants are removed regardless of the status of any other variant.}
 
 \item{remove.mismatched.indels}{A logical indicating whether to remove indel variants that are mismatched between PGS weight data and VCF genotype data. Default is \code{FALSE}.
