@@ -2,6 +2,10 @@
 
 # ApplyPolygenicScore unreleased
 
+# ApplyPolygenicScore 4.0.1
+
+## Changed
+* Updated Paul Boutros email to @sbpdiscovery.org
 # ApplyPolygenicScore 4.0.0
 
 ## Changed
