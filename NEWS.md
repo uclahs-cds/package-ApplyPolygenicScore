@@ -2,6 +2,11 @@
 
 # ApplyPolygenicScore unreleased
 
+# ApplyPolygenicScore 4.0.2
+
+## Changed
+* Updated `import.vcf` INFO-field tests to be robust to upstream `vcfR::vcfR2tidy()` schema additions (e.g., `VariantKey`) and avoid CRAN failures.
+
 # ApplyPolygenicScore 4.0.1
 
 ## Changed
