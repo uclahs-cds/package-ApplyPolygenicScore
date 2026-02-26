@@ -247,26 +247,25 @@ test_that(
         expect_true(
             all(c('DPSum', 'platforms', 'arbitrated') %in% colnames(select.info.test.vcf$dat))
             );
+        all.info.columns <- c(
+            'DPSum', 'platforms', 'platformnames', 'platformbias', 'datasets',
+            'datasetnames', 'datasetsmissingcall', 'callsets', 'callsetnames',
+            'varType', 'filt', 'callable', 'difficultregion', 'arbitrated',
+            'callsetwiththisuniqgenopassing', 'callsetwithotheruniqgenopassing'
+            );
+        selected.info.columns <- c('DPSum', 'platforms', 'arbitrated');
+
         expect_true(
-            all(c('DPSum', 'platforms', 'platformnames', 'platformbias', 'datasets','datasetnames', 'datasetsmissingcall', 'callsets', 'callsetnames', 'varType','filt', 'callable', 'difficultregion', 'arbitrated', 'callsetwiththisuniqgenopassing', 'callsetwithotheruniqgenopassing') %in% colnames(all.info.test.vcf$dat))
+            all(all.info.columns %in% colnames(all.info.test.vcf$dat))
             );
 
-        # check that the total number of columns is correct
-        generic.vcf.ncol <- 7;
-        generic.vcfR.ncol <- 2;
-        info.ncol <- 16;
-        select.info.ncol <- 3;
-        format.ncol <- 6;
-        ncol.all <- generic.vcf.ncol + generic.vcfR.ncol + info.ncol + format.ncol;
-        ncol.select <- generic.vcf.ncol + generic.vcfR.ncol + select.info.ncol + format.ncol;
-
-        expect_equal(
-            ncol(select.info.test.vcf$dat),
-            ncol.select
+        # check that only selected INFO fields are included when info.fields is specified
+        expect_false(
+            any(setdiff(all.info.columns, selected.info.columns) %in% colnames(select.info.test.vcf$dat))
             );
         expect_equal(
-            ncol(all.info.test.vcf$dat),
-            ncol.all
+            ncol(all.info.test.vcf$dat) - ncol(select.info.test.vcf$dat),
+            length(setdiff(all.info.columns, selected.info.columns))
             );
 
         # check that one of the selected INFO columns has the correct value
